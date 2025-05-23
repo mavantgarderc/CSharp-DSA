@@ -96,6 +96,7 @@
 /home/mava/proj/personal/CSharp-DSA/DsaConsoleTests/obj/Debug/net9.0/DsaConsoleTests.AssemblyInfoInputs.cache
 /home/mava/proj/personal/CSharp-DSA/DsaConsoleTests/obj/Debug/net9.0/DsaConsoleTests.AssemblyInfo.cs
 /home/mava/proj/personal/CSharp-DSA/DsaConsoleTests/obj/Debug/net9.0/DsaConsoleTests.csproj.CoreCompileInputs.cache
+/home/mava/proj/personal/CSharp-DSA/DsaConsoleTests/obj/Debug/net9.0/DsaConsoleTests.sourcelink.json
 /home/mava/proj/personal/CSharp-DSA/DsaConsoleTests/obj/Debug/net9.0/DsaConso.19BDA0B3.Up2Date
 /home/mava/proj/personal/CSharp-DSA/DsaConsoleTests/obj/Debug/net9.0/DsaConsoleTests.dll
 /home/mava/proj/personal/CSharp-DSA/DsaConsoleTests/obj/Debug/net9.0/refint/DsaConsoleTests.dll

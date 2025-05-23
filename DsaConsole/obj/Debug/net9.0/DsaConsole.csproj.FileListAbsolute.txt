@@ -13,6 +13,7 @@
 /home/mava/proj/personal/CSharp-DSA/DsaConsole/obj/Debug/net9.0/DsaConsole.AssemblyInfoInputs.cache
 /home/mava/proj/personal/CSharp-DSA/DsaConsole/obj/Debug/net9.0/DsaConsole.AssemblyInfo.cs
 /home/mava/proj/personal/CSharp-DSA/DsaConsole/obj/Debug/net9.0/DsaConsole.csproj.CoreCompileInputs.cache
+/home/mava/proj/personal/CSharp-DSA/DsaConsole/obj/Debug/net9.0/DsaConsole.sourcelink.json
 /home/mava/proj/personal/CSharp-DSA/DsaConsole/obj/Debug/net9.0/DsaConsole.csproj.Up2Date
 /home/mava/proj/personal/CSharp-DSA/DsaConsole/obj/Debug/net9.0/DsaConsole.dll
 /home/mava/proj/personal/CSharp-DSA/DsaConsole/obj/Debug/net9.0/refint/DsaConsole.dll

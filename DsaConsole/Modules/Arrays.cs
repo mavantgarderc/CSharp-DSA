@@ -1,4 +1,4 @@
-namespace DsaConsole.Core
+namespace DsaConsole.Modules
 {
     /// <summary>
     /// Concepts
