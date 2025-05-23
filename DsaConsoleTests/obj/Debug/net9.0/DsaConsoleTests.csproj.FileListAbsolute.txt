@@ -3,7 +3,6 @@
 /home/mava/proj/personal/CSharp-DSA/DsaConsoleTests/bin/Debug/net9.0/DsaConsole.deps.json
 /home/mava/proj/personal/CSharp-DSA/DsaConsoleTests/bin/Debug/net9.0/DsaConsole.runtimeconfig.json
 /home/mava/proj/personal/CSharp-DSA/DsaConsoleTests/bin/Debug/net9.0/DsaConsole
-/home/mava/proj/personal/CSharp-DSA/DsaConsoleTests/bin/Debug/net9.0/xunit.runner.visualstudio.dotnetcore.testadapter.dll
 /home/mava/proj/personal/CSharp-DSA/DsaConsoleTests/bin/Debug/net9.0/xunit.runner.reporters.netcoreapp10.dll
 /home/mava/proj/personal/CSharp-DSA/DsaConsoleTests/bin/Debug/net9.0/xunit.runner.utility.netcoreapp10.dll
 /home/mava/proj/personal/CSharp-DSA/DsaConsoleTests/bin/Debug/net9.0/DsaConsoleTests.deps.json
@@ -103,3 +102,4 @@
 /home/mava/proj/personal/CSharp-DSA/DsaConsoleTests/obj/Debug/net9.0/DsaConsoleTests.pdb
 /home/mava/proj/personal/CSharp-DSA/DsaConsoleTests/obj/Debug/net9.0/DsaConsoleTests.genruntimeconfig.cache
 /home/mava/proj/personal/CSharp-DSA/DsaConsoleTests/obj/Debug/net9.0/ref/DsaConsoleTests.dll
+/home/mava/proj/personal/CSharp-DSA/DsaConsoleTests/bin/Debug/net9.0/xunit.runner.visualstudio.testadapter.dll

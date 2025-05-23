@@ -43,16 +43,6 @@
       "frameworks": {
         "net9.0": {
           "targetAlias": "net9.0",
-          "dependencies": {
-            "NewtonSoft.Json": {
-              "target": "Package",
-              "version": "[13.0.3, )"
-            },
-            "xunit": {
-              "target": "Package",
-              "version": "[2.9.3, )"
-            }
-          },
           "imports": [
             "net461",
             "net462",
