@@ -13,3 +13,4 @@ Feel free to **la-copy-pasta** from the source (if needed in a lifetime...)
 Index:
 1. `Arrays`
 2. `List<T>`
+3. `Span<T>`
