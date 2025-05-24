@@ -48,9 +48,9 @@ The documentation's format:
 ```cs
     /// <summary>
     /// Concepts
-    ///     - 
+    ///     - at least 4
     /// Key Practices
-    ///     - 
+    ///     - at least 4
     /// </summary>
 ```
 
@@ -60,3 +60,17 @@ Index (in order of development):
 1. `Arrays`
 2. `List<T>`
 3. `Span<T>`
+
+## To do
+- [ ] Linear Structures & Sequential Access Patterns
+- [ ] Hierarchical & Non-Linear Systems
+- [ ] Efficient Search & Retrieval
+- [ ] Optimization & Computational Limits
+- [ ] Hybrid Systems & Scalable Design
+- [ ] Concurrency & Real-World Constraints
+- [ ] Probabilistic & Approximation Algorithms
+- [ ] Geometry & Spatial Systems
+- [ ] Distributed & Parallel DSA
+- [ ] Quantum Computing Foundations
+- [ ] Embedded & Resource-Constrained Systems
+- [ ] Ethical Hacking & Security Algorithms
