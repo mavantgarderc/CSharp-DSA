@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    strategy:
+      matrix:
+        # Test across multiple OSes and .NET versions
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        dotnet-version: [6.0.x, 8.0.x]  # Target LTS and latest
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Cache NuGet packages to speed up restore
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: ${{ runner.os }}-nuget-
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      # Run tests with code coverage collection
+      - name: Test with Coverage
+        run: dotnet test --configuration Release --no-build --collect:"XPlat Code Coverage"
+
+      # Upload coverage report to Codecov (requires signing up at https://codecov.io)
+      - name: Upload Coverage to Codecov
+        uses: codecov/codecov-action@v4
+
+      # Upload test results as downloadable artifacts
+      - name: Publish Test Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: TestResults-${{ matrix.os }}-${{ matrix.dotnet-version }}
+          path: ./**/TestResults/**/*.trx
