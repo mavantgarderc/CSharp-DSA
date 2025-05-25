@@ -1,4 +1,4 @@
-namespace DsaConsole.Modules
+namespace DsaConsole.DataStructureModules
 {
     /// <summary>
     /// Concepts

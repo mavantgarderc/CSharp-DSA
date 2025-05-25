@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "RolIiOOKufM=",
+  "dgSpecHash": "nlPmS9ArtLc=",
   "success": true,
-  "projectFilePath": "/home/mava/proj/personal/CSharp-DSA/DsaConsoleTests/DsaConsoleTests.csproj",
+  "projectFilePath": "/home/mava/proj/personal/CSharp-DSA/Tests/Tests.csproj",
   "expectedPackageFiles": [
     "/home/mava/.nuget/packages/coverlet.collector/6.0.4/coverlet.collector.6.0.4.nupkg.sha512",
     "/home/mava/.nuget/packages/microsoft.codecoverage/17.10.0/microsoft.codecoverage.17.10.0.nupkg.sha512",

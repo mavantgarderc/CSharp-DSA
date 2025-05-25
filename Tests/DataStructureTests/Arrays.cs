@@ -1,5 +1,5 @@
 ﻿using Xunit;
-using DsaConsole.Modules;
+using DsaConsole.DataStructureModules.Arrays;
 
 namespace DSAConsoleTests
 {

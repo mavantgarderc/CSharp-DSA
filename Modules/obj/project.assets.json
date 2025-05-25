@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/mava/proj/personal/CSharp-DSA/DsaConsole/DsaConsole.csproj",
-      "projectName": "DsaConsole",
-      "projectPath": "/home/mava/proj/personal/CSharp-DSA/DsaConsole/DsaConsole.csproj",
+      "projectUniqueName": "/home/mava/proj/personal/CSharp-DSA/Modules/Modules.csproj",
+      "projectName": "Modules",
+      "projectPath": "/home/mava/proj/personal/CSharp-DSA/Modules/Modules.csproj",
       "packagesPath": "/home/mava/.nuget/packages/",
-      "outputPath": "/home/mava/proj/personal/CSharp-DSA/DsaConsole/obj/",
+      "outputPath": "/home/mava/proj/personal/CSharp-DSA/Modules/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/home/mava/.nuget/NuGet/NuGet.Config"
