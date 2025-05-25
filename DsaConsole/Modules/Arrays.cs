@@ -15,6 +15,14 @@ namespace DsaConsole.Modules
 
     public static class Arrays
     {
+        private static void Reverse(int[] arr, int start, int end)
+        {
+            while (start < end)
+            {
+                (arr[start], arr[end]) = (arr[end], arr[start]);
+                start++; end--;
+            }
+        }
         // Rotate array to the right by k positions (using reversal algorithm)
         public static void RotateRight(int[] arr, int k)
         {
@@ -35,15 +43,6 @@ namespace DsaConsole.Modules
             Reverse(arr, 0, k-1);
             Reverse(arr, k, n-1);
             Reverse(arr, 0, n-1);
-        }
-
-        private static void Reverse(int[] arr, int start, int end)
-        {
-            while (start < end)
-            {
-                (arr[start], arr[end]) = (arr[end], arr[start]);
-                start++; end--;
-            }
         }
 
         // Find maximum element in array

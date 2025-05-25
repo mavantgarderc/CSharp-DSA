@@ -30,7 +30,7 @@ Feel free to **la-copy-pasta** from the source (if needed in a lifetime...)
 ### Path
 
 `DsaConsole/Modules/foo.cs`
-
+ta
 `DsaConsoleTests/TestModules/foo.cs`
 
 Test by command:
@@ -66,17 +66,3 @@ Index (in order of development):
 1. `Arrays`
 2. `List<T>`
 3. `Span<T>`
-
-## To do
-- [ ] Linear Structures & Sequential Access Patterns
-- [ ] Hierarchical & Non-Linear Systems
-- [ ] Efficient Search & Retrieval
-- [ ] Optimization & Computational Limits
-- [ ] Hybrid Systems & Scalable Design
-- [ ] Concurrency & Real-World Constraints
-- [ ] Probabilistic & Approximation Algorithms
-- [ ] Geometry & Spatial Systems
-- [ ] Distributed & Parallel DSA
-- [ ] Quantum Computing Foundations
-- [ ] Embedded & Resource-Constrained Systems
-- [ ] Ethical Hacking & Security Algorithms
