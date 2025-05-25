@@ -1,7 +1,8 @@
 ﻿using Xunit;
-using DsaConsole.DataStructureModules.Arrays;
+using Modules.DataStructureModules;
 
-namespace DSAConsoleTests
+
+namespace Tests
 {
     public class ArraysTests
     {

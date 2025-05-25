@@ -1,10 +1,10 @@
-namespace DsaConsole.DataStructureModules
+namespace Modules.DataStructureModules
 {
     /// <summary>
     /// Concepts
     ///     - Fixed sized: declared with `new`, memory allocated contiguously.
     ///     - Index-based access: O(1) read/write.
-    ///     - Insert/delete: O(n) worse-case dueo to the shifting elements.
+    ///     - Insert/delete: O(n) worse-case due to the shifting elements.
     ///     - Multidimensional arrays: `[,]` vs jagged arrays `[][]`.
     /// Key Practices
     ///     - Rotate array left/right (with/without extra space).

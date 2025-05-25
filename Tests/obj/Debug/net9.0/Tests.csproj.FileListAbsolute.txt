@@ -1,0 +1,6 @@
+/home/mava/proj/personal/CSharp-DSA/Tests/obj/Debug/net9.0/Tests.csproj.AssemblyReference.cache
+/home/mava/proj/personal/CSharp-DSA/Tests/obj/Debug/net9.0/Tests.GeneratedMSBuildEditorConfig.editorconfig
+/home/mava/proj/personal/CSharp-DSA/Tests/obj/Debug/net9.0/Tests.AssemblyInfoInputs.cache
+/home/mava/proj/personal/CSharp-DSA/Tests/obj/Debug/net9.0/Tests.AssemblyInfo.cs
+/home/mava/proj/personal/CSharp-DSA/Tests/obj/Debug/net9.0/Tests.csproj.CoreCompileInputs.cache
+/home/mava/proj/personal/CSharp-DSA/Tests/obj/Debug/net9.0/Tests.sourcelink.json
