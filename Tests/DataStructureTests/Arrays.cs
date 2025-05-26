@@ -1,5 +1,5 @@
 ﻿using Xunit;
-using Modules.DataStructureModules;
+using Arrays;
 
 
 namespace Tests
