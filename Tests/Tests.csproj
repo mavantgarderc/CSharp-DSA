@@ -29,11 +29,10 @@
     </ItemGroup>
     
     <ItemGroup>
-        <Using Include="Xunit" />
+      <ProjectReference Include="..\DataStructureModules\DataStructureModules.csproj" />
     </ItemGroup>
     
     <ItemGroup>
-        <ProjectReference Include="Modules\Modules.csproj" />
+        <Using Include="Xunit" />
     </ItemGroup>
-    
 </Project>

@@ -411,6 +411,16 @@
         "build": {
           "build/net6.0/xunit.runner.visualstudio.props": {}
         }
+      },
+      "DataStructureModules/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v9.0",
+        "compile": {
+          "bin/placeholder/DataStructureModules.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/DataStructureModules.dll": {}
+        }
       }
     }
   },
@@ -940,10 +950,16 @@
         "xunit.runner.visualstudio.2.8.1.nupkg.sha512",
         "xunit.runner.visualstudio.nuspec"
       ]
+    },
+    "DataStructureModules/1.0.0": {
+      "type": "project",
+      "path": "../DataStructureModules/DataStructureModules.csproj",
+      "msbuildProject": "../DataStructureModules/DataStructureModules.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net9.0": [
+      "DataStructureModules >= 1.0.0",
       "Microsoft.NET.Test.Sdk >= 17.10.0",
       "coverlet.collector >= 6.0.4",
       "xunit >= 2.8.1",
@@ -951,30 +967,42 @@
     ]
   },
   "packageFolders": {
-    "/home/mava/.nuget/packages/": {}
+    "C:\\Users\\mava\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/mava/proj/personal/CSharp-DSA/Tests/Tests.csproj",
+      "projectUniqueName": "C:\\Users\\mava\\Desktop\\CSharp-DSA\\Tests\\Tests.csproj",
       "projectName": "Tests",
-      "projectPath": "/home/mava/proj/personal/CSharp-DSA/Tests/Tests.csproj",
-      "packagesPath": "/home/mava/.nuget/packages/",
-      "outputPath": "/home/mava/proj/personal/CSharp-DSA/Tests/obj/",
+      "projectPath": "C:\\Users\\mava\\Desktop\\CSharp-DSA\\Tests\\Tests.csproj",
+      "packagesPath": "C:\\Users\\mava\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\mava\\Desktop\\CSharp-DSA\\Tests\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
-        "/home/mava/.nuget/NuGet/NuGet.Config"
+        "C:\\Users\\mava\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net9.0": {
           "targetAlias": "net9.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "C:\\Users\\mava\\Desktop\\CSharp-DSA\\DataStructureModules\\DataStructureModules.csproj": {
+              "projectPath": "C:\\Users\\mava\\Desktop\\CSharp-DSA\\DataStructureModules\\DataStructureModules.csproj"
+            }
+          }
         }
       },
       "restoreAuditProperties": {
@@ -982,7 +1010,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "9.0.100"
+      "SdkAnalysisLevel": "9.0.300"
     },
     "frameworks": {
       "net9.0": {
@@ -1020,18 +1048,12 @@
         ],
         "assetTargetFallback": true,
         "warn": true,
-        "downloadDependencies": [
-          {
-            "name": "Microsoft.AspNetCore.App.Ref",
-            "version": "[9.0.4, 9.0.4]"
-          }
-        ],
         "frameworkReferences": {
           "Microsoft.NETCore.App": {
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/9.0.105/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.300/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

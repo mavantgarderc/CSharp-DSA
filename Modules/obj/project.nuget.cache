@@ -1,10 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "Licn7l/fL/w=",
+  "dgSpecHash": "cdx5wMSkxcI=",
   "success": true,
-  "projectFilePath": "/home/mava/proj/personal/CSharp-DSA/Modules/Modules.csproj",
-  "expectedPackageFiles": [
-    "/home/mava/.nuget/packages/microsoft.aspnetcore.app.ref/9.0.4/microsoft.aspnetcore.app.ref.9.0.4.nupkg.sha512"
-  ],
+  "projectFilePath": "C:\\Users\\mava\\Desktop\\CSharp-DSA\\Modules\\mo.csproj",
+  "expectedPackageFiles": [],
   "logs": []
 }
