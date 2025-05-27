@@ -73,3 +73,4 @@ Index (in order of development):
 1. `Arrays`
 2. `List<T>`
 3. `Span<T>`
+4. `Strings`
