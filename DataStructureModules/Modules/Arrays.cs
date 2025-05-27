@@ -1,19 +1,19 @@
 ﻿namespace DataStructureModules.Modules
 {
+    /// <summary>
+    /// Concepts
+    ///     - Fixed sized: declared with `new`, memory allocated contiguously.
+    ///     - Index-based access: O(1) read/write.
+    ///     - Insert/delete: O(n) worse-case due to the shifting elements.
+    ///     - Multidimensional arrays: `[,]` vs jagged arrays `[][]`.
+    /// Key Practices
+    ///     - Rotate array left/right (with/without extra space).
+    ///     - Find max/min element
+    ///     - Find element using linear/binary search
+    ///     - Merge two sorted arrays into one
+    /// </summary>
     public class Arrays
     {
-        /// <summary>
-        /// Concepts
-        ///     - Fixed sized: declared with `new`, memory allocated contiguously.
-        ///     - Index-based access: O(1) read/write.
-        ///     - Insert/delete: O(n) worse-case due to the shifting elements.
-        ///     - Multidimensional arrays: `[,]` vs jagged arrays `[][]`.
-        /// Key Practices
-        ///     - Rotate array left/right (with/without extra space).
-        ///     - Find max/min element
-        ///     - Find element using linear/binary search
-        ///     - Merge two sorted arrays into one
-        /// </summary>
         private static void Reverse(int[] arr, int start, int end)
         {
             while (start < end)

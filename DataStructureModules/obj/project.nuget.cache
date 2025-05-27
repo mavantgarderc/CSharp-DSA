@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "jsJNLS0XRPs=",
+  "dgSpecHash": "DgXwhUrKXpA=",
   "success": true,
-  "projectFilePath": "C:\\Users\\mava\\Desktop\\CSharp-DSA\\DataStructureModules\\DataStructureModules.csproj",
-  "expectedPackageFiles": [],
+  "projectFilePath": "/home/mava/proj/personal/CSharp-DSA/DataStructureModules/DataStructureModules.csproj",
+  "expectedPackageFiles": [
+    "/home/mava/.nuget/packages/microsoft.aspnetcore.app.ref/9.0.4/microsoft.aspnetcore.app.ref.9.0.4.nupkg.sha512"
+  ],
   "logs": []
 }

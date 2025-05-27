@@ -1,20 +1,20 @@
 ﻿namespace DataStructureModules.Modules
 {
+    /// <summary>
+    /// Concepts
+    ///     - Generic collections and the System.Collections.Generic namespace
+    ///     - List<T> instantiation, manipulation, and iteration
+    ///     - Functional programming with lambda expressions
+    ///     - Data querying with LINQ
+    /// Key Practices
+    ///     - Avoiding index out-of-range errors
+    ///     - Using AddRange and RemoveAt responsibly
+    ///     - Leveraging FindAll and Contains for clean search logic
+    ///     - Combining Sort, Reverse, and LINQ for readable data transformations
+    /// </summary>
+
     public class ListT
     {
-        /// <summary>
-        /// Concepts
-        ///     - Generic collections and the System.Collections.Generic namespace
-        ///     - List<T> instantiation, manipulation, and iteration
-        ///     - Functional programming with lambda expressions
-        ///     - Data querying with LINQ
-        /// Key Practices
-        ///     - Avoiding index out-of-range errors
-        ///     - Using AddRange and RemoveAt responsibly
-        ///     - Leveraging FindAll and Contains for clean search logic
-        ///     - Combining Sort, Reverse, and LINQ for readable data transformations
-        /// </summary>
-
         // Add element to list
         public static void Add<T>(List<T> list, T item)
         {

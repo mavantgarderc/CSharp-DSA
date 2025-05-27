@@ -1,20 +1,20 @@
 ﻿namespace DataStructureModules.Modules
 {
+    /// <summary>
+    /// Concepts
+    ///     - Stack-only memory access
+    ///     - Memory safety without GC allocations
+    ///     - Slicing data without copying
+    ///     - Lightweight memory views
+    /// Key Practices
+    ///     - Use Span<T> for in-place, high-performance data operations
+    ///     - Avoid heap allocations for transient data
+    ///     - Prefer stackalloc when size is small and known
+    ///     - Span<T> can’t escape the method scope
+    /// </summary>
+
     public class SpanT
     {
-        /// <summary>
-        /// Concepts
-        ///     - Stack-only memory access
-        ///     - Memory safety without GC allocations
-        ///     - Slicing data without copying
-        ///     - Lightweight memory views
-        /// Key Practices
-        ///     - Use Span<T> for in-place, high-performance data operations
-        ///     - Avoid heap allocations for transient data
-        ///     - Prefer stackalloc when size is small and known
-        ///     - Span<T> can’t escape the method scope
-        /// </summary>
-
         // Reverses the contents of a span in-place
         public static void ReverseInPlace(Span<int> span)
         {
