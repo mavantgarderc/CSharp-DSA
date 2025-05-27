@@ -4,14 +4,14 @@
     "/home/mava/proj/personal/CSharp-DSA/Tests/Tests.csproj": {}
   },
   "projects": {
-    "/home/mava/proj/personal/CSharp-DSA/DataStructureModules/DataStructureModules.csproj": {
+    "/home/mava/proj/personal/CSharp-DSA/Modules/Modules.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/mava/proj/personal/CSharp-DSA/DataStructureModules/DataStructureModules.csproj",
-        "projectName": "DataStructureModules",
-        "projectPath": "/home/mava/proj/personal/CSharp-DSA/DataStructureModules/DataStructureModules.csproj",
+        "projectUniqueName": "/home/mava/proj/personal/CSharp-DSA/Modules/Modules.csproj",
+        "projectName": "Modules",
+        "projectPath": "/home/mava/proj/personal/CSharp-DSA/Modules/Modules.csproj",
         "packagesPath": "/home/mava/.nuget/packages/",
-        "outputPath": "/home/mava/proj/personal/CSharp-DSA/DataStructureModules/obj/",
+        "outputPath": "/home/mava/proj/personal/CSharp-DSA/Modules/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/home/mava/.nuget/NuGet/NuGet.Config"
@@ -91,11 +91,16 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "/home/mava/proj/personal/CSharp-DSA/DataStructureModules/DataStructureModules.csproj": {
-                "projectPath": "/home/mava/proj/personal/CSharp-DSA/DataStructureModules/DataStructureModules.csproj"
+              "/home/mava/proj/personal/CSharp-DSA/Modules/Modules.csproj": {
+                "projectPath": "/home/mava/proj/personal/CSharp-DSA/Modules/Modules.csproj"
               }
             }
           }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
         },
         "restoreAuditProperties": {
           "enableAudit": "true",
@@ -110,23 +115,19 @@
           "dependencies": {
             "Microsoft.NET.Test.Sdk": {
               "target": "Package",
-              "version": "[17.10.0, )"
+              "version": "[17.12.0, )"
             },
             "coverlet.collector": {
-              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
-              "suppressParent": "All",
               "target": "Package",
-              "version": "[6.0.4, )"
+              "version": "[6.0.2, )"
             },
             "xunit": {
               "target": "Package",
-              "version": "[2.8.1, )"
+              "version": "[2.9.2, )"
             },
             "xunit.runner.visualstudio": {
-              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
-              "suppressParent": "All",
               "target": "Package",
-              "version": "[2.8.1, )"
+              "version": "[2.8.2, )"
             }
           },
           "imports": [
