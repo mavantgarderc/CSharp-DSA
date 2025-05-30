@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
 using Modules.DataStructures;
-using Xunit;
 
 namespace Modules.Tests
 {

@@ -70,7 +70,10 @@ namespace Modules.DataStructures
         // Removes and returns the item at the top of the stack
         public T Pop()
         {
-            if (IsEmpty) throw new InvalidOperationException("Stack is empty.");
+            if (IsEmpty) 
+            {
+                throw new InvalidOperationException("Stack is empty.");
+            }
             var item = _list[^1];
             _list.RemoveAt(_list.Count - 1);
             return item;
@@ -93,7 +96,10 @@ namespace Modules.DataStructures
         // Removes and returns the item at the front of the queue
         public T Dequeue()
         {
-            if (IsEmpty) throw new InvalidOperationException("Queue is empty.");
+            if (IsEmpty) 
+            {
+                throw new InvalidOperationException("Queue is empty.");
+            }
             var item = _list[0];
             _list.RemoveAt(0);
             return item;
@@ -106,6 +112,69 @@ namespace Modules.DataStructures
         public bool IsEmpty => _list.Count == 0;
     }
 
+/// <summary>
+/// Array-based Linear Queue implementation (non-circular).
+/// Enqueue at rear, Dequeue from front. Not space-efficient.
+/// </summary>
+public class LinearQueue<T>
+{
+    private T[] _items;
+    private int _front;
+    private int _rear;
+    private int _count;
+
+    public int Count => _count;
+    public int Capacity => _items.Length;
+    public bool IsEmpty => _count == 0;
+
+    public LinearQueue(int capacity = 8)
+    {
+        if (capacity <= 0) 
+        {
+            throw new ArgumentException("Capacity must be positive.", nameof(capacity));
+        }
+        
+        _items = new T[capacity];
+        _front = _rear = _count = 0;
+    }
+
+    public void Enqueue(T item)
+    {
+        if (_rear == _items.Length)
+        {
+            throw new InvalidOperationException("Queue is full.");
+        }
+        
+        _items[_rear] = item;
+        _rear++;
+        _count++;
+    }
+
+    public T Dequeue()
+    {
+        if (IsEmpty)
+        {
+            throw new InvalidOperationException("Queue is empty.");
+        }
+        
+        T item = _items[_front];
+        _items[_front] = default!;  // Prevent memory leaks
+        _front++;
+        _count--;
+        return item;
+    }
+
+    public T Peek()
+    {
+        if (IsEmpty)
+        {
+            throw new InvalidOperationException("Queue is empty.");
+        }
+
+        return _items[_front];
+    }
+}
+
     public class CircularQueue<T>
     {
         private readonly T[] _buffer;
@@ -115,14 +184,21 @@ namespace Modules.DataStructures
 
         public CircularQueue(int capacity)
         {
-            if (capacity <= 0) throw new ArgumentException("Capacity must be positive.");
+            if (capacity <= 0) 
+            {
+                throw new ArgumentException("Capacity must be positive.");
+            }
             _buffer = new T[capacity];
         }
 
         // Adds an item to the circular queue
         public void Enqueue(T item)
         {
-            if (_size == _buffer.Length) throw new InvalidOperationException("Queue is full.");
+            if (_size == _buffer.Length) 
+            {
+                throw new InvalidOperationException("Queue is full.");
+            }
+
             _buffer[_tail] = item;
             _tail = (_tail + 1) % _buffer.Length;
             _size++;
@@ -131,7 +207,11 @@ namespace Modules.DataStructures
         // Removes and returns the item at the front of the circular queue
         public T Dequeue()
         {
-            if (IsEmpty) throw new InvalidOperationException("Queue is empty.");
+            if (IsEmpty) 
+            {
+                throw new InvalidOperationException("Queue is empty.");
+            }
+
             var item = _buffer[_head];
             _head = (_head + 1) % _buffer.Length;
             _size--;
@@ -160,7 +240,11 @@ namespace Modules.DataStructures
         public T Dequeue()
         {
             Transfer();
-            if (_output.Count == 0) throw new InvalidOperationException("Queue is empty.");
+            if (_output.Count == 0) 
+            {
+                throw new InvalidOperationException("Queue is empty.");
+            }
+
             return _output.Pop();
         }
 
@@ -168,7 +252,11 @@ namespace Modules.DataStructures
         public T Peek()
         {
             Transfer();
-            if (_output.Count == 0) throw new InvalidOperationException("Queue is empty.");
+            if (_output.Count == 0) 
+            {
+                throw new InvalidOperationException("Queue is empty.");
+            }
+
             return _output.Peek();
         }
 
@@ -212,7 +300,10 @@ namespace Modules.DataStructures
         // Removes and returns the front item
         public T RemoveFront()
         {
-            if (IsEmpty) throw new InvalidOperationException("Deque is empty.");
+            if (IsEmpty) 
+            {
+                throw new InvalidOperationException("Deque is empty.");
+            }
 
             // Add null-forgiving operator to tell compiler we've validated existence
             var item = _list.First!.Value;  // <-- Note the ! operator here
@@ -223,7 +314,11 @@ namespace Modules.DataStructures
         // Removes and returns the back item
         public T RemoveBack()
         {
-            if (IsEmpty) throw new InvalidOperationException("Deque is empty.");
+            if (IsEmpty) 
+            {
+                throw new InvalidOperationException("Deque is empty.");
+            }
+            
             var item = _list.Last!.Value;
             _list.RemoveLast();
             return item;
@@ -249,18 +344,23 @@ namespace Modules.DataStructures
         // Removes and returns the highest priority item
         public TValue Dequeue()
         {
-            if (_priorityQueue.Count == 0) throw new InvalidOperationException("Priority queue is empty.");
+            if (_priorityQueue.Count == 0) 
+            {
+                throw new InvalidOperationException("Priority queue is empty.");
+            }
             return _priorityQueue.Dequeue();
         }
 
-        // Returns the highest priority item without removing it
+        // returns the highest priority
         public TValue Peek()
         {
-            if (_priorityQueue.Count == 0) throw new InvalidOperationException("Priority queue is empty.");
+            if (_priorityQueue.Count == 0) 
+            {
+                throw new InvalidOperationException("Priority queue is empty.");
+            }
             return _priorityQueue.Peek();
         }
 
-        // Checks if the priority queue is empty
         public bool IsEmpty => _priorityQueue.Count == 0;
     }
 }
