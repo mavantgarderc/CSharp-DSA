@@ -1,4 +1,7 @@
 # CSharp-DSA Project (or is it???)
+
+> .NET Version: 9.0
+
 A series of tested DSA coded in C#, as a learning project.
 C#, because everybody says not good or too hard for DSA...
 May get synced with parallel repositories in SQL, Python, Lua or whatever...
