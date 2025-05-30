@@ -74,3 +74,5 @@ Index (in order of development):
 2. `List<T>`
 3. `Span<T>`
 4. `Strings`
+5. `StackQueue`
+6. `LinkedList`
