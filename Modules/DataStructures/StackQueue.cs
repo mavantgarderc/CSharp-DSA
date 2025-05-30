@@ -118,11 +118,10 @@ namespace Modules.DataStructures
 /// </summary>
 public class LinearQueue<T>
 {
-    private T[] _items;
+    private readonly T[] _items;
     private int _front;
     private int _rear;
     private int _count;
-
     public int Count => _count;
     public int Capacity => _items.Length;
     public bool IsEmpty => _count == 0;
@@ -156,9 +155,9 @@ public class LinearQueue<T>
         {
             throw new InvalidOperationException("Queue is empty.");
         }
-        
+
         T item = _items[_front];
-        _items[_front] = default!;  // Prevent memory leaks
+        _items![_front] = default!;
         _front++;
         _count--;
         return item;

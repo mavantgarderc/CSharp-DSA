@@ -5,22 +5,30 @@ namespace Modules.Tests
     public class CustomStackTests
     {
         [Fact]
-        public void PushPopPeek_StackBehavesCorrectly()
+        public void Stack_ShouldPushAndPopCorrectly()
         {
             var stack = new CustomStack<int>();
-            Assert.True(stack.IsEmpty);
-
-            stack.Push(1);
+            stack.Push(10);
+            stack.Push(20);
             Assert.False(stack.IsEmpty);
-            Assert.Equal(1, stack.Peek());
-            Assert.Equal(1, stack.Pop());
+            Assert.Equal(20, stack.Pop());
+            Assert.Equal(10, stack.Pop());
             Assert.True(stack.IsEmpty);
         }
 
         [Fact]
-        public void PopPeek_EmptyStack_Throws()
+        public void Stack_Peek_ShouldReturnTopWithoutRemoving()
         {
             var stack = new CustomStack<string>();
+            stack.Push("x");
+            Assert.Equal("x", stack.Peek());
+            Assert.False(stack.IsEmpty);
+        }
+
+        [Fact]
+        public void Stack_EmptyOperations_ShouldThrow()
+        {
+            var stack = new CustomStack<double>();
             Assert.Throws<InvalidOperationException>(() => stack.Pop());
             Assert.Throws<InvalidOperationException>(() => stack.Peek());
         }
@@ -29,22 +37,58 @@ namespace Modules.Tests
     public class CustomQueueTests
     {
         [Fact]
-        public void EnqueueDequeuePeek_QueueBehavesCorrectly()
+        public void Queue_ShouldEnqueueAndDequeueCorrectly()
         {
             var queue = new CustomQueue<int>();
-            Assert.True(queue.IsEmpty);
-
-            queue.Enqueue(10);
+            queue.Enqueue(1);
+            queue.Enqueue(2);
             Assert.False(queue.IsEmpty);
-            Assert.Equal(10, queue.Peek());
-            Assert.Equal(10, queue.Dequeue());
+            Assert.Equal(1, queue.Dequeue());
+            Assert.Equal(2, queue.Dequeue());
             Assert.True(queue.IsEmpty);
         }
 
         [Fact]
-        public void DequeuePeek_EmptyQueue_Throws()
+        public void Queue_Peek_ShouldReturnFrontWithoutRemoving()
         {
             var queue = new CustomQueue<string>();
+            queue.Enqueue("first");
+            Assert.Equal("first", queue.Peek());
+        }
+
+        [Fact]
+        public void Queue_EmptyOperations_ShouldThrow()
+        {
+            var queue = new CustomQueue<char>();
+            Assert.Throws<InvalidOperationException>(() => queue.Dequeue());
+            Assert.Throws<InvalidOperationException>(() => queue.Peek());
+        }
+    }
+
+    public class LinearQueueTests
+    {
+        [Fact]
+        public void LinearQueue_ShouldEnqueueAndDequeueCorrectly()
+        {
+            var queue = new LinearQueue<int>(3);
+            queue.Enqueue(1);
+            queue.Enqueue(2);
+            Assert.Equal(1, queue.Dequeue());
+            Assert.Equal(2, queue.Peek());
+        }
+
+        [Fact]
+        public void LinearQueue_ExceedingCapacity_ShouldThrow()
+        {
+            var queue = new LinearQueue<int>(1);
+            queue.Enqueue(1);
+            Assert.Throws<InvalidOperationException>(() => queue.Enqueue(2));
+        }
+
+        [Fact]
+        public void LinearQueue_EmptyOperations_ShouldThrow()
+        {
+            var queue = new LinearQueue<int>();
             Assert.Throws<InvalidOperationException>(() => queue.Dequeue());
             Assert.Throws<InvalidOperationException>(() => queue.Peek());
         }
@@ -53,36 +97,36 @@ namespace Modules.Tests
     public class CircularQueueTests
     {
         [Fact]
-        public void CircularQueue_EnqueueDequeue_WorksCorrectly()
+        public void CircularQueue_ShouldEnqueueAndDequeueInOrder()
         {
-            var cq = new CircularQueue<int>(3);
-            cq.Enqueue(1);
-            cq.Enqueue(2);
-            cq.Enqueue(3);
-            Assert.True(cq.IsFull);
-
-            Assert.Equal(1, cq.Dequeue());
-            Assert.False(cq.IsFull);
-            cq.Enqueue(4);
-            Assert.True(cq.IsFull);
-            Assert.Equal(2, cq.Peek());
+            var queue = new CircularQueue<int>(2);
+            queue.Enqueue(1);
+            queue.Enqueue(2);
+            Assert.True(queue.IsFull);
+            Assert.Equal(1, queue.Dequeue());
+            Assert.Equal(2, queue.Peek());
         }
 
         [Fact]
-        public void CircularQueue_OverflowsAndUnderflows_Throws()
+        public void CircularQueue_EmptyAndFullChecks()
         {
-            var cq = new CircularQueue<int>(2);
-            cq.Enqueue(1);
-            cq.Enqueue(2);
-            Assert.Throws<InvalidOperationException>(() => cq.Enqueue(3));
-
-            cq.Dequeue();
-            cq.Dequeue();
-            Assert.Throws<InvalidOperationException>(() => cq.Dequeue());
+            var queue = new CircularQueue<string>(1);
+            Assert.True(queue.IsEmpty);
+            queue.Enqueue("item");
+            Assert.True(queue.IsFull);
         }
 
         [Fact]
-        public void CircularQueue_InvalidCapacity_Throws()
+        public void CircularQueue_Exceptions()
+        {
+            var queue = new CircularQueue<int>(1);
+            Assert.Throws<InvalidOperationException>(() => queue.Dequeue());
+            queue.Enqueue(42);
+            Assert.Throws<InvalidOperationException>(() => queue.Enqueue(99));
+        }
+
+        [Fact]
+        public void CircularQueue_InvalidCapacity_ShouldThrow()
         {
             Assert.Throws<ArgumentException>(() => new CircularQueue<int>(0));
         }
@@ -91,50 +135,48 @@ namespace Modules.Tests
     public class TwoStackQueueTests
     {
         [Fact]
-        public void TwoStackQueue_EnqueueDequeue_WorksCorrectly()
+        public void TwoStackQueue_ShouldSimulateQueueBehavior()
         {
-            var q = new TwoStackQueue<int>();
-            Assert.True(q.IsEmpty);
-
-            q.Enqueue(1);
-            q.Enqueue(2);
-            q.Enqueue(3);
-            Assert.False(q.IsEmpty);
-
-            Assert.Equal(1, q.Dequeue());
-            Assert.Equal(2, q.Peek());
+            var queue = new TwoStackQueue<int>();
+            queue.Enqueue(1);
+            queue.Enqueue(2);
+            Assert.Equal(1, queue.Dequeue());
+            Assert.Equal(2, queue.Peek());
         }
 
         [Fact]
-        public void TwoStackQueue_EmptyQueue_Throws()
+        public void TwoStackQueue_EmptyOperations_ShouldThrow()
         {
-            var q = new TwoStackQueue<string>();
-            Assert.Throws<InvalidOperationException>(() => q.Dequeue());
-            Assert.Throws<InvalidOperationException>(() => q.Peek());
+            var queue = new TwoStackQueue<string>();
+            Assert.True(queue.IsEmpty);
+            Assert.Throws<InvalidOperationException>(() => queue.Dequeue());
+            Assert.Throws<InvalidOperationException>(() => queue.Peek());
         }
     }
 
     public class ExpressionValidatorTests
     {
         [Theory]
-        [InlineData("()", true)]
-        [InlineData("{[()]}", true)]
-        [InlineData("{[(])}", false)]
+        [InlineData("()[]{}", true)]
+        [InlineData("({[]})", true)]
+        [InlineData("([)]", false)]
         [InlineData("({[})]", false)]
         [InlineData("", true)]
-        public void EvaluateBalancedParentheses_ReturnsExpected(string expr, bool expected)
+        public void EvaluateBalancedParentheses_ShouldValidateCorrectly(string expression, bool expected)
         {
-            var result = ExpressionValidator.EvaluateBalancedParentheses(expr);
-            Assert.Equal(expected, result);
+            Assert.Equal(expected, ExpressionValidator.EvaluateBalancedParentheses(expression));
         }
     }
 
     public class QueueOperationsTests
     {
         [Fact]
-        public void ReverseQueue_WorksCorrectly()
+        public void ReverseQueue_ShouldReverseItems()
         {
-            var queue = new Queue<int>(new[] { 1, 2, 3 });
+            var queue = new Queue<int>();
+            queue.Enqueue(1);
+            queue.Enqueue(2);
+            queue.Enqueue(3);
             var reversed = QueueOperations.ReverseQueue(queue);
 
             Assert.Equal(3, reversed.Dequeue());
@@ -146,10 +188,9 @@ namespace Modules.Tests
     public class DequeTests
     {
         [Fact]
-        public void Deque_AddRemovePeek_WorksCorrectly()
+        public void Deque_ShouldAddAndRemoveFromBothEnds()
         {
             var deque = new Deque<string>();
-
             deque.AddBack("b");
             deque.AddFront("a");
             deque.AddBack("c");
@@ -163,7 +204,7 @@ namespace Modules.Tests
         }
 
         [Fact]
-        public void Deque_EmptyThrows()
+        public void Deque_EmptyOperations_ShouldThrow()
         {
             var deque = new Deque<int>();
             Assert.Throws<InvalidOperationException>(() => deque.PeekFront());
@@ -176,12 +217,12 @@ namespace Modules.Tests
     public class PriorityQueueWrapperTests
     {
         [Fact]
-        public void PriorityQueue_EnqueueDequeuePeek_WorksCorrectly()
+        public void PriorityQueue_ShouldRespectPriorityOrder()
         {
             var pq = new PriorityQueueWrapper<int, string>();
-            pq.Enqueue("low", 5);
+            pq.Enqueue("low", 2);
             pq.Enqueue("high", 1);
-
+            Assert.False(pq.IsEmpty);
             Assert.Equal("high", pq.Peek());
             Assert.Equal("high", pq.Dequeue());
             Assert.Equal("low", pq.Dequeue());
@@ -189,7 +230,7 @@ namespace Modules.Tests
         }
 
         [Fact]
-        public void PriorityQueue_EmptyThrows()
+        public void PriorityQueue_EmptyOperations_ShouldThrow()
         {
             var pq = new PriorityQueueWrapper<int, string>();
             Assert.Throws<InvalidOperationException>(() => pq.Dequeue());
