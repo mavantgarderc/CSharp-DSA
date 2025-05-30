@@ -46,11 +46,11 @@ namespace Modules.DataStructures
 
     #region Nodes
     // node for singly linked lists
-        public class SinglyLinkedListNode<T>(T value)
+    public class SinglyLinkedListNode<T>(T value)
     {
         public T Value { get; set; } = value;
         public SinglyLinkedListNode<T>? Next { get; set; }
-       // public SinglyLinkedListNode(T value) => Value = value;  // initializes node
+        // public SinglyLinkedListNode(T value) => Value = value;  // initializes node
     }
 
     // Node for doubly linked lists
@@ -93,7 +93,7 @@ namespace Modules.DataStructures
                 _current = _start; return _current != null; 
             }
             _current = _current.Next; 
-            
+
             return _current != null;
         }
 
@@ -113,7 +113,7 @@ namespace Modules.DataStructures
     #endregion 
 
     #region doubly linked list enumerators
-        public class DoublyLinkedListEnumerator<T> : IEnumerator<T>
+    public class DoublyLinkedListEnumerator<T> : IEnumerator<T>
     {
         private readonly LinkedListNode<T>? _start;
         private LinkedListNode<T>? _current;
@@ -215,12 +215,12 @@ namespace Modules.DataStructures
             }
 
             var result = seed; 
-            
+
             foreach (var item in list) 
             {
                 result = accumulator(result, item);
             }
-            
+
             return result;
         }
 
@@ -270,7 +270,7 @@ namespace Modules.DataStructures
                     nonMatches.AddLast(item);
                 }
             }
-            
+
             return (matches, nonMatches);
         }
 
@@ -282,7 +282,7 @@ namespace Modules.DataStructures
             {
                 ArgumentNullException.ThrowIfNull(list);
             }
-            
+
             return new SynchronizedLinkedList<T>(list);
         }
 
@@ -294,7 +294,7 @@ namespace Modules.DataStructures
             {
                 ArgumentNullException.ThrowIfNull(list);
             }
-            
+
             return new ReadOnlyLinkedListWrapper<T>(list);
         }
 
@@ -306,7 +306,7 @@ namespace Modules.DataStructures
             {
                 ArgumentNullException.ThrowIfNull(list);
             }
-            
+
             Console.WriteLine($"LinkedList Count: {list.Count}");
             Console.WriteLine($"Has Cycle: {list.HasCycle()}");
 
@@ -387,7 +387,7 @@ namespace Modules.DataStructures
     #region Implementations
 
     #region Singly Linked List
-        public class SinglyLinkedList<T> : ILinkedList<T>
+    public class SinglyLinkedList<T> : ILinkedList<T>
     {
         private SinglyLinkedListNode<T>? _head;
         private SinglyLinkedListNode<T>? _tail;
@@ -436,11 +436,11 @@ namespace Modules.DataStructures
             {
                 throw new InvalidOperationException("list is empty...");
             }
-            
+
             _head = _head.Next;
-            
+
             if (_head == null) _tail = null;
-            
+
             _count--; 
             _version++;
         }
@@ -451,7 +451,7 @@ namespace Modules.DataStructures
             {
                 throw new InvalidOperationException("list is empty..");
             }
-            
+
             if (_head == _tail) 
             {
                 _head = _tail = null;
@@ -476,13 +476,13 @@ namespace Modules.DataStructures
             if (_head == null) return false;
 
             var comparer = EqualityComparer<T>.Default;
-            
+
             if (comparer.Equals(_head.Value, item)) 
             {
                 RemoveFirst();
                 return true;
             }
-            
+
             var current = _head;
 
             while (current.Next != null)
@@ -497,7 +497,7 @@ namespace Modules.DataStructures
 
                     _count--; 
                     _version++;
-                    
+
                     return true;
                 }
                 current = current.Next;
@@ -529,7 +529,7 @@ namespace Modules.DataStructures
             {
                 throw new InvalidOperationException("list is empty...");
             }
-            
+
             return _head.Value;
         }
 
@@ -539,7 +539,7 @@ namespace Modules.DataStructures
             {
                 throw new InvalidOperationException("list is empty...");
             }
-            
+
             return _tail.Value;
         }
 
@@ -558,7 +558,7 @@ namespace Modules.DataStructures
             SinglyLinkedListNode<T>? prev = null;
             var current = _head; 
             _tail = _head;
-            
+
             while (current != null)
             {
                 var next = current.Next;
@@ -581,7 +581,7 @@ namespace Modules.DataStructures
                 clone.AddLast(current.Value); 
                 current = current.Next; 
             }
-            
+
             return clone;
         }
 
@@ -593,7 +593,7 @@ namespace Modules.DataStructures
             {
                 ArgumentNullException.ThrowIfNull(items);
             }
-            
+
             foreach (var item in items) 
             {
                 AddLast(item);
@@ -610,7 +610,7 @@ namespace Modules.DataStructures
                 array[i] = current!.Value; 
                 current = current.Next; 
             }
-            
+
             return array;
         }
 
@@ -620,7 +620,7 @@ namespace Modules.DataStructures
 
             var slow = _head; 
             var fast = _head;
-            
+
             while (fast?.Next != null)
             {
                 slow = slow!.Next; 
@@ -665,18 +665,18 @@ namespace Modules.DataStructures
         public (int Length, int MidIndex) GetStructuralInfo()
         {
             if (_head == null) return (0, -1);
-        
+
             var slow = _head; 
             var fast = _head; 
             int index = 0;
-        
+
             while (fast?.Next != null) 
             { 
                 slow = slow!.Next; 
                 fast = fast.Next.Next; 
                 index++; 
             }
-        
+
             return (_count, index);
         }
 
@@ -700,9 +700,9 @@ namespace Modules.DataStructures
         }
     }
     #endregion
-    
+
     #region Circular Singly LInked List
-        public class DoublyLinkedList<T> : ILinkedList<T>
+    public class DoublyLinkedList<T> : ILinkedList<T>
     {
         private LinkedListNode<T>? _head;
         private LinkedListNode<T>? _tail;
@@ -867,7 +867,7 @@ namespace Modules.DataStructures
             var current = _head; 
             _tail = _head; 
             LinkedListNode<T>? temp = null;
-            
+
             while (current != null)
             {
                 temp = current.Prev;
@@ -928,14 +928,14 @@ namespace Modules.DataStructures
 
             var slow = _head; 
             var fast = _head;
-            
+
             while (fast?.Next != null)
             {
                 slow = slow!.Next; 
                 fast = fast.Next.Next;
                 if (ReferenceEquals(slow, fast)) return true;
             }
-            
+
             return false;
         }
 
@@ -967,7 +967,7 @@ namespace Modules.DataStructures
             var slow = _head; 
             var fast = _head; 
             int index = 0;
-            
+
             while (fast?.Next != null) 
             { 
                 slow = slow!.Next; 
@@ -984,12 +984,12 @@ namespace Modules.DataStructures
             if (node == null) return -1;
             int depth = 0; 
             var current = node;
-            
+
             while (current.Prev != null) 
             { 
                 depth++; current = current.Prev; 
             }
-            
+
             return depth;
         }
     }
@@ -997,7 +997,7 @@ namespace Modules.DataStructures
     #endregion
 
     #region Doubly Linked List 
-        public class CircularLinkedList<T> : ILinkedList<T>
+    public class CircularLinkedList<T> : ILinkedList<T>
     {
         private SinglyLinkedListNode<T>? _tail;
         private int _count;
@@ -1017,7 +1017,7 @@ namespace Modules.DataStructures
             { 
                 newNode.Next = _tail.Next; _tail.Next = newNode; 
             }
-            
+
             _count++; 
             _version++;
         }
@@ -1034,7 +1034,7 @@ namespace Modules.DataStructures
             {
                 throw new InvalidOperationException("list is empty bro...");
             }
-            
+
             if (_tail.Next == _tail) 
             {
                 _tail = null;
@@ -1054,7 +1054,7 @@ namespace Modules.DataStructures
             {
                 throw new InvalidOperationException("HAHA! EMPTY...");
             }
-            
+
             if (_tail.Next == _tail) 
             {
                 _tail = null;
@@ -1070,7 +1070,7 @@ namespace Modules.DataStructures
                 current.Next = _tail.Next; 
                 _tail = current;
             }
-            
+
             _count--; 
             _version++;
         }
@@ -1096,10 +1096,10 @@ namespace Modules.DataStructures
                         _tail = current;
                     }
                     current.Next = current.Next.Next;
-                    
+
                     _count--; 
                     _version++;
-                    
+
                     return true;
                 }
                 current = current.Next;
@@ -1113,13 +1113,13 @@ namespace Modules.DataStructures
 
             var current = Head; 
             var comparer = EqualityComparer<T>.Default;
-            
+
             do
             {
                 if (comparer.Equals(current!.Value, item)) return true;
                 current = current.Next;
             } while (current != Head);
-            
+
             return false;
         }
 
@@ -1131,7 +1131,7 @@ namespace Modules.DataStructures
             {
                 throw new InvalidOperationException("List is empty");
             }
-            
+
             return Head!.Value;
         }
 
@@ -1148,7 +1148,7 @@ namespace Modules.DataStructures
         public void Clear()
         {
             _tail = null; 
-            
+
             _count = 0; 
             _version++;
         }
@@ -1160,7 +1160,7 @@ namespace Modules.DataStructures
             SinglyLinkedListNode<T>? prev = _tail; 
             var current = Head; 
             var head = Head;
-            
+
             do
             {
                 var next = current!.Next; 
@@ -1211,7 +1211,7 @@ namespace Modules.DataStructures
                 array[i] = current!.Value; 
                 current = current.Next;
             }
-            
+
             return array;
         }
 
@@ -1224,7 +1224,7 @@ namespace Modules.DataStructures
             var start = Head; 
             var current = start; 
             var version = _version;
-            
+
             do
             {
                 if (version != _version) 
@@ -1233,7 +1233,7 @@ namespace Modules.DataStructures
                 }
 
                 yield return current!.Value; 
-                
+
                 current = current.Next;
             } while (current != start);
         }
@@ -1255,7 +1255,7 @@ namespace Modules.DataStructures
                 stack.Push(current!.Value); 
                 current = current.Next; 
             } while (current != Head);
-            
+
             while (stack.Count > 0) 
             {
                 yield return stack.Pop();
@@ -1269,25 +1269,25 @@ namespace Modules.DataStructures
             var slow = Head; 
             var fast = Head; 
             int index = 0;
-            
+
             for (int i = 0; i < _count / 2; i++) 
             { 
                 slow = slow!.Next; 
                 fast = fast!.Next!.Next; 
                 index++; 
             }
-            
+
             return (_count, index);
         }
 
         public int GetNodeDepth(T item)
         {
             if (_tail == null) return -1;
-            
+
             int depth = 0; 
             var current = Head; 
             var comparer = EqualityComparer<T>.Default;
-            
+
             do
             {
                 if (comparer.Equals(current!.Value, item)) return depth;
@@ -1301,9 +1301,9 @@ namespace Modules.DataStructures
     }
 
     #endregion
-    
+
     #region Circular Doubly Linked List
-        public class CircularDoublyLinkedList<T> : ILinkedList<T>
+    public class CircularDoublyLinkedList<T> : ILinkedList<T>
     {
         private LinkedListNode<T>? _head;
         private int _count;
@@ -1347,7 +1347,7 @@ namespace Modules.DataStructures
                 tail!.Next = newNode; 
                 _head.Prev = newNode;
             }
-            
+
             _count++; 
             _version++;
         }
@@ -1391,7 +1391,7 @@ namespace Modules.DataStructures
             {
                 var tail = Tail; 
                 var newTail = 
-                tail!.Prev;
+                    tail!.Prev;
                 newTail!.Next = _head; 
                 _head.Prev = newTail;
             }
@@ -1405,7 +1405,7 @@ namespace Modules.DataStructures
             if (_head == null) return false;
 
             var comparer = EqualityComparer<T>.Default; var current = _head;
-            
+
             do
             {
                 if (comparer.Equals(current!.Value, item))
@@ -1422,11 +1422,11 @@ namespace Modules.DataStructures
                     { 
                         current.Prev!.Next = current.Next; 
                         current.Next!.Prev = current.Prev; 
-                        
+
                         _count--; 
                         _version++; 
                     }
-                    
+
                     return true;
                 }
                 current = current.Next;
@@ -1440,14 +1440,14 @@ namespace Modules.DataStructures
             if (_head == null) return false;
 
             var current = _head; var comparer = EqualityComparer<T>.Default;
-            
+
             do
             {
                 if (comparer.Equals(current.Value, item)) 
                 {
                     return true;
                 }
-                
+
                 current = current.Next!;
             } while (current != _head);
 
@@ -1479,7 +1479,7 @@ namespace Modules.DataStructures
         public void Clear()
         {
             _head = null; 
-            
+
             _count = 0; 
             _version++;
         }
@@ -1489,18 +1489,18 @@ namespace Modules.DataStructures
             if (_head == null || _head.Next == _head) return;
 
             var current = _head;
-            
+
             do
             {
                 var temp = current!.Prev;
-            
+
                 current.Prev = current.Next;
                 current.Next = temp;
                 current = current.Prev;
             } while (current != _head);
 
             _head = _head.Next; 
-            
+
             _version++;
         }
 
@@ -1512,9 +1512,9 @@ namespace Modules.DataStructures
             {
                 return clone;
             }
-            
+
             var current = _head;
-            
+
             do 
             { 
                 clone.AddLast(current.Value); 
@@ -1544,15 +1544,15 @@ namespace Modules.DataStructures
             {
                 return array;
             }
-            
+
             var current = _head;
-            
+
             for (int i = 0; i < _count; i++) 
             { 
                 array[i] = current!.Value; 
                 current = current.Next; 
             }
-            
+
             return array;
         }
 
@@ -1568,14 +1568,14 @@ namespace Modules.DataStructures
             var start = _head; 
             var current = start; 
             var version = _version;
-            
+
             do
             {
                 if (version != _version) 
                 {
                     throw new InvalidOperationException("Collection modified");
                 }
-                
+
                 yield return current!.Value;
                 current = current.Next;
             } while (current != start);
@@ -1588,7 +1588,7 @@ namespace Modules.DataStructures
             if (_head == null) yield break;
 
             var start = Tail; var current = start;
-            
+
             do 
             { 
                 yield return current!.Value; 
@@ -1603,14 +1603,14 @@ namespace Modules.DataStructures
             var slow = _head; 
             var fast = _head; 
             int index = 0;
-            
+
             do 
             {
                 slow = slow!.Next; 
                 fast = fast!.Next!.Next; 
                 index++;
             } while (fast != _head && fast!.Next != _head);
-            
+
             return (_count, index);
         }
 
@@ -1621,7 +1621,7 @@ namespace Modules.DataStructures
             int depth = 0; 
             var current = _head; 
             var comparer = EqualityComparer<T>.Default;
-            
+
             do
             {
                 if (comparer.Equals(current.Value, item)) return depth;
