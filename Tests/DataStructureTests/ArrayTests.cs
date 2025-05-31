@@ -1,5 +1,5 @@
 using Modules.DataStructures;
-using static Modules.DataStructures.Arrays;
+using static Modules.DataStructures.Array;
 
 namespace Tests
 {

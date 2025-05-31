@@ -73,9 +73,10 @@ The documentation's format:
 ## Table of Context
 
 Index (in order of development):
-1. `Arrays`
+1. `Array`
 2. `List<T>`
 3. `Span<T>`
 4. `Strings`
 5. `StackQueue`
 6. `LinkedList`
+7. `Vectors`
