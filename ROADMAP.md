@@ -16,7 +16,7 @@ MOST IMAGINARY APPROACH
 
         ~~06. Vectors/Dynamic Arrays~~
 
-        07. Array Lists
+        ~~07. Array Lists~~
 
         ~~08. Deques (Double-ended Queues)~~
 

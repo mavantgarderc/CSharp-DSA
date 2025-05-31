@@ -80,3 +80,4 @@ Index (in order of development):
 5. `StackQueue`
 6. `LinkedList`
 7. `Vectors`
+8. `ArrayList`

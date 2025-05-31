@@ -2,30 +2,35 @@ using System.Collections;
 
 namespace Modules.DataStructures
 {
-    public class ArrayList : ICollection, IEnumerable
+    public class ArrayList<T> : ICollection<T>, IEnumerable<T>
     {
-        private object[] _items;
+        private T[] _items;
         private int _size;
         private int _version;
         private const int DefaultCapacity = 4;
 
         public int Count => _size;
-
         public int Capacity
         {
             get => _items.Length;
             set
             {
                 if (value < _size)
-                    throw new ArgumentOutOfRangeException(nameof(value), "capacity can't be less than current Count");
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value), "capacity can't get lesser than current count...");
+                }
 
                 if (value != _items.Length)
                 {
                     if (value > 0)
                     {
-                        object[] newItems = new object[value];
+                        T[] newItems = new T[value];
+
                         if (_size > 0)
+                        {
                             Array.Copy(_items, 0, newItems, 0, _size);
+                        }
+
                         _items = newItems;
                     }
                     else
@@ -36,27 +41,42 @@ namespace Modules.DataStructures
             }
         }
 
-        public ArrayList() => _items = [];
+        public bool IsReadOnly => false;
+
+        public ArrayList() => _items = new T[DefaultCapacity];
 
         public ArrayList(int capacity)
         {
             if (capacity < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(capacity), "bro... negative capacity? :/");
+                throw new ArgumentOutOfRangeException(nameof(capacity), "bro... negative capacity???");
             }
-
-            _items = capacity == 0 ? [] : new object[capacity];
+            _items = capacity == 0 ? [] : new T[capacity];
         }
 
-        public ArrayList(ICollection collection) : this(collection?.Count ?? 0)
+        public ArrayList(IEnumerable<T> collection)
         {
             ArgumentNullException.ThrowIfNull(collection);
 
-            collection.CopyTo(_items, 0);
-            _size = collection.Count;
+            if (collection is ICollection<T> col)
+            {
+                int count = col.Count;
+                _items = new T[count];
+                col.CopyTo(_items, 0);
+                _size = count;
+            }
+            else
+            {
+                // _items = Array.Empty<T>();
+                _items = [];
+                foreach (var item in collection)
+                {
+                    Add(item);
+                }
+            }
         }
 
-        public object this[int index]
+        public T this[int index]
         {
             get
             {
@@ -64,7 +84,6 @@ namespace Modules.DataStructures
                 {
                     throw new ArgumentOutOfRangeException(nameof(index));
                 }
-
                 return _items[index];
             }
             set
@@ -73,24 +92,23 @@ namespace Modules.DataStructures
                 {
                     throw new ArgumentOutOfRangeException(nameof(index));
                 }
-
                 _items[index] = value;
                 _version++;
             }
         }
 
-        public void Add(object item)
+        public void Add(T item)
         {
             if (_size == _items.Length)
             {
-                EnsureCapacity(_size + 1);
+                EnsureCapacity(_size+1);
             }
 
             _items[_size++] = item;
             _version++;
         }
 
-        public void Insert(int index, object item)
+        public void Insert(int index, T item)
         {
             if (index < 0 || index > _size)
             {
@@ -99,12 +117,11 @@ namespace Modules.DataStructures
 
             if (_size == _items.Length)
             {
-                EnsureCapacity(_size + 1);
+                EnsureCapacity(_size+1);
             }
-
             if (index < _size)
             {
-                Array.Copy(_items, index, _items, index + 1, _size - index);
+                Array.Copy(_items, index, _items, index+1, _size-index);
             }
 
             _items[index] = item;
@@ -112,13 +129,14 @@ namespace Modules.DataStructures
             _version++;
         }
 
-        public bool Remove(object item)
+        public bool Remove(T item)
         {
             int index = IndexOf(item);
 
             if (index >= 0)
             {
                 RemoveAt(index);
+
                 return true;
             }
 
@@ -136,10 +154,11 @@ namespace Modules.DataStructures
 
             if (index < _size)
             {
-                Array.Copy(_items, index + 1, _items, index, _size - index);
+                Array.Copy(_items, index+1, _items, index, _size-index);
             }
 
-            _items[_size] = null!;
+            _items[_size] = default!;
+
             _version++;
         }
 
@@ -154,52 +173,59 @@ namespace Modules.DataStructures
             _version++;
         }
 
-        public bool Contains(object item) => IndexOf(item) >= 0;
+        public bool Contains(T item) => IndexOf(item) >= 0;
 
-        public int IndexOf(object item) => Array.IndexOf(_items, item, 0, _size);
+        public int IndexOf(T item) => Array.IndexOf(_items, item, 0, _size);
 
         public void TrimToSize() => Capacity = _size;
 
-        public void Reverse() => Array.Reverse(_items, 0, _size);
+        public void Reverse()  => Array.Reverse(_items, 0, _size);
 
-        public object[] ToArray()
+        public T[] ToArray()
         {
-            object[] array = new object[_size];
+            var array = new T[_size];
+
             Array.Copy(_items, array, _size);
+
             return array;
         }
 
-        public ArrayList GetRange(int startIndex, int count)
+        public ArrayList<T> GetRange(int startIndex, int count)
         {
             if (startIndex < 0 || count < 0)
             {
                 throw new ArgumentOutOfRangeException(startIndex < 0 ? nameof(startIndex) : nameof(count));
             }
-            if (_size - startIndex < count)
+            if (_size-startIndex < count)
             {
                 throw new IndexOutOfRangeException();
             }
 
-            var list = new ArrayList(count);
+            var list = new ArrayList<T>(count);
+
             Array.Copy(_items, startIndex, list._items, 0, count);
             list._size = count;
 
             return list;
         }
 
-        public int BinarySearch(object item) => BinarySearch(item, Comparer.Default);
-
-        public int BinarySearch(object item, IComparer comparer)
+        public int BinarySearch(T item)
         {
+            return BinarySearch(item, Comparer<T>.Default);
+        }
+        
+        public int BinarySearch(T item, IComparer<T> comparer)
+        {
+            comparer ??= Comparer<T>.Default;
             return Array.BinarySearch(_items, 0, _size, item, comparer);
         }
 
-        public void AddRange(ICollection collection)
+        public void AddRange(IEnumerable<T> collection)
         {
             InsertRange(_size, collection);
         }
 
-        public void InsertRange(int index, ICollection collection)
+        public void InsertRange(int index, IEnumerable<T> collection)
         {
             ArgumentNullException.ThrowIfNull(collection);
 
@@ -208,52 +234,53 @@ namespace Modules.DataStructures
                 throw new ArgumentOutOfRangeException(nameof(index));
             }
 
-            int count = collection.Count;
-
-            if (count > 0)
+            if (collection is ICollection<T> col)
             {
-                EnsureCapacity(_size + count);
+                int count = col.Count;
 
-                if (index < _size)
+                if (count > 0)
                 {
-                    Array.Copy(_items, index, _items, index + count, _size - index);
-                }
+                    EnsureCapacity(_size+count);
 
-                if (collection is Array array && array.Rank == 1)
-                {
-                    Array.Copy(array, 0, _items, index, count);
-                }
-                else
-                {
-                    int i = index;
-                    foreach (object item in collection)
+                    if (index < _size)
                     {
-                        _items[i++] = item;
+                        Array.Copy(_items, index, _items, index+count, _size-index);
                     }
-                }
 
-                _size += count;
-                _version++;
+                    col.CopyTo(_items, index);
+
+                    _size += count;
+
+                    _version++;
+                }
+            }
+            else
+            {
+                foreach (var item in collection)
+                {
+                    Insert(index++, item);
+                }
             }
         }
 
-        public void RemoveRange(int startIndex, int count)
+        public void RemoveRange(uint startIndex, int count)
         {
             if (startIndex < 0 || count < 0)
             {
                 throw new ArgumentOutOfRangeException(startIndex < 0 ? nameof(startIndex) : nameof(count));
             }
-            if (_size - startIndex < count)
+            if (_size-startIndex < count)
             {
                 throw new IndexOutOfRangeException();
             }
 
             if (count > 0)
             {
-                int newSize = _size - count;
+                int newSize = _size-count;
+
                 if (startIndex < newSize)
                 {
-                    Array.Copy(_items, startIndex + count, _items, startIndex, newSize - startIndex);
+                    Array.Copy(_items, startIndex+count, _items, startIndex, newSize-startIndex);
                 }
 
                 Array.Clear(_items, newSize, count);
@@ -263,34 +290,18 @@ namespace Modules.DataStructures
             }
         }
 
-        public void SetRange(int startIndex, ICollection collection)
+        public void SetRange(int startIndex, ICollection<T> collection)
         {
             ArgumentNullException.ThrowIfNull(collection);
-            
+
             if (startIndex < 0 || startIndex > _size)
             {
                 throw new ArgumentOutOfRangeException(nameof(startIndex));
             }
 
             int required = startIndex + collection.Count;
-
-            if (required > Capacity)
-            {
-                EnsureCapacity(required);
-            }
-
-            if (collection is Array array && array.Rank == 1)
-            {
-                Array.Copy(array, 0, _items, startIndex, collection.Count);
-            }
-            else
-            {
-                int i = startIndex;
-                foreach (object item in collection)
-                {
-                    _items[i++] = item;
-                }
-            }
+            EnsureCapacity(required);
+            collection.CopyTo(_items, startIndex);
 
             if (required > _size)
             {
@@ -304,44 +315,48 @@ namespace Modules.DataStructures
         {
             if (minCapacity > Capacity)
             {
-                int newCapacity = _items.Length == 0 ? DefaultCapacity : _items.Length * 2;
-                if (newCapacity < minCapacity) 
+                int newCapacity = _items.Length == 0 ? DefaultCapacity : _items.Length*2;
+
+                if (newCapacity < minCapacity)
                 {
                     newCapacity = minCapacity;
                 }
+
                 Capacity = newCapacity;
             }
         }
 
-        public void CopyTo(Array array, int arrayIndex)
+        public void CopyTo(T[] array, int arrayIndex)
         {
             Array.Copy(_items, 0, array, arrayIndex, _size);
         }
 
-        public void Sort() => Sort(Comparer.Default);
+        public void Sort() => Sort(Comparer<T>.Default);
 
-        public void Sort(IComparer comparer)
+        public void Sort(IComparer<T> comparer)
         {
-            comparer ??= Comparer.Default;
+            comparer ??= Comparer<T>.Default;
 
             Array.Sort(_items, 0, _size, comparer);
 
             _version++;
         }
 
-        public IEnumerator GetEnumerator() => new Enumerator(this);
+        public IEnumerator<T> GetEnumerator() => new Enumerator(this);
 
-        bool ICollection.IsSynchronized => false;
-        object ICollection.SyncRoot => this;
-
-        private sealed class Enumerator : IEnumerator
+        IEnumerator IEnumerable.GetEnumerator()
         {
-            private readonly ArrayList _list;
+            throw new NotImplementedException();
+        }
+
+        private sealed class Enumerator : IEnumerator<T>
+        {
+            private readonly ArrayList<T> _list;
             private int _index;
             private readonly int _version;
-            private object? _current;
+            private T? _current;
 
-            internal Enumerator(ArrayList list)
+            internal Enumerator(ArrayList<T> list)
             {
                 _list = list;
                 _index = -1;
@@ -351,48 +366,47 @@ namespace Modules.DataStructures
             public bool MoveNext()
             {
                 CheckVersion();
-                if (_index < _list._size - 1)
+
+                if (_index < _list._size-1)
                 {
                     _current = _list._items[++_index];
-
                     return true;
                 }
+
                 _index = _list._size;
-                _current = null;
+                _current = default;
 
                 return false;
             }
 
-            public object Current
+            public T Current
             {
                 get
                 {
-                    if (_index < 0)
+                    if (_index < 0 || _index >= _list._size)
                     {
-                        throw new InvalidOperationException("enumeration failed");
+                        throw new InvalidOperationException("invalid enumerator...");
                     }
-                    if (_index >= _list._size)
-                    {
-                        throw new InvalidOperationException("enumeration ended");
-                    }
-
                     return _current!;
                 }
             }
 
+            object IEnumerator.Current => Current!;
+
             public void Reset()
             {
                 CheckVersion();
-
                 _index = -1;
-                _current = null;
+                _current = default;
             }
+
+            public void Dispose() => _current = default;
 
             private void CheckVersion()
             {
                 if (_version != _list._version)
                 {
-                    throw new InvalidOperationException("collection modified during enumeration");
+                    throw new InvalidOperationException("colleciton modified during enumeration");
                 }
             }
         }
