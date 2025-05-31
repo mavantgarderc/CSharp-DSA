@@ -2,19 +2,19 @@
 MOST IMAGINARY APPROACH
 - [ ] Linear Structures & Sequential Access Patterns
     - Linear Data Structures
-        01. Arrays
-        02. Linked Lists (Singly, Doubly, Circular)
-        03. Stacks
-        04. Queues
-        05. Strings
-        06. Vectors/Dynamic Arrays
+        ~~01. Arrays~~
+        ~~02. Linked Lists (Singly, Doubly, Circular)~~
+        ~~03. Stacks~~
+        ~~04. Queues~~
+        ~~05. Strings~~
+        ~~06. Vectors/Dynamic Arrays~~
         07. Array Lists
-        08. Deques (Double-ended Queues)
+        ~~08. Deques (Double-ended Queues)~~
         09. Tuples - Immutable ordered sequences
     - Sequential Access Patterns
         01. Sequential Traversal
-        02. Stacks (LIFO)
-        03. Queue (FIFO)
+        ~~02. Stacks (LIFO)~~
+        ~~03. Queue (FIFO)~~
         04. Linear Search
         05. Stream Processing
         06. Tape Storage Access
@@ -22,6 +22,7 @@ MOST IMAGINARY APPROACH
         08. BFS (Breadth-First Search)
         09. DFS (Depth-First Search)
         10. Serialization/Deserialization
+---
 - [ ] Hierarchical & Non-Linear Systems
     - Hierarchical Systems
         01. Trees
@@ -55,6 +56,7 @@ MOST IMAGINARY APPROACH
         08. Spatial Partitioning Structures
             - Quadtree/Octree
             - Graph-Based Spatial Indexing
+---
 - [ ] Efficient Search & Retrieval
     - Core Search Algorithms
         01. Linear Search
@@ -75,6 +77,7 @@ MOST IMAGINARY APPROACH
         03. Floyd's Cycle Detection
         04. Topological Sorting
         05. Plagiarism Applications
+---
 - [ ] Optimization & Computational Limits
     - Optimization
         01. Time-Space Tradeoffs
@@ -119,6 +122,7 @@ MOST IMAGINARY APPROACH
             - Interactability
                 - Curse of Dimensionality
                 - Combinatorial Explosion
+---
 - [ ] Hybrid Systems
     - Hyprid Systems
         01. Hybrid Cloud Architecture
@@ -126,6 +130,7 @@ MOST IMAGINARY APPROACH
         03. Quantum-Classical Hybrid Systems
         04. Polyglot Persistence
         05. Hybrid Storage System
+---
 - [ ] Concurrency & Real-World Constraints
     - Concurency Constrains
         01. Threading Models
@@ -164,6 +169,7 @@ MOST IMAGINARY APPROACH
             - Modularity
             - Portability
             - Maintainability
+---
 - [ ] Probabilistic & Approximation Algorithms
     - Probabilistic Algorithms
         01. Monte Carlo Algorithms
@@ -198,6 +204,7 @@ MOST IMAGINARY APPROACH
         04. Machine Learning
             - SGD (Stochastic Gradient Descent)
             - LSH (Locality-Sensitive Hashing)
+---
 - [ ] Geometry & Spatial Systems
     - Core Geometric Data Structures
         01. Points
@@ -237,6 +244,7 @@ MOST IMAGINARY APPROACH
         03. Sweep Line Algorithms
         04. Motion Planning
         05. Geometric Hashing
+---
 - [ ] Quantum Computing Foundations
     - Core Quantum Mechanics Principles
         01. Qubits
@@ -265,4 +273,5 @@ MOST IMAGINARY APPROACH
     - Hybrid Quantum-Classical Models
         01. VQAs (Variational Quantum Algorithms)
         02. Quantum ML Overview
+
 (bro... I'm cooked...)
