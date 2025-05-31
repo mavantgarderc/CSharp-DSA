@@ -2,25 +2,42 @@
 MOST IMAGINARY APPROACH
 - [ ] Linear Structures & Sequential Access Patterns
     - Linear Data Structures
-        ~~01. Arrays~~ 
-        ~~02. Linked Lists (Singly, Doubly, Circular)~~ 
-        ~~03. Stacks~~ 
-        ~~04. Queues~~ 
-        ~~05. Strings~~ 
-        ~~06. Vectors/Dynamic Arrays~~ 
+        ~~01. Arrays~~
+
+        ~~02. Linked Lists (Singly, Doubly, Circular)~~
+
+        ~~03. Stacks~~
+
+        ~~04. Queues~~
+
+        ~~05. Strings~~
+
+        ~~06. Vectors/Dynamic Arrays~~
+
         07. Array Lists
-        ~~08. Deques (Double-ended Queues)~~ 
+
+        ~~08. Deques (Double-ended Queues)~~
+
         09. Tuples - Immutable ordered sequences
     - Sequential Access Patterns
         01. Sequential Traversal
+
         ~~02. Stacks (LIFO)~~
+
         ~~03. Queue (FIFO)~~
+
         04. Linear Search
+
         05. Stream Processing
+
         06. Tape Storage Access
+
         07. Linked List Traversal
+
         08. BFS (Breadth-First Search)
+
         09. DFS (Depth-First Search)
+
         10. Serialization/Deserialization
 ---
 - [ ] Hierarchical & Non-Linear Systems
