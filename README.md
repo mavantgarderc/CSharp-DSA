@@ -7,8 +7,8 @@ C#, because everybody says not good or too hard for DSA...
 May get synced with parallel repositories in SQL, Python, Lua or whatever...
 
 Contains:
-- DsaConsole (Main Code)
-- DsaConsoleTests (Tests... duh...)
+- Modules (Main Code)
+- Tests (Tests... duh...)
 
 Subtracted in two project to keep the main code clean & neat.
 
@@ -81,3 +81,4 @@ Index (in order of development):
 6. `LinkedList`
 7. `Vectors`
 8. `ArrayList`
+9. `Tuple`

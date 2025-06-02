@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 namespace Modules.DataStructures
 {
     /// <summary>
@@ -96,6 +92,53 @@ namespace Modules.DataStructures
         public static Tuple<T2, T1> Swap<T1, T2>(this Tuple<T1, T2> tuple)
         {
             return Tuple.Create(tuple.Item2, tuple.Item1);
+        }
+
+        public static void Apply<T1, T2>((T1, T2) tuple, Action<T1, T2> action) =>
+            action(tuple.Item1, tuple.Item2);
+
+        public static TResult Select<T1, T2, TResult>((T1, T2) tuple, Func<T1, T2, TResult> selector) =>
+            selector(tuple.Item1, tuple.Item2);
+
+        public static (TResult, TResult) TransformAll<T1, TResult>((T1, T1) tuple, Func<T1, TResult> map) =>
+            (map(tuple.Item1), map(tuple.Item2));
+
+        public static IEnumerable<object> Enumerate<T1, T2>((T1, T2) tuple)
+        {
+            return [tuple.Item1, tuple.Item2];
+        }
+
+        public static Dictionary<T1, T2> ToDictionary<T1, T2>(this IEnumerable<(T1, T2)> tuples)
+        {
+            return tuples.ToDictionary(t => t.Item1, t => t.Item2);
+        }
+
+        public static (T2, T3, T1) RotateLeft<T1, T2, T3>((T1, T2, T3) tuple)
+        {
+            return (tuple.Item2, tuple.Item3, tuple.Item1);
+        }
+
+        public static (T3, T1, T2) RotateRight<T1, T2, T3>((T1, T2, T3) tuple)
+        {
+            return (tuple.Item3, tuple.Item1, tuple.Item2);
+        }
+
+        public static (T1, T2, T1, T2) Duplicate<T1, T2>((T1, T2) tuple)
+        {
+            return (tuple.Item1, tuple.Item2, tuple.Item1, tuple.Item2);
+        }
+
+        public static bool Contains<T1, T2>(this (T1, T2) tuple, T1 value)
+        {
+            return EqualityComparer<T1>.Default.Equals(tuple.Item1, value)
+            || EqualityComparer<T2>.Default.Equals((T2)(object)value, tuple.Item2);
+        }
+
+        public static int IndexOf<T1, T2>(this (T1, T2) tuple, object value)
+        {
+            if (Equals(tuple.Item1, value)) return 0;
+            if (Equals(tuple.Item2, value)) return 1;
+            return -1;
         }
     }
 }
