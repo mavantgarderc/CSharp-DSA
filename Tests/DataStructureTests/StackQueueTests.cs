@@ -1,6 +1,6 @@
 using Modules.DataStructures;
 
-namespace Modules.Tests
+namespace Tests.DataStructureTests
 {
     public class CustomStackTests
     {

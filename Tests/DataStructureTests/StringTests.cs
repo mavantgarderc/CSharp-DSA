@@ -1,6 +1,6 @@
 using Modules.DataStructures;
 
-namespace Tests
+namespace Tests.DataStructureTests
 {
     public class StringTests
     {
@@ -40,7 +40,7 @@ namespace Tests
         [InlineData("hello world", "world", 6)]
         [InlineData("abcde", "f", -1)]
         [InlineData("banana", "na", 2)]
-        public void IndexOfSubstring_ShouldReturnCorrectIndex(string source,  string target, int expected)
+        public void IndexOfSubstring_ShouldReturnCorrectIndex(string source, string target, int expected)
         {
             var result = Strings.IndexOfSubstring(source, target);
             Assert.Equal(expected, result);
