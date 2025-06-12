@@ -20,7 +20,7 @@ MOST IMAGINARY APPROACH
 
         ~~08. Deques (Double-ended Queues)~~
 
-        09. Tuples - Immutable ordered sequences
+        ~~09. Tuples - Immutable ordered sequences~~
 
     - Sequential Access Patterns
         01. Sequential Traversal

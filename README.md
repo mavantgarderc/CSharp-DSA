@@ -81,4 +81,4 @@ Index (in order of development):
 6. `LinkedList`
 7. `Vectors`
 8. `ArrayList`
-9. `Tuple`
+9. `TupleUtils`
