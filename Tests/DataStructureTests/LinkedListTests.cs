@@ -1,4 +1,6 @@
-namespace Modules.DataStructures.Tests
+using Modules.DataStructures;
+
+namespace Tests
 {
     public class LinkedListTests
     {

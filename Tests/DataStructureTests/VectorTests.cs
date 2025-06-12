@@ -1,6 +1,6 @@
 using static Modules.DataStructures.Vectors;
 
-namespace Tests.DataStructureTests
+namespace Tests
 {
     public class VectorTests
     {

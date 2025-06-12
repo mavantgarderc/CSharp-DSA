@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Modules.DataStructures;
-using Xunit;
 
-namespace Modules.Tests.DataStructures
+namespace Tests
 {
     public class TupleUtilsTests
     {

@@ -1,6 +1,6 @@
 using Modules.DataStructures;
 
-namespace Tests.DataStructureTests
+namespace Tests
 {
     public class StringTests
     {

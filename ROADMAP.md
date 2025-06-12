@@ -23,7 +23,7 @@ MOST IMAGINARY APPROACH
         ~~09. Tuples - Immutable ordered sequences~~
 
     - Sequential Access Patterns
-        01. Sequential Traversal
+        ~~01. Sequential Traversal~~
 
         ~~02. Stacks (LIFO)~~
 
