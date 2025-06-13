@@ -82,3 +82,4 @@ Index (in order of development):
 7. `Vectors`
 8. `ArrayList`
 9. `TupleUtils`
+10. `SequentialTraversals`

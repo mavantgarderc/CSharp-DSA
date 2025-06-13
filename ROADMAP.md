@@ -29,7 +29,7 @@ MOST IMAGINARY APPROACH
 
         ~~03. Queue (FIFO)~~
 
-        04. Linear Search
+       ~~04. Linear Search~~
 
         05. Stream Processing
 
