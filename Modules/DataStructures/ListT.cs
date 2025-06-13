@@ -26,7 +26,7 @@ namespace Modules.DataStructures
         public static void InsertAt<T>(List<T> list, int index, T item)
         {
             if (list == null) throw new ArgumentException("List cannot be null.");
-            if (index < 0 || index > list.Count) throw new ArgumentException(nameof(index));
+            if (index < 0 || index > list.Count) throw new ArgumentException(null, nameof(index));
             list.Insert(index, item);
         }
 
@@ -34,7 +34,7 @@ namespace Modules.DataStructures
         public static void RemoveAt<T>(List<T> list, int index)
         {
             if (list == null) throw new ArgumentException("List cannot be null.");
-            if (index < 0 || index >= list.Count) throw new ArgumentException(nameof(index));
+            if (index < 0 || index >= list.Count) throw new ArgumentException(null, nameof(index));
             list.RemoveAt(index);
         }
 

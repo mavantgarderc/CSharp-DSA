@@ -1,8 +1,32 @@
 namespace Modules.DataStructures
 {
-    public class SequentialTraversal
+    /// <summary>
+    /// Concepts:
+    ///     - Sequential and parallel traversal of common .NET collections
+    ///     - Generic programming for type flexibility
+    ///     - Iteration over linear and nonlinear data structures (arrays, stacks, queues, linked lists, dictionaries, sets)
+    ///     - Handling specialized structures (jagged arrays, 2D arrays, spans, circular buffers)
+    /// Key Practices:
+    ///     - Using appropriate iteration patterns for each collection type
+    ///     - Leveraging interfaces like IEnumerable<T> and IList<T> for abstraction
+    ///     - Ensuring forward and reverse traversal capabilities
+    ///     - Demonstrating safe and efficient use of enumerators and parallelism
+    /// </summary>
+    
+    public class NewBaseType
     {
-        public void TraverseArray(int[] array)
+        public static void TraverseStack<T>(Stack<T> stack)
+        {
+            foreach (var item in stack)
+            {
+                Console.WriteLine(item);
+            }
+        }
+    }
+
+    public class SequentialTraversal : NewBaseType
+    {
+        public static void TraverseArray(int[] array)
         {
             for (int i = 0; i < array.Length; i++)
             {
@@ -10,7 +34,7 @@ namespace Modules.DataStructures
             }
         }
 
-        public void TraverseList(List<int> list)
+        public static void TraverseList(List<int> list)
         {
             foreach (var item in list)
             {
@@ -18,7 +42,7 @@ namespace Modules.DataStructures
             }
         }
 
-        public void TraverseLinkedList(LinkedList<int> list)
+        public static void TraverseLinkedList(LinkedList<int> list)
         {
             foreach (var item in list)
             {
@@ -26,7 +50,7 @@ namespace Modules.DataStructures
             }
         }
 
-        public void Traverse2DArray(int[,] matrix)
+        public static void Traverse2DArray(int[,] matrix)
         {
             int rows = matrix.GetLength(0);
             int cols = matrix.GetLength(1);
@@ -40,7 +64,7 @@ namespace Modules.DataStructures
             }
         }
 
-        public void TraverseJaggedArray(int[][] jagged)
+        public static void TraverseJaggedArray(int[][] jagged)
         {
             foreach(var row in jagged)
             {
@@ -51,7 +75,7 @@ namespace Modules.DataStructures
             }
         }
 
-        public void TraverseWithIndex<T>(IEnumerable<T> collection)
+        public static void TraverseWithIndex<T>(IEnumerable<T> collection)
         {
             int i = 0;
 
@@ -61,7 +85,7 @@ namespace Modules.DataStructures
             }
         }
 
-        public void TravereReverse<T>(IList<T> list)
+        public static void TravereReverse<T>(IList<T> list)
         {
             for (int i = list.Count-1; i >= 0; i--)
             {
@@ -69,15 +93,7 @@ namespace Modules.DataStructures
             }
         }
 
-        public void TraverseStack<T>(Stack<T> stack)
-        {
-            foreach (var item in stack)
-            {
-                Console.WriteLine(item);
-            }
-        }
-
-        public void TraverseQueue<T>(Queue<T> queue)
+        public static void TraverseQueue<T>(Queue<T> queue)
         {
             foreach (var item in queue)
             {
@@ -85,7 +101,7 @@ namespace Modules.DataStructures
             }
         }
 
-        public void TraverseDictionary<K, V>(Dictionary<K, V> dict)
+        public static void TraverseDictionary<K, V>(Dictionary<K, V> dict)
             where K : notnull
         {
             foreach (var kv in dict)
@@ -94,7 +110,7 @@ namespace Modules.DataStructures
             }
         }
 
-        public void TraverseSet<T>(HashSet<T> set)
+        public static void TraverseSet<T>(HashSet<T> set)
         {
             foreach (var item in set)
             {
@@ -102,7 +118,7 @@ namespace Modules.DataStructures
             }
         }
 
-        public void TraverseSpan(Span<int> span)
+        public static void TraverseSpan(Span<int> span)
         {
             for (int i = 0; i < span.Length; i++)
             {
@@ -110,7 +126,7 @@ namespace Modules.DataStructures
             }
         }
 
-        public void TraverseString(string s)
+        public static void TraverseString(string s)
         {
             foreach (char c in s)
             {
@@ -118,7 +134,7 @@ namespace Modules.DataStructures
             }
         }
 
-        public void TraverseEnumerator<T>(IEnumerable<T> collection)
+        public static void TraverseEnumerator<T>(IEnumerable<T> collection)
         {
             using var enumerator = collection.GetEnumerator();
             while (enumerator.MoveNext())
@@ -127,7 +143,7 @@ namespace Modules.DataStructures
             }
         }
 
-        public void TraverseParallel<T>(IEnumerable<T> collection)
+        public static void TraverseParallel<T>(IEnumerable<T> collection)
         {
             System.Threading.Tasks.Parallel.ForEach(collection, item =>
             {
@@ -135,13 +151,13 @@ namespace Modules.DataStructures
             });
         }
 
-        public static void TraversCircularBuffer<T>(T[] buffer, int head, int size)
+        public static void TraverseCircularBuffer<T>(T[] buffer, int head, int size)
         {
             int capacity = buffer.Length;
 
             for (int i = 0; i < size; i++)
             {
-                int index = (head+1) % capacity;
+                int index = (head + 1 + i) % capacity;
                 Console.WriteLine(buffer[index]);
             }
         }

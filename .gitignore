@@ -1,0 +1,81 @@
+# .NET Core & ASP.NET Core
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.vs/
+.vscode/
+*.dbmdl
+*.pdb
+*.cache
+*.log
+*.ncb
+*.sdf
+*.opensdf
+*.VC.db
+*.msscci
+*.sln.ide
+
+# Rider
+.idea/
+*.sln.iml
+
+# OS generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
+Desktop.ini
+$RECYCLE.BIN/
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+*.nuspec
+
+# Test results
+TestResults/
+*.trx
+*.testsettings
+*.vsmdi
+*.psess
+*.vsp
+*.vspx
+*.coverage
+*.coveragexml
+*.codecoverage
+
+# Build results
+*.exe
+*.dll
+*.app
+*.so
+*.dylib
+*.lib
+*.a
+*.la
+*.lo
+
+# Publish
+publish/
+out/
+
+# Others
+*.bak
+*.swp
+*.tmp
+*.temp
+*.pid
+
+# Secrets
+secrets.json
+
+# Global tool config
+*.global.json

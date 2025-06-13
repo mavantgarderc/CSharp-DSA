@@ -20,7 +20,6 @@ namespace Modules.DataStructures
     ///          Add, Insert, RemoveAt, Clear, Contains, 
     ///          IndexOf, indexer access, and string representation.
     /// </summary>
-
     public class Arrays
     {
         private static void Reverse(int[] arr, int start, int end)
@@ -124,7 +123,7 @@ namespace Modules.DataStructures
 
         public static void Reverse<T>(T[] array)
         {
-            if (array == null) throw new ArgumentNullException(nameof(array));
+            ArgumentNullException.ThrowIfNull(array);
             int left = 0, right = array.Length - 1;
             while (left < right)
             {
@@ -137,7 +136,7 @@ namespace Modules.DataStructures
         // 2D -> 1D array
         public static T[] Flatten<T>(T[,] multiArray)
         {
-            if (multiArray == null) throw new ArgumentNullException(nameof(multiArray));
+            ArgumentNullException.ThrowIfNull(multiArray);
             int rows = multiArray.GetLength(0);
             int cols = multiArray.GetLength(1);
             T[] result = new T[rows * cols];
@@ -153,7 +152,7 @@ namespace Modules.DataStructures
         // jagged -> 2D rectangular array
         public static T[,] ToRectangular<T>(T[][] jaggedArray)
         {
-            if (jaggedArray == null) throw new ArgumentNullException(nameof(jaggedArray));
+            ArgumentNullException.ThrowIfNull(jaggedArray);
             int rows = jaggedArray.Length;
             int cols = jaggedArray[0].Length;
 
@@ -180,7 +179,8 @@ namespace Modules.DataStructures
 
             public DynamicArray(int capacity = 4)
             {
-                if (capacity <= 0) throw new ArgumentOutOfRangeException(nameof(capacity));
+                ArgumentOutOfRangeException.ThrowIfNegativeOrZero(capacity);
+
                 _items = new T[capacity];
                 _count = 0;
             }
@@ -233,7 +233,7 @@ namespace Modules.DataStructures
                 _items[--_count] = default!;
             }
 
-            // add to the end 
+            // add to the end
             public void Add(T item)
             {
                 EnsureCapacity(_count + 1);
@@ -264,14 +264,14 @@ namespace Modules.DataStructures
             {
                 if (_count == 0) return "[]";
 
-                StringBuilder sb = new StringBuilder();
-                sb.Append("[");
+                StringBuilder sb = new();
+                sb.Append('[');
                 for (int i = 0; i < _count; i++)
                 {
                     sb.Append(_items[i]);
                     if (i < _count - 1) sb.Append(", ");
                 }
-                sb.Append("]");
+                sb.Append(']');
                 return sb.ToString();
             }
         }

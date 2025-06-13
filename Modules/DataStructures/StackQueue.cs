@@ -112,67 +112,67 @@ namespace Modules.DataStructures
         public bool IsEmpty => _list.Count == 0;
     }
 
-/// <summary>
-/// Array-based Linear Queue implementation (non-circular).
-/// Enqueue at rear, Dequeue from front. Not space-efficient.
-/// </summary>
-public class LinearQueue<T>
-{
-    private readonly T[] _items;
-    private int _front;
-    private int _rear;
-    private int _count;
-    public int Count => _count;
-    public int Capacity => _items.Length;
-    public bool IsEmpty => _count == 0;
-
-    public LinearQueue(int capacity = 8)
+    /// <summary>
+    /// Array-based Linear Queue implementation (non-circular).
+    /// Enqueue at rear, Dequeue from front. Not space-efficient.
+    /// </summary>
+    public class LinearQueue<T>
     {
-        if (capacity <= 0) 
+        private readonly T[] _items;
+        private int _front;
+        private int _rear;
+        private int _count;
+        public int Count => _count;
+        public int Capacity => _items.Length;
+        public bool IsEmpty => _count == 0;
+    
+        public LinearQueue(int capacity = 8)
         {
-            throw new ArgumentException("Capacity must be positive.", nameof(capacity));
+            if (capacity <= 0) 
+            {
+                throw new ArgumentException("Capacity must be positive.", nameof(capacity));
+            }
+            
+            _items = new T[capacity];
+            _front = _rear = _count = 0;
         }
-        
-        _items = new T[capacity];
-        _front = _rear = _count = 0;
-    }
-
-    public void Enqueue(T item)
-    {
-        if (_rear == _items.Length)
+    
+        public void Enqueue(T item)
         {
-            throw new InvalidOperationException("Queue is full.");
+            if (_rear == _items.Length)
+            {
+                throw new InvalidOperationException("Queue is full.");
+            }
+            
+            _items[_rear] = item;
+            _rear++;
+            _count++;
         }
-        
-        _items[_rear] = item;
-        _rear++;
-        _count++;
-    }
-
-    public T Dequeue()
-    {
-        if (IsEmpty)
+    
+        public T Dequeue()
         {
-            throw new InvalidOperationException("Queue is empty.");
+            if (IsEmpty)
+            {
+                throw new InvalidOperationException("Queue is empty.");
+            }
+    
+            T item = _items[_front];
+            _items![_front] = default!;
+            _front++;
+            _count--;
+            return item;
         }
-
-        T item = _items[_front];
-        _items![_front] = default!;
-        _front++;
-        _count--;
-        return item;
-    }
-
-    public T Peek()
-    {
-        if (IsEmpty)
+    
+        public T Peek()
         {
-            throw new InvalidOperationException("Queue is empty.");
+            if (IsEmpty)
+            {
+                throw new InvalidOperationException("Queue is empty.");
+            }
+    
+            return _items[_front];
         }
-
-        return _items[_front];
     }
-}
 
     public class CircularQueue<T>
     {

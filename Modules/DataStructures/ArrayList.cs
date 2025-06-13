@@ -2,6 +2,18 @@ using System.Collections;
 
 namespace Modules.DataStructures
 {
+    /// <summary>
+    /// Concepts:
+    ///     - Dynamic array resizing and memory management
+    ///     - Generic collection implementation (type-safe)
+    ///     - Encapsulation of internal data with public APIs
+    ///     - Versioning for safe enumeration and concurrency
+    /// Key Practices:
+    ///     - Capacity management and performance optimization
+    ///     - Use of interfaces for extensibility (ICollection<T>, IEnumerable<T>)
+    ///     - Exception handling for robust API boundaries
+    ///     - Support for batch operations (AddRange, InsertRange, RemoveRange)
+    /// </summary>
     public class ArrayList<T> : ICollection<T>, IEnumerable<T>
     {
         private T[] _items;
@@ -67,7 +79,6 @@ namespace Modules.DataStructures
             }
             else
             {
-                // _items = Array.Empty<T>();
                 _items = [];
                 foreach (var item in collection)
                 {

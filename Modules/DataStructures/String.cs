@@ -26,7 +26,7 @@ namespace Modules.DataStructures
     {
         public static string Reverse(string input)
         {
-            StringBuilder builder = new StringBuilder(input.Length);
+            StringBuilder builder = new(input.Length);
             for (int i = input.Length - 1; i >= 0; i--)
             {
                 builder.Append(input[i]);
@@ -61,17 +61,17 @@ namespace Modules.DataStructures
 
             foreach (var ch in a)
             {
-                if (count.ContainsKey(ch))
-                    count[ch]++;
+                if (count.TryGetValue(ch, out int value))
+                    count[ch] = ++value;
                 else
                     count[ch] = 1;
             }
 
             foreach (var ch in b)
             {
-                if (!count.ContainsKey(ch)) return false;
-                count[ch]--;
-                if (count[ch] < 0) return false;
+                if (!count.TryGetValue(ch, out int value)) return false;
+                count[ch] = --value;
+                if (value < 0) return false;
             }
             return true;
         }
@@ -99,7 +99,7 @@ namespace Modules.DataStructures
 
             var frequency = new Dictionary<char, int>();
             foreach (var ch in input)
-                frequency[ch] = frequency.ContainsKey(ch) ? frequency[ch] + 1 : 1;
+                frequency[ch] = frequency.TryGetValue(ch, out int value) ? value + 1 : 1;
 
             foreach (var ch in input)
                 if (frequency[ch] == 1)
@@ -228,7 +228,7 @@ namespace Modules.DataStructures
         public static List<int> KMPSearch(string pattern, string text)
         {
             if (string.IsNullOrEmpty(pattern) || string.IsNullOrEmpty(text))
-                return new List<int>();
+                return [];
 
             int M = pattern.Length;
             int N = text.Length;
