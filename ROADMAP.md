@@ -33,15 +33,11 @@ MOST IMAGINARY APPROACH
 
         ~~05. Stream Processing~~
 
-        06. Tape Storage Access
+        ~~06. BFS (Breadth-First Search)~~
 
-        07. Linked List Traversal
+        07. DFS (Depth-First Search)
 
-        08. BFS (Breadth-First Search)
-
-        09. DFS (Depth-First Search)
-
-        10. Serialization/Deserialization
+        08. Serialization/Deserialization
 ---
 - [ ] Hierarchical & Non-Linear Systems
 
