@@ -31,7 +31,7 @@ MOST IMAGINARY APPROACH
 
        ~~04. Linear Search~~
 
-        05. Stream Processing
+        ~~05. Stream Processing~~
 
         06. Tape Storage Access
 
