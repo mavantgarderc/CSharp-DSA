@@ -42,27 +42,30 @@ namespace Modules.Algorithms
 
         // synchro window batching
         public static IEnumerable<List<T>> Window<T>(
-                this IEnumerable<T> source,
-                int windowsize)
+            this IEnumerable<T> source,
+            int windowSize)
         {
-            if (windowsize <= 0)
-                throw new ArgumentOutOfRangeException(nameof(windowsize));
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(windowSize);
 
-            var buffer = new List<T>(windowsize);
+            var buffer = new List<T>(windowSize);
 
-            foreach(var iten in source)
+            foreach (var item in source)
             {
-                yield return new List<T>(buffer);
-                buffer.Clear();
+                buffer.Add(item);
+                if (buffer.Count == windowSize)
+                {
+                    yield return new List<T>(buffer);
+                    buffer.Clear();
+                }
             }
             if (buffer.Count > 0)
             {
-                yield return buffer;
+                yield return new List<T>(buffer);
             }
         }
 
         // synchro takeutil (yields until predicatei s true)
-        public static IEnumerable<T> TakeUtil<T>(
+        public static IEnumerable<T> TakeUntil<T>(
                 this IEnumerable<T> source,
                 Func<T, bool> predicate)
         {
@@ -151,8 +154,7 @@ namespace Modules.Algorithms
         // Synchro Chunk
         public static IEnumerable<List<T>> Chunk<T>(this IEnumerable<T> source, int chunkSize)
         {
-            if (chunkSize <= 0)
-                throw new ArgumentOutOfRangeException(nameof(chunkSize));
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(chunkSize);
 
             var buffer = new List<T>(chunkSize);
 
@@ -208,8 +210,7 @@ namespace Modules.Algorithms
                 int windowSize,
                 [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            if (windowSize <= 0)
-                throw new ArgumentOutOfRangeException(nameof(windowSize));
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(windowSize);
 
             var buffer = new List<T>(windowSize);
 
@@ -248,7 +249,7 @@ namespace Modules.Algorithms
                 this IAsyncEnumerable<T> source,
                 TAccumulate seed,
                 Func<TAccumulate, T, TAccumulate> func,
-                [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
+                CancellationToken cancellationToken = default)
         {
             var acc = seed;
             await foreach (var item in source.WithCancellation(cancellationToken))
@@ -289,6 +290,20 @@ namespace Modules.Algorithms
                 {
                     yield return item;
                 }
+            }
+        }
+
+        // async DistinctBy
+        public static async IAsyncEnumerable<T> DistinctByAsync<T, TKey>(
+                this IAsyncEnumerable<T> source,
+                Func<T, TKey> keySelector,
+                [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
+            var seen = new HashSet<TKey>();
+            await foreach (var item in source.WithCancellation(cancellationToken))
+            {
+                if (seen.Add(keySelector(item)))
+                    yield return item;
             }
         }
 
@@ -337,8 +352,7 @@ namespace Modules.Algorithms
                 int chunkSize,
                 [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            if (chunkSize <= 0)
-                throw new ArgumentOutOfRangeException(nameof(chunkSize));
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(chunkSize);
 
             var buffer = new List<T>(chunkSize);
 
