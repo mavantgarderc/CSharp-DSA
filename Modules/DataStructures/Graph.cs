@@ -20,6 +20,25 @@ namespace Modules.DataStructures
 
         private readonly Dictionary<int, List<(int, int)>> adj = [];
 
+        /// <summary>
+        /// exposes the graph as an adjacency list of nodes only, for BFS-style algorithms
+        /// each node is mapped to a List of its neighbors (ignoring weights)
+        /// for compatibility with algorithms that expect List<int>[] style access
+        /// </summary>
+        public Dictionary<int, List<int>> Adj
+        {
+            get
+            {
+                // provides a neighbor-list for each node, ignoring edge weights.
+                var dict = new Dictionary<int, List<int>>();
+                foreach (var kvp in adj)
+                {
+                    dict[kvp.Key] = kvp.Value.Select(e => e.Item1).ToList();
+                }
+                return dict;
+            }
+        }
+
         public void AddNode(int node)
         {
             if (!adj.ContainsKey(node))
@@ -55,6 +74,8 @@ namespace Modules.DataStructures
 
         public bool IsConnected(int a, int b) =>
             adj.ContainsKey(a) && adj[a].Any(e => e.Item1 == b);
+        
+        public int VertexCount => adj.Count;
 
         #endregion
 
@@ -73,7 +94,7 @@ namespace Modules.DataStructures
                 {
                     if (!reversed.ContainsKey(dst))
                         reversed[dst] = [];
-                    reversed[dst].Add((src, w)); // reverse direction
+                    reversed[dst].Add((src, w));
                 }
             }
             adj.Clear();
@@ -214,7 +235,7 @@ namespace Modules.DataStructures
                 return;
 
             stack.Add(node);
-            foreach (var (neighbor, _) in adj[node]) // adj should be your adjacency list
+            foreach (var (neighbor, _) in adj[node])
             {
                 DfsForTopSort(neighbor, visited, stack, result);
             }
