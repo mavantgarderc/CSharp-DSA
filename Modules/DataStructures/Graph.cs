@@ -185,27 +185,44 @@ namespace Modules.DataStructures
         // Topological Sort (DFS)
         public List<int> TopologicalSort()
         {
-            List<int> result = [];
-            HashSet<int> visited = [];
+            var visited = new HashSet<int>();
+            var stack = new HashSet<int>();
+            var result = new List<int>();
 
-            void Dfs(int node)
-            {
-                visited.Add(node);
-                foreach (var (neighbor, _) in adj[node])
-                {
-                    if (!visited.Contains(neighbor))
-                        Dfs(neighbor);
-                }
-                result.Add(node);
-            }
             foreach (var node in adj.Keys)
             {
                 if (!visited.Contains(node))
-                    Dfs(node);
+                {
+                    DfsForTopSort(node, visited, stack, result);
+                }
             }
             result.Reverse();
             return result;
         }
+
+        private void DfsForTopSort(
+            int node,
+            HashSet<int> visited,
+            HashSet<int> stack,
+            List<int> result
+        )
+        {
+            if (stack.Contains(node))
+                throw new Exception("Graph contains a cycle.");
+
+            if (visited.Contains(node))
+                return;
+
+            stack.Add(node);
+            foreach (var (neighbor, _) in adj[node]) // adj should be your adjacency list
+            {
+                DfsForTopSort(neighbor, visited, stack, result);
+            }
+            stack.Remove(node);
+            visited.Add(node);
+            result.Add(node);
+        }
+
         #endregion
 
 
@@ -483,32 +500,49 @@ namespace Modules.DataStructures
 
         #region Graph Coloring
 
-        public int[] GraphColoring(int numColors)
+        public int[] GraphColoring(int maxColors)
         {
-            int[] color = new int[adj.Keys.Max() + 1];
-            Array.Fill(color, -1);
+            var nodes = adj.Keys.ToList();
+            int n = nodes.Count;
+            int[] colors = new int[n];
+            Array.Fill(colors, -1);
+            var nodeIndex = nodes
+                .Select((node, idx) => new { node, idx })
+                .ToDictionary(x => x.node, x => x.idx);
 
-            foreach (var node in adj.Keys)
+            for (int i = 0; i < n; i++)
             {
+                int node = nodes[i];
                 var unavailable = new HashSet<int>();
 
-                foreach (var (neighbor, _) in adj[node])
+                // Outgoing neighbors
+                foreach (var neighbor in GetNeighbors(node))
                 {
-                    if (color[neighbor] != -1)
-                        unavailable.Add(color[neighbor]);
+                    int idx = nodeIndex[neighbor];
+                    if (colors[idx] != -1)
+                        unavailable.Add(colors[idx]);
                 }
-                for (int c = 0; c < numColors; c++)
+                // Incoming neighbors
+                foreach (var other in nodes)
                 {
-                    if (!unavailable.Contains(c))
+                    if (GetNeighbors(other).Contains(node))
                     {
-                        color[node] = c;
-                        break;
+                        int idx = nodeIndex[other];
+                        if (colors[idx] != -1)
+                            unavailable.Add(colors[idx]);
                     }
                 }
-                if (color[node] == -1)
-                    throw new Exception("Graph cannot be coloring with given number of colors.");
+
+                int color = 0;
+                while (unavailable.Contains(color))
+                {
+                    color++;
+                }
+                if (color >= maxColors)
+                    throw new Exception("Impossible coloring.");
+                colors[i] = color;
             }
-            return color;
+            return colors;
         }
 
         #endregion
