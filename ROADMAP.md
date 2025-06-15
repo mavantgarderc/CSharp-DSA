@@ -2,7 +2,7 @@
 MOST IMAGINARY APPROACH
 - [ ] Linear Structures & Sequential Access Patterns
 
-    [x] Linear Data Structures
+    - Linear Data Structures
 
         ~~01. Arrays~~
 
@@ -22,7 +22,7 @@ MOST IMAGINARY APPROACH
 
         ~~09. Tuples - Immutable ordered sequences~~
 
-    [ ] Sequential Access Patterns
+    - Sequential Access Patterns
         ~~01. Sequential Traversal~~
 
         ~~02. Stacks (LIFO)~~
@@ -35,13 +35,13 @@ MOST IMAGINARY APPROACH
 
         ~~06. BFS (Breadth-First Search)~~
 
-        07. DFS (Depth-First Search)
+        ~~07. DFS (Depth-First Search)~~
 
         08. Serialization/Deserialization
 ---
 - [ ] Hierarchical & Non-Linear Systems
 
-    [ ] Hierarchical Systems
+    - Hierarchical Systems
 
         01. Trees
 
@@ -71,7 +71,7 @@ MOST IMAGINARY APPROACH
 
         06. Decision Trees
 
-    [ ] Non-Linear Systems
+    - Non-Linear Systems
 
         01. Graphs
 
@@ -109,7 +109,7 @@ MOST IMAGINARY APPROACH
 
 - [ ] Efficient Search & Retrieval
 
-    [ ] Core Search Algorithms
+    - Core Search Algorithms
 
         01. Linear Search
 
@@ -123,7 +123,7 @@ MOST IMAGINARY APPROACH
 
         06. Fibonacci Search
 
-    [ ] Information Retrieval Techniques
+    - Information Retrieval Techniques
 
         01. Boolean Retrieval
 
@@ -135,7 +135,7 @@ MOST IMAGINARY APPROACH
 
         05. Neural Information Retrieval
 
-    [ ] Advanced Search-Oriented Algorithms
+    - Advanced Search-Oriented Algorithms
 
         01. Sliding Window Technique
 
@@ -151,7 +151,7 @@ MOST IMAGINARY APPROACH
 
 - [ ] Optimization & Computational Limits
 
-    [ ] Optimization
+    - Optimization
 
         01. Time-Space Tradeoffs
 
@@ -185,7 +185,7 @@ MOST IMAGINARY APPROACH
 
             - Multi-Threading
 
-    [ ] Computational Limits
+    - Computational Limits
 
         01. Complexity Theory
 
@@ -241,7 +241,7 @@ MOST IMAGINARY APPROACH
 
 - [ ] Hybrid Systems
 
-    [ ] Hyprid Systems
+    - Hyprid Systems
 
         01. Hybrid Cloud Architecture
 
@@ -257,7 +257,7 @@ MOST IMAGINARY APPROACH
 
 - [ ] Concurrency & Real-World Constraints
 
-    [ ] Concurency Constrains
+    - Concurency Constrains
 
         01. Threading Models
 
@@ -291,7 +291,7 @@ MOST IMAGINARY APPROACH
 
             - Phantom Reads
 
-    [ ] Real-World Constraints
+    - Real-World Constraints
 
         01. Hardware Limitations
 
@@ -335,7 +335,7 @@ MOST IMAGINARY APPROACH
 
 - [ ] Probabilistic & Approximation Algorithms
 
-    [ ] Probabilistic Algorithms
+    - Probabilistic Algorithms
 
         01. Monte Carlo Algorithms
 
@@ -343,7 +343,7 @@ MOST IMAGINARY APPROACH
 
         03. Atlantic City Algorithms (M.C. & L.V. Hybrid Algos)
 
-    [ ] Approximation Algorithms
+    - Approximation Algorithms
 
         01. Greedy Approximation
 
@@ -365,7 +365,7 @@ MOST IMAGINARY APPROACH
 
             - MAX-SAT
 
-    [ ] Hybrid Probabilistic-Approximation Methods
+    - Hybrid Probabilistic-Approximation Methods
 
         01. Markov Chain Monte Carlo (MCMC)
 
@@ -375,7 +375,7 @@ MOST IMAGINARY APPROACH
 
         04. Swarm Intelligence
 
-    [ ] Applications & Problem Domains
+    - Applications & Problem Domains
 
         01. Graph Problems
 
@@ -405,7 +405,7 @@ MOST IMAGINARY APPROACH
 
 - [ ] Geometry & Spatial Systems
 
-    [ ] Core Geometric Data Structures
+    - Core Geometric Data Structures
 
         01. Points
 
@@ -423,7 +423,7 @@ MOST IMAGINARY APPROACH
 
         06. Voxel Grids
 
-    [ ] Spatial Indexing & Accelertion Structures
+    - Spatial Indexing & Accelertion Structures
 
         01. R-Trees
 
@@ -437,7 +437,7 @@ MOST IMAGINARY APPROACH
 
         06. Bounding Volume Hierarchies (BVH)
 
-    [ ] Geometric Algorithms
+    - Geometric Algorithms
 
         01. Collision Detection
 
@@ -469,7 +469,7 @@ MOST IMAGINARY APPROACH
 
         06. Point-in-Polygon
 
-    [ ] Computational Geometr Problems
+    - Computational Geometr Problems
 
         01. Closest Pair of Points
 
@@ -485,7 +485,7 @@ MOST IMAGINARY APPROACH
 
 - [ ] Quantum Computing Foundations
 
-    [ ] Core Quantum Mechanics Principles
+    - Core Quantum Mechanics Principles
 
         01. Qubits
 
@@ -497,7 +497,7 @@ MOST IMAGINARY APPROACH
 
         05. Measurement
 
-    [ ] Quantum Algorithms & Protocols
+    - Quantum Algorithms & Protocols
 
         01. Grover's Algorithm
 
@@ -509,7 +509,7 @@ MOST IMAGINARY APPROACH
 
         05. Quantum Teleportation
 
-    [ ] Quantum Complexity Theory
+    - Quantum Complexity Theory
 
         01. Complexity Classes
 
@@ -517,7 +517,7 @@ MOST IMAGINARY APPROACH
 
             - QMA (Quantum Merlin-Arthur)
 
-    [ ] Quantum Error Correction
+    - Quantum Error Correction
 
         01. Noise & Decoherence
 
@@ -525,7 +525,7 @@ MOST IMAGINARY APPROACH
 
         03. Threshold Theorem
 
-    [ ] Quantum Data Structure
+    - Quantum Data Structure
 
         01. Quantum RAM (qRAM)
 
@@ -533,7 +533,7 @@ MOST IMAGINARY APPROACH
 
         03. Graph States
 
-    [ ] Hybrid Quantum-Classical Models
+    - Hybrid Quantum-Classical Models
 
         01. VQAs (Variational Quantum Algorithms)
 
