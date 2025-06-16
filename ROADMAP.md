@@ -1,6 +1,6 @@
 # Roadmap
 MOST IMAGINARY APPROACH
-- [ ] Linear Structures & Sequential Access Patterns
+- [x] Linear Structures & Sequential Access Patterns
 
     - Linear Data Structures
 
@@ -37,7 +37,7 @@ MOST IMAGINARY APPROACH
 
         ~~07. DFS (Depth-First Search)~~
 
-        08. Serialization/Deserialization
+        ~~08. Serialization/Deserialization~~
 ---
 - [ ] Hierarchical & Non-Linear Systems
 
