@@ -3,11 +3,14 @@
 /home/mava/proj/personal/CSharp-DSA/Modules/bin/Debug/net9.0/Modules.runtimeconfig.json
 /home/mava/proj/personal/CSharp-DSA/Modules/bin/Debug/net9.0/Modules.dll
 /home/mava/proj/personal/CSharp-DSA/Modules/bin/Debug/net9.0/Modules.pdb
+/home/mava/proj/personal/CSharp-DSA/Modules/bin/Debug/net9.0/Newtonsoft.Json.dll
+/home/mava/proj/personal/CSharp-DSA/Modules/obj/Debug/net9.0/Modules.csproj.AssemblyReference.cache
 /home/mava/proj/personal/CSharp-DSA/Modules/obj/Debug/net9.0/Modules.GeneratedMSBuildEditorConfig.editorconfig
 /home/mava/proj/personal/CSharp-DSA/Modules/obj/Debug/net9.0/Modules.AssemblyInfoInputs.cache
 /home/mava/proj/personal/CSharp-DSA/Modules/obj/Debug/net9.0/Modules.AssemblyInfo.cs
 /home/mava/proj/personal/CSharp-DSA/Modules/obj/Debug/net9.0/Modules.csproj.CoreCompileInputs.cache
 /home/mava/proj/personal/CSharp-DSA/Modules/obj/Debug/net9.0/Modules.sourcelink.json
+/home/mava/proj/personal/CSharp-DSA/Modules/obj/Debug/net9.0/Modules.csproj.Up2Date
 /home/mava/proj/personal/CSharp-DSA/Modules/obj/Debug/net9.0/Modules.dll
 /home/mava/proj/personal/CSharp-DSA/Modules/obj/Debug/net9.0/refint/Modules.dll
 /home/mava/proj/personal/CSharp-DSA/Modules/obj/Debug/net9.0/Modules.pdb

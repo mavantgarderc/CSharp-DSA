@@ -224,7 +224,7 @@ namespace Modules.DataStructures
         {
             return BinarySearch(item, Comparer<T>.Default);
         }
-        
+
         public int BinarySearch(T item, IComparer<T> comparer)
         {
             comparer ??= Comparer<T>.Default;
