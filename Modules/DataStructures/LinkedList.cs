@@ -1418,8 +1418,8 @@ namespace Modules.DataStructures
                     {
                         RemoveLast();
                     }
-                    else 
-                    { 
+                    else
+                    {
                         current.Prev!.Next = current.Next; 
                         current.Next!.Prev = current.Prev; 
 
