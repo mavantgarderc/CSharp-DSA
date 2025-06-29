@@ -18,10 +18,11 @@ namespace Modules.DataStructures
     {
         private T[] _items;
         private int _size;
+        public int Count => _size;
         private int _version;
         private const int DefaultCapacity = 4;
+        private const int MaxArrayLength = 0x7FEFFFFF;
 
-        public int Count => _size;
         public int Capacity
         {
             get => _items.Length;
@@ -29,7 +30,10 @@ namespace Modules.DataStructures
             {
                 if (value < _size)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(value), "capacity can't get lesser than current count...");
+                    throw new ArgumentOutOfRangeException(
+                        nameof(value),
+                        "capacity can't get lesser than current count..."
+                    );
                 }
 
                 if (value != _items.Length)
@@ -55,13 +59,19 @@ namespace Modules.DataStructures
 
         public bool IsReadOnly => false;
 
-        public ArrayList() => _items = new T[DefaultCapacity];
+        public ArrayList()
+        {
+            _items = new T[DefaultCapacity];
+        }
 
         public ArrayList(int capacity)
         {
             if (capacity < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(capacity), "bro... negative capacity???");
+                throw new ArgumentOutOfRangeException(
+                    nameof(capacity),
+                    "bro... negative capacity???"
+                );
             }
             _items = capacity == 0 ? [] : new T[capacity];
         }
@@ -73,9 +83,16 @@ namespace Modules.DataStructures
             if (collection is ICollection<T> col)
             {
                 int count = col.Count;
-                _items = new T[count];
-                col.CopyTo(_items, 0);
-                _size = count;
+                if (count == 0)
+                {
+                    _items = [];
+                }
+                else
+                {
+                    _items = new T[count];
+                    col.CopyTo(_items, 0);
+                    _size = count;
+                }
             }
             else
             {
@@ -91,19 +108,22 @@ namespace Modules.DataStructures
         {
             get
             {
-                if (index < 0 || index >= _size)
+                if ((uint)index >= (uint)_size)
                 {
                     throw new ArgumentOutOfRangeException(nameof(index));
                 }
+
                 return _items[index];
             }
             set
             {
-                if (index < 0 || index >= _size)
+                if ((uint)index >= (uint)_size)
                 {
                     throw new ArgumentOutOfRangeException(nameof(index));
                 }
+
                 _items[index] = value;
+
                 _version++;
             }
         }
@@ -112,31 +132,33 @@ namespace Modules.DataStructures
         {
             if (_size == _items.Length)
             {
-                EnsureCapacity(_size+1);
+                EnsureCapacity(_size + 1);
             }
 
             _items[_size++] = item;
+
             _version++;
         }
 
         public void Insert(int index, T item)
         {
-            if (index < 0 || index > _size)
+            if ((uint)index > (uint)_size)
             {
                 throw new ArgumentOutOfRangeException(nameof(index));
             }
 
             if (_size == _items.Length)
             {
-                EnsureCapacity(_size+1);
+                EnsureCapacity(_size + 1);
             }
             if (index < _size)
             {
-                Array.Copy(_items, index, _items, index+1, _size-index);
+                Array.Copy(_items, index, _items, index + 1, _size - index);
             }
 
             _items[index] = item;
             _size++;
+
             _version++;
         }
 
@@ -147,7 +169,6 @@ namespace Modules.DataStructures
             if (index >= 0)
             {
                 RemoveAt(index);
-
                 return true;
             }
 
@@ -156,7 +177,7 @@ namespace Modules.DataStructures
 
         public void RemoveAt(int index)
         {
-            if (index < 0 || index >= _size)
+            if ((uint)index >= (uint)_size)
             {
                 throw new ArgumentOutOfRangeException(nameof(index));
             }
@@ -165,7 +186,7 @@ namespace Modules.DataStructures
 
             if (index < _size)
             {
-                Array.Copy(_items, index+1, _items, index, _size-index);
+                Array.Copy(_items, index + 1, _items, index, _size - index);
             }
 
             _items[_size] = default!;
@@ -184,18 +205,80 @@ namespace Modules.DataStructures
             _version++;
         }
 
-        public bool Contains(T item) => IndexOf(item) >= 0;
+        public bool Contains(T item)
+        {
+            return IndexOf(item) >= 0;
+        }
 
-        public int IndexOf(T item) => Array.IndexOf(_items, item, 0, _size);
+        public int IndexOf(T item)
+        {
+            return Array.IndexOf(_items, item, 0, _size);
+        }
 
-        public void TrimToSize() => Capacity = _size;
+        public int LastIndexOf(T item) 
+        {
+            return LastIndexOf(item, _size - 1, _size);
+        }
 
-        public void Reverse()  => Array.Reverse(_items, 0, _size);
+        public int LastIndexOf(T item, int startIndex)
+        {
+            return LastIndexOf(item, startIndex, startIndex + 1);
+        }
+
+        public int LastIndexOf(T item, int startIndex, int count)
+        {
+            if (_size == 0)
+            {
+                return -1;
+            }
+
+            if (startIndex < 0 || startIndex >= _size)
+            {
+                throw new ArgumentOutOfRangeException(nameof(startIndex));
+            }
+
+            if (count < 0 || startIndex - count + 1 < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(count));
+            }
+
+            return Array.LastIndexOf(_items, item, startIndex, count);
+        }
+
+        public void TrimToSize()
+        {
+            Capacity = _size;
+        }
+
+        public void Reverse()
+        {
+            Array.Reverse(_items, 0, _size);
+        }
+
+        public void Reverse(int index, int count)
+        {
+            if (index < 0 || count < 0)
+            {
+                throw new ArgumentOutOfRangeException(index < 0 ? nameof(index) : nameof(count));
+            }
+            if (_size - index < count)
+            {
+                throw new ArgumentException("Invalid offset and length");
+            }
+
+            Array.Reverse(_items, index, count);
+
+            _version++;
+        }
 
         public T[] ToArray()
         {
-            var array = new T[_size];
+            if (_size == 0)
+            {
+                return [];
+            }
 
+            var array = new T[_size];
             Array.Copy(_items, array, _size);
 
             return array;
@@ -205,17 +288,22 @@ namespace Modules.DataStructures
         {
             if (startIndex < 0 || count < 0)
             {
-                throw new ArgumentOutOfRangeException(startIndex < 0 ? nameof(startIndex) : nameof(count));
+                throw new ArgumentOutOfRangeException(
+                    startIndex < 0 ? nameof(startIndex) : nameof(count)
+                );
             }
-            if (_size-startIndex < count)
+            if (_size - startIndex < count)
             {
-                throw new IndexOutOfRangeException();
+                throw new ArgumentException("Invalid offset and length");
             }
 
             var list = new ArrayList<T>(count);
 
-            Array.Copy(_items, startIndex, list._items, 0, count);
-            list._size = count;
+            if (count > 0)
+            {
+                Array.Copy(_items, startIndex, list._items, 0, count);
+                list._size = count;
+            }
 
             return list;
         }
@@ -231,6 +319,21 @@ namespace Modules.DataStructures
             return Array.BinarySearch(_items, 0, _size, item, comparer);
         }
 
+        public int BinarySearch(int index, int count, T item, IComparer<T> comparer)
+        {
+            if (index < 0 || count < 0)
+            {
+                throw new ArgumentOutOfRangeException(index < 0 ? nameof(index) : nameof(count));
+            }
+            if (_size - index < count)
+            {
+                throw new ArgumentException("Invalid offset and length");
+            }
+
+            comparer ??= Comparer<T>.Default;
+            return Array.BinarySearch(_items, index, count, item, comparer);
+        }
+
         public void AddRange(IEnumerable<T> collection)
         {
             InsertRange(_size, collection);
@@ -240,7 +343,7 @@ namespace Modules.DataStructures
         {
             ArgumentNullException.ThrowIfNull(collection);
 
-            if (index < 0 || index > _size)
+            if ((uint)index > (uint)_size)
             {
                 throw new ArgumentOutOfRangeException(nameof(index));
             }
@@ -251,17 +354,15 @@ namespace Modules.DataStructures
 
                 if (count > 0)
                 {
-                    EnsureCapacity(_size+count);
+                    EnsureCapacity(_size + count);
 
                     if (index < _size)
                     {
-                        Array.Copy(_items, index, _items, index+count, _size-index);
+                        Array.Copy(_items, index, _items, index + count, _size - index);
                     }
 
                     col.CopyTo(_items, index);
-
                     _size += count;
-
                     _version++;
                 }
             }
@@ -274,29 +375,37 @@ namespace Modules.DataStructures
             }
         }
 
-        public void RemoveRange(uint startIndex, int count)
+        public void RemoveRange(int startIndex, int count)
         {
             if (startIndex < 0 || count < 0)
             {
-                throw new ArgumentOutOfRangeException(startIndex < 0 ? nameof(startIndex) : nameof(count));
+                throw new ArgumentOutOfRangeException(
+                    startIndex < 0 ? nameof(startIndex) : nameof(count)
+                );
             }
-            if (_size-startIndex < count)
+            if (_size - startIndex < count)
             {
-                throw new IndexOutOfRangeException();
+                throw new ArgumentException("Invalid offset and length");
             }
 
             if (count > 0)
             {
-                int newSize = _size-count;
+                int newSize = _size - count;
 
                 if (startIndex < newSize)
                 {
-                    Array.Copy(_items, startIndex+count, _items, startIndex, newSize-startIndex);
+                    Array.Copy(
+                        _items,
+                        startIndex + count,
+                        _items,
+                        startIndex,
+                        newSize - startIndex
+                    );
                 }
 
                 Array.Clear(_items, newSize, count);
-
                 _size = newSize;
+
                 _version++;
             }
         }
@@ -322,11 +431,173 @@ namespace Modules.DataStructures
             _version++;
         }
 
+        public int FindIndex(Predicate<T> match)
+        {
+            return FindIndex(0, _size, match);
+        }
+
+        public int FindIndex(int startIndex, Predicate<T> match)
+        {
+            return FindIndex(startIndex, _size - startIndex, match);
+        }
+
+        public int FindIndex(int startIndex, int count, Predicate<T> match)
+        {
+            ArgumentNullException.ThrowIfNull(match);
+
+            if (startIndex < 0 || startIndex > _size)
+            {
+                throw new ArgumentOutOfRangeException(nameof(startIndex));
+            }
+
+            if (count < 0 || startIndex > _size - count)
+            {
+                throw new ArgumentOutOfRangeException(nameof(count));
+            }
+
+            int endIndex = startIndex + count;
+            for (int i = startIndex; i < endIndex; i++)
+            {
+                if (match(_items[i]))
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        public T? Find(Predicate<T> match)
+        {
+            ArgumentNullException.ThrowIfNull(match);
+
+            if (_size == 0)
+            {
+                return default;
+            }
+
+            for (int i = 0; i < _size; i++)
+            {
+                if (match(_items[i]))
+                {
+                    return _items[i];
+                }
+            }
+
+            return default;
+        }
+
+        public ArrayList<T> FindAll(Predicate<T> match)
+        {
+            ArgumentNullException.ThrowIfNull(match);
+
+            ArrayList<T> result = [];
+            for (int i = 0; i < _size; i++)
+            {
+                if (match(_items[i]))
+                {
+                    result.Add(_items[i]);
+                }
+            }
+
+            return result;
+        }
+
+        public bool Exists(Predicate<T> match)
+        {
+            return FindIndex(match) != -1;
+        }
+
+        public bool TrueForAll(Predicate<T> match)
+        {
+            ArgumentNullException.ThrowIfNull(match);
+
+            if (_size == 0)
+            {
+                return true;
+            }
+
+            for (int i = 0; i < _size; i++)
+            {
+                if (!match(_items[i]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public void ForEach(Action<T> action)
+        {
+            ArgumentNullException.ThrowIfNull(action);
+
+            if (_size == 0)
+            {
+                return;
+            }
+
+            int version = _version;
+
+            for (int i = 0; i < _size; i++)
+            {
+                if (version != _version)
+                {
+                    throw new InvalidOperationException("collection modified during enumeration");
+                }
+                action(_items[i]);
+            }
+        }
+
+        public int RemoveAll(Predicate<T> match)
+        {
+            ArgumentNullException.ThrowIfNull(match);
+
+            int freeIndex = 0;
+
+            while (freeIndex < _size && !match(_items[freeIndex]))
+            {
+                freeIndex++;
+            }
+
+            if (freeIndex >= _size)
+            {
+                return 0;
+            }
+
+            int current = freeIndex + 1;
+            while (current < _size)
+            {
+                while (current < _size && match(_items[current]))
+                {
+                    current++;
+                }
+
+                if (current < _size)
+                {
+                    _items[freeIndex++] = _items[current++];
+                }
+            }
+
+            Array.Clear(_items, freeIndex, _size - freeIndex);
+            int removed = _size - freeIndex;
+            _size = freeIndex;
+
+            _version++;
+
+            return removed;
+        }
+
         public void EnsureCapacity(int minCapacity)
         {
             if (minCapacity > Capacity)
             {
-                int newCapacity = _items.Length == 0 ? DefaultCapacity : _items.Length*2;
+                int newCapacity = _items.Length == 0 ? DefaultCapacity : _items.Length * 2;
+
+                if ((uint)newCapacity > MaxArrayLength)
+                {
+                    newCapacity = MaxArrayLength;
+                }
 
                 if (newCapacity < minCapacity)
                 {
@@ -342,23 +613,39 @@ namespace Modules.DataStructures
             Array.Copy(_items, 0, array, arrayIndex, _size);
         }
 
-        public void Sort() => Sort(Comparer<T>.Default);
+        public void Sort()
+        {
+            Sort(Comparer<T>.Default);
+        }
 
         public void Sort(IComparer<T> comparer)
         {
             comparer ??= Comparer<T>.Default;
-
             Array.Sort(_items, 0, _size, comparer);
+
+            _version++;
+        }
+
+        public void Sort(int index, int count, IComparer<T> comparer)
+        {
+            if (index < 0 || count < 0)
+            {
+                throw new ArgumentOutOfRangeException(index < 0 ? nameof(index) : nameof(count));
+            }
+            if (_size - index < count)
+            {
+                throw new ArgumentException("Invalid offset and length");
+            }
+
+            comparer ??= Comparer<T>.Default;
+            Array.Sort(_items, index, count, comparer);
 
             _version++;
         }
 
         public IEnumerator<T> GetEnumerator() => new Enumerator(this);
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         private sealed class Enumerator : IEnumerator<T>
         {
@@ -378,7 +665,7 @@ namespace Modules.DataStructures
             {
                 CheckVersion();
 
-                if (_index < _list._size-1)
+                if (_index < _list._size - 1)
                 {
                     _current = _list._items[++_index];
                     return true;
@@ -386,7 +673,6 @@ namespace Modules.DataStructures
 
                 _index = _list._size;
                 _current = default;
-
                 return false;
             }
 
@@ -402,7 +688,7 @@ namespace Modules.DataStructures
                 }
             }
 
-            object IEnumerator.Current => Current!;
+            object? IEnumerator.Current => Current;
 
             public void Reset()
             {
@@ -411,7 +697,10 @@ namespace Modules.DataStructures
                 _current = default;
             }
 
-            public void Dispose() => _current = default;
+            public void Dispose()
+            {
+                _current = default;
+            }
 
             private void CheckVersion()
             {
