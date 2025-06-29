@@ -3,8 +3,6 @@
 > .NET Version: 9.0
 > C# 13
 
-A series of tested DSA coded in C#, as a learning project.
-
 ## Project Structure
 ```
 CSharp-DSA/
@@ -14,9 +12,8 @@ CSharp-DSA/
 ├── DsaConsoleTests/               # Test project
 │   ├── DataStructure/             # Data structure tests
 │   └── Algorithm/                 # Algorithm tests
-└── README.mdThis is a project from a non-consistent C# student starting over...
+└── README.md
 ```
-
 ## File-Specific Documentations
 ```cs
     /// <summary>
