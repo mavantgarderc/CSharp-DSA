@@ -1,7 +1,8 @@
 # CSharp-DSA Project
 
-> .NET Version: 9.0
 > C# 13
+
+> .NET 9.0
 
 ## Project Structure
 ```

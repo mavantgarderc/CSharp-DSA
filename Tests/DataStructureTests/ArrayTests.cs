@@ -227,5 +227,19 @@ namespace Tests.DataStructureTests
             da[0] = 10;
             Assert.Equal(10, da[0]);
         }
+        [Fact]
+        public void DynamicArray_IndexerOutOfRange_ThrowsException() {
+            var da = new DynamicArray<int>();
+            da.Add(1);
+            Assert.Throws<ArgumentOutOfRangeException>(()=> da.Insert(-1, 5));
+            Assert.Throws<ArgumentOutOfRangeException>(() => da.RemoveAt((1)));
+        }
+        [Fact]
+        public void DynamicArray_RemoveAtOutOfRange_ThrowsException() {
+            var da = new DynamicArray<int>();
+            da.Add(1);
+            Assert.Throws<ArgumentOutOfRangeException>(() => da.RemoveAt(-1));
+            Assert.Throws<ArgumentOutOfRangeException>(() => da.RemoveAt(1));
+        }
     }
 }
