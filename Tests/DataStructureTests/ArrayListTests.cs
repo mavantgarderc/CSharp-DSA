@@ -164,5 +164,225 @@ namespace Tests
 
             Assert.Throws<InvalidOperationException>(() => enumerator.MoveNext());
         }
+
+        // New tests for added functionality
+        [Fact]
+        public void LastIndexOf_FindsLastOccurrence() {
+            var list = new ArrayList<int> { 1, 2, 3, 2, 4 };
+            int index = list.LastIndexOf(2);
+            Assert.Equal(3, index);
+        }
+
+        [Fact]
+        public void LastIndexOf_WithStartIndex_FindsCorrectOccurrence() {
+            var list = new ArrayList<int> { 1, 2, 3, 2, 4 };
+            int index = list.LastIndexOf(2, 2);
+            Assert.Equal(1, index);
+        }
+
+        [Fact]
+        public void LastIndexOf_WithStartIndexAndCount_FindsCorrectOccurrence() {
+            var list = new ArrayList<int> { 1, 2, 3, 2, 4 };
+            int index = list.LastIndexOf(2, 3, 3);
+            Assert.Equal(3, index);
+        }
+
+        [Fact]
+        public void Reverse_WithRange_ReversesPartialList() {
+            var list = new ArrayList<int> { 1, 2, 3, 4, 5 };
+            list.Reverse(1, 3);
+            Assert.Equal([1, 4, 3, 2, 5], list.ToArray());
+        }
+
+        [Fact]
+        public void BinarySearch_WithRange_FindsElementInRange() {
+            var list = new ArrayList<int> { 1, 3, 5, 7, 9 };
+            int index = list.BinarySearch(1, 3, 5, Comparer<int>.Default);
+            Assert.Equal(2, index);
+        }
+
+        [Fact]
+        public void Sort_WithRange_SortsPartialList() {
+            var list = new ArrayList<int> { 5, 3, 1, 4, 2 };
+            list.Sort(1, 3, Comparer<int>.Default);
+            Assert.Equal([5, 1, 3, 4, 2], list.ToArray());
+        }
+
+        [Fact]
+        public void FindIndex_FindsFirstMatchingElement() {
+            var list = new ArrayList<int> { 1, 2, 3, 4, 5 };
+            int index = list.FindIndex(x => x > 3);
+            Assert.Equal(3, index);
+        }
+
+        [Fact]
+        public void FindIndex_WithStartIndex_FindsFromPosition() {
+            var list = new ArrayList<int> { 1, 2, 3, 4, 5 };
+            int index = list.FindIndex(2, x => x > 3);
+            Assert.Equal(3, index);
+        }
+
+        [Fact]
+        public void FindIndex_WithStartIndexAndCount_FindsInRange() {
+            var list = new ArrayList<int> { 1, 2, 3, 4, 5 };
+            int index = list.FindIndex(0, 3, x => x > 2);
+            Assert.Equal(2, index);
+        }
+
+        [Fact]
+        public void Find_ReturnsFirstMatchingElement() {
+            var list = new ArrayList<string> { "apple", "banana", "cherry" };
+            string? result = list.Find(x => x.StartsWith("b"));
+            Assert.Equal("banana", result);
+        }
+
+        [Fact]
+        public void Find_ReturnsDefaultWhenNotFound() {
+            var list = new ArrayList<int> { 1, 2, 3 };
+            int result = list.Find(x => x > 5);
+            Assert.Equal(0, result);
+        }
+
+        [Fact]
+        public void Find_EmptyList_ReturnsDefault() {
+            var list = new ArrayList<int>();
+            int result = list.Find(x => x > 0);
+            Assert.Equal(0, result);
+        }
+
+        [Fact]
+        public void FindAll_ReturnsAllMatchingElements() {
+            var list = new ArrayList<int> { 1, 2, 3, 4, 5, 6 };
+            var result = list.FindAll(x => x % 2 == 0);
+            Assert.Equal([2, 4, 6], result.ToArray());
+        }
+
+        [Fact]
+        public void FindAll_NoMatches_ReturnsEmptyList() {
+            var list = new ArrayList<int> { 1, 3, 5 };
+            var result = list.FindAll(x => x % 2 == 0);
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public void Exists_ReturnsTrueWhenElementExists() {
+            var list = new ArrayList<int> { 1, 2, 3 };
+            bool exists = list.Exists(x => x == 2);
+            Assert.True(exists);
+        }
+
+        [Fact]
+        public void Exists_ReturnsFalseWhenElementDoesNotExist() {
+            var list = new ArrayList<int> { 1, 2, 3 };
+            bool exists = list.Exists(x => x == 5);
+            Assert.False(exists);
+        }
+
+        [Fact]
+        public void TrueForAll_ReturnsTrueWhenAllMatch() {
+            var list = new ArrayList<int> { 2, 4, 6 };
+            bool allEven = list.TrueForAll(x => x % 2 == 0);
+            Assert.True(allEven);
+        }
+
+        [Fact]
+        public void TrueForAll_ReturnsFalseWhenNotAllMatch() {
+            var list = new ArrayList<int> { 2, 3, 6 };
+            bool allEven = list.TrueForAll(x => x % 2 == 0);
+            Assert.False(allEven);
+        }
+
+        [Fact]
+        public void TrueForAll_EmptyList_ReturnsTrue() {
+            var list = new ArrayList<int>();
+            bool result = list.TrueForAll(x => x > 0);
+            Assert.True(result);
+        }
+
+        [Fact]
+        public void ForEach_ExecutesActionOnAllElements() {
+            var list = new ArrayList<int> { 1, 2, 3 };
+            var sum = 0;
+            list.ForEach(x => sum += x);
+            Assert.Equal(6, sum);
+        }
+
+        [Fact]
+        public void ForEach_EmptyList_DoesNothing() {
+            var list = new ArrayList<int>();
+            var executed = false;
+            list.ForEach(x => executed = true);
+            Assert.False(executed);
+        }
+
+        [Fact]
+        public void ForEach_DetectsModification_Throws() {
+            var list = new ArrayList<int> { 1, 2, 3 };
+            Assert.Throws<InvalidOperationException>(() => 
+                list.ForEach(x => { if (x == 2) list.Add(4); }));
+        }
+
+        [Fact]
+        public void RemoveAll_RemovesMatchingElements() {
+            var list = new ArrayList<int> { 1, 2, 3, 4, 5, 6 };
+            int removed = list.RemoveAll(x => x % 2 == 0);
+            Assert.Equal(3, removed);
+            Assert.Equal([1, 3, 5], list.ToArray());
+        }
+
+        [Fact]
+        public void RemoveAll_NoMatches_ReturnsZero() {
+            var list = new ArrayList<int> { 1, 3, 5 };
+            int removed = list.RemoveAll(x => x % 2 == 0);
+            Assert.Equal(0, removed);
+            Assert.Equal([1, 3, 5], list.ToArray());
+        }
+
+        [Fact]
+        public void RemoveAll_RemoveAll_EmptiesList() {
+            var list = new ArrayList<int> { 1, 2, 3 };
+            int removed = list.RemoveAll(x => true);
+            Assert.Equal(3, removed);
+            Assert.Empty(list);
+        }
+
+        [Fact]
+        public void NonGenericEnumerator_Works() {
+            var list = new ArrayList<int> { 1, 2, 3 };
+            System.Collections.IEnumerable nonGeneric = list;
+            var enumerator = nonGeneric.GetEnumerator();
+            
+            var results = new List<object>();
+            while (enumerator.MoveNext())
+            {
+                results.Add(enumerator.Current);
+            }
+            
+            Assert.Equal(3, results.Count);
+            Assert.Equal(1, results[0]);
+            Assert.Equal(2, results[1]);
+            Assert.Equal(3, results[2]);
+        }
+
+        [Fact]
+        public void GetRange_EmptyRange_ReturnsEmptyList() {
+            var list = new ArrayList<int> { 1, 2, 3 };
+            var range = list.GetRange(1, 0);
+            Assert.Empty(range);
+        }
+
+        [Fact]
+        public void ToArray_EmptyList_ReturnsEmptyArray() {
+            var list = new ArrayList<int>();
+            var array = list.ToArray();
+            Assert.Empty(array);
+        }
+
+        [Fact]
+        public void Constructor_FromEmptyCollection_CreatesEmptyList() {
+            var list = new ArrayList<int>(new List<int>());
+            Assert.Empty(list);
+            Assert.Equal(0, list.Capacity);
+        }
     }
 }

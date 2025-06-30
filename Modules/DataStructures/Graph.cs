@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json;
 
 namespace Modules.DataStructures
 {
@@ -13,69 +14,144 @@ namespace Modules.DataStructures
     ///     - Reusable Methods (self-contained methods for each algorithm).
     ///     - Exception Handling (throws when coloring fails or negative cycles are present).
     ///     - Forward-thinking Design (supports expansion to advanced algorithms like flow or centroid).
+    ///     - Generic support
+    ///     - Serialization support
+    ///     - Performance optimization
+    ///     - Advanced Graph Operations
     /// </summary>
-    public class Graph
+    public class Graph<T>
+        where T : IComparable<T>, IEquatable<T>
     {
         #region Construction
 
-        private readonly Dictionary<int, List<(int, int)>> adj = [];
+        private readonly Dictionary<T, List<(T vertex, int weight)>> adj = [];
+        private int? _cachedVertexCount;
+        private bool _isDirty = true;
+        public event Action? GraphChanged;
+        public bool IsDirected { get; private set; } = true;
 
         /// <summary>
         /// exposes the graph as an adjacency list of nodes only, for BFS-style algorithms
         /// each node is mapped to a List of its neighbors (ignoring weights)
         /// for compatibility with algorithms that expect List<int>[] style access
         /// </summary>
-        public Dictionary<int, List<int>> Adj
+        public Dictionary<T, List<T>> Adj
         {
             get
             {
-                // provides a neighbor-list for each node, ignoring edge weights.
-                var dict = new Dictionary<int, List<int>>();
+                var dict = new Dictionary<T, List<T>>();
                 foreach (var kvp in adj)
                 {
-                    dict[kvp.Key] = kvp.Value.Select(e => e.Item1).ToList();
+                    dict[kvp.Key] = kvp.Value.Select(e => e.vertex).ToList();
                 }
                 return dict;
             }
         }
 
-        public void AddNode(int node)
+        public Graph(bool isDirected = true)
         {
-            if (!adj.ContainsKey(node))
-                adj[node] = [];
+            IsDirected = isDirected;
         }
 
-        public void RemoveNode(int node)
+        private void MarkDirty()
         {
-            adj.Remove(node);
+            _isDirty = true;
+            GraphChanged?.Invoke();
+        }
 
-            foreach (var kvp in adj)
+        public List<T> GetNeighbors(T vertex)
+        {
+            return adj.TryGetValue(vertex, out var value) ? value.Select(e => e.vertex).ToList() : [];
+        }
+
+        public List<(T vertex, int weight)> GetNeighborsWithWeights(T vertex)
+        {
+            return adj.TryGetValue(vertex, out var value) ? value.ToList() : [];
+        }
+
+        public bool HasEdge(T a, T b)
+        {
+            return adj.ContainsKey(a) && adj[a].Any(e => e.vertex.Equals(b));
+        }
+
+        public bool IsConnected(T a, T b)
+        {
+            return HasEdge(a, b);
+        }
+
+        public int VertexCount
+        {
+            get
             {
-                kvp.Value.RemoveAll(e => e.Item1 == node);
+                if (_isDirty || !_cachedVertexCount.HasValue)
+                {
+                    _cachedVertexCount = adj.Count;
+                    _isDirty = false;
+                }
+                return _cachedVertexCount.Value;
             }
         }
 
-        public void AddEdge(int src, int dst, int weight = 1)
+        public int EdgeCount => adj.Values.Sum(list => list.Count) / (IsDirected ? 1 : 2);
+
+        public IEnumerable<T> Vertices => adj.Keys;
+
+        public IEnumerable<(T src, T dst, int weight)> Edges =>
+            adj.SelectMany(kvp => kvp.Value.Select(e => (kvp.Key, e.vertex, e.weight)));
+
+        public void AddVertex(T vertex)
         {
-            AddNode(src);
-            AddNode(dst);
-            adj[src].Add((dst, weight));
+            if (!adj.ContainsKey(vertex))
+            {
+                adj[vertex] = [];
+                MarkDirty();
+            }
         }
 
-        public void RemoveEdge(int src, int dst)
+        public void RemoveVertex(T vertex)
         {
-            adj[src].RemoveAll(e => e.Item1 == dst);
+            if (adj.Remove(vertex))
+            {
+                foreach (var kvp in adj)
+                {
+                    kvp.Value.RemoveAll(e => e.vertex.Equals(vertex));
+                }
+                MarkDirty();
+            }
         }
 
-        public List<int> GetNeighbors(int node) =>
-            adj.TryGetValue(node, out List<(int, int)>? value)
-                ? value.Select(e => e.Item1).ToList()
-                : [];
+        public void AddEdge(T src, T dst, int weight = 1)
+        {
+            AddVertex(src);
+            AddVertex(dst);
 
-        public bool IsConnected(int a, int b) =>
-            adj.ContainsKey(a) && adj[a].Any(e => e.Item1 == b);
-        
-        public int VertexCount => adj.Count;
+            if (!adj[src].Any(e => e.vertex.Equals(dst)))
+            {
+                adj[src].Add((dst, weight));
+
+                if (!IsDirected && !src.Equals(dst))
+                {
+                    adj[dst].Add((src, weight));
+                }
+                MarkDirty();
+            }
+        }
+
+        public void RemoveEdge(T src, T dst)
+        {
+            if (!adj.ContainsKey(src))
+                return;
+
+            bool removed = adj[src].RemoveAll(e => e.vertex.Equals(dst)) > 0;
+
+            if (!IsDirected && adj.ContainsKey(dst))
+            {
+                removed |= adj[dst].RemoveAll(e => e.vertex.Equals(src)) > 0;
+            }
+
+            if (removed)
+                MarkDirty();
+        }
 
         #endregion
 
@@ -84,39 +160,69 @@ namespace Modules.DataStructures
 
         public void ReverseGraph()
         {
-            var reversed = new Dictionary<int, List<(int, int)>>();
+            var reversed = new Dictionary<T, List<(T vertex, int weight)>>();
 
             foreach (var kvp in adj)
             {
-                int src = kvp.Key;
-
-                foreach (var (dst, w) in kvp.Value)
+                var src = kvp.Key;
+                foreach (var (dst, weight) in kvp.Value)
                 {
                     if (!reversed.ContainsKey(dst))
+                    {
                         reversed[dst] = [];
-                    reversed[dst].Add((src, w));
+                    }
+                    reversed[dst].Add((src, weight));
                 }
             }
+
+            // Actually apply the reversed graph
             adj.Clear();
             foreach (var kvp in reversed)
             {
                 adj[kvp.Key] = kvp.Value;
             }
+            MarkDirty();
         }
 
         public string ToDot()
         {
-            var sb = new StringBuilder("digraph G {\n");
+            var sb = new StringBuilder(IsDirected ? "digraph G {\n" : "graph G {\n");
 
             foreach (var kvp in adj)
             {
-                foreach (var (dst, _) in kvp.Value)
+                foreach (var (dst, weight) in kvp.Value)
                 {
-                    sb.AppendLine($"    {kvp.Key} => {dst};");
+                    string connector = IsDirected ? "->" : "--";
+                    sb.AppendLine($"    {kvp.Key} {connector} {dst} [label=\"{weight}\"];");
                 }
             }
             sb.AppendLine("}");
             return sb.ToString();
+        }
+
+        public string ToJson()
+        {
+            var graphData = new
+            {
+                IsDirected = IsDirected,
+                Vertices = adj.Keys.ToList(),
+                Edges = Edges.ToList(),
+            };
+            return JsonSerializer.Serialize(
+                graphData,
+                new JsonSerializerOptions { WriteIndented = true }
+            );
+        }
+
+        public Graph<T> Clone()
+        {
+            var clone = new Graph<T>(IsDirected);
+
+            foreach (var (src, dst, weight) in Edges)
+            {
+                clone.AddEdge(src, dst, weight);
+            }
+            return clone;
         }
 
         #endregion
@@ -125,75 +231,78 @@ namespace Modules.DataStructures
         #region Traversals
 
         // BFS
-        public List<int> BFS(int start)
+        public List<T> BFS(T start)
         {
-            List<int> result = [];
-            HashSet<int> visited = [];
-            Queue<int> q = new();
+            List<T> result = [];
+            HashSet<T> visited = [];
+            Queue<T> q = new();
 
             visited.Add(start);
             q.Enqueue(start);
 
             while (q.Count > 0)
             {
-                int node = q.Dequeue();
+                var node = q.Dequeue();
                 result.Add(node);
-                foreach (var (neighbor, _) in adj[node])
+                foreach (var (neighbor, _) in adj.GetValueOrDefault(node, []))
                 {
-                    if (visited.Contains(neighbor))
+                    if (!visited.Contains(neighbor))
                     {
-                        continue;
+                        visited.Add(neighbor);
+                        q.Enqueue(neighbor);
                     }
-                    visited.Add(neighbor);
-                    q.Enqueue(neighbor);
                 }
             }
             return result;
         }
 
         // DFS (iterative)
-        public List<int> DFS(int start)
+        public List<T> DFS(T start)
         {
-            List<int> result = [];
-            HashSet<int> visited = [];
-            Stack<int> stack = new();
+            List<T> result = [];
+            HashSet<T> visited = [];
+            Stack<T> stack = new();
 
             stack.Push(start);
-            visited.Add(start);
 
             while (stack.Count > 0)
             {
-                int node = stack.Pop();
-                result.Add(node);
-                foreach (var (neighbor, _) in adj[node])
+                var node = stack.Pop();
+                if (!visited.Contains(node))
                 {
-                    if (visited.Contains(neighbor))
+                    visited.Add(node);
+                    result.Add(node);
+
+                    // Add neighbors in reverse order to maintain left-to-right traversal
+                    var neighbors = adj.GetValueOrDefault(node, []).Select(e => e.vertex).ToList();
+                    for (int i = neighbors.Count - 1; i >= 0; i--)
                     {
-                        continue;
+                        if (!visited.Contains(neighbors[i]))
+                        {
+                            stack.Push(neighbors[i]);
+                        }
                     }
-                    visited.Add(neighbor);
-                    stack.Push(neighbor);
                 }
             }
             return result;
         }
 
         // DFS (recursive) helper
-        private void DFSUtil(int node, HashSet<int> visited, List<int> result)
+        private void DFSUtil(T node, HashSet<T> visited, List<T> result)
         {
             visited.Add(node);
             result.Add(node);
-            foreach (var (neighbor, _) in adj[node])
+            foreach (var (neighbor, _) in adj.GetValueOrDefault(node, []))
             {
                 if (!visited.Contains(neighbor))
                     DFSUtil(neighbor, visited, result);
             }
         }
 
-        public List<int> DFS_Recursive(int start)
+        public List<T> DFS_Recursive(T start)
         {
-            List<int> result = [];
-            HashSet<int> visited = [];
+            List<T> result = [];
+            HashSet<T> visited = [];
             DFSUtil(start, visited, result);
             return result;
         }
@@ -204,17 +313,17 @@ namespace Modules.DataStructures
         #region Topological Sort
 
         // Topological Sort (DFS)
-        public List<int> TopologicalSort()
+        public List<T> TopologicalSort()
         {
-            var visited = new HashSet<int>();
-            var stack = new HashSet<int>();
-            var result = new List<int>();
+            var visited = new HashSet<T>();
+            var recursionStack = new HashSet<T>();
+            var result = new List<T>();
 
             foreach (var node in adj.Keys)
             {
                 if (!visited.Contains(node))
                 {
-                    DfsForTopSort(node, visited, stack, result);
+                    DfsForTopSort(node, visited, recursionStack, result);
                 }
             }
             result.Reverse();
@@ -222,25 +331,27 @@ namespace Modules.DataStructures
         }
 
         private void DfsForTopSort(
-            int node,
-            HashSet<int> visited,
-            HashSet<int> stack,
-            List<int> result
+            T node,
+            HashSet<T> visited,
+            HashSet<T> recursionStack,
+            List<T> result
         )
         {
-            if (stack.Contains(node))
+            if (recursionStack.Contains(node))
                 throw new Exception("Graph contains a cycle.");
 
             if (visited.Contains(node))
                 return;
 
-            stack.Add(node);
-            foreach (var (neighbor, _) in adj[node])
-            {
-                DfsForTopSort(neighbor, visited, stack, result);
-            }
-            stack.Remove(node);
+            recursionStack.Add(node);
             visited.Add(node);
+
+            foreach (var (neighbor, _) in adj.GetValueOrDefault(node, []))
+            {
+                DfsForTopSort(neighbor, visited, recursionStack, result);
+            }
+
+            recursionStack.Remove(node);
             result.Add(node);
         }
 
@@ -250,47 +361,48 @@ namespace Modules.DataStructures
         #region Paths
 
         // All paths
-        public List<List<int>> FindAllPaths(int start, int end)
+        public List<List<T>> FindAllPaths(T start, T end)
         {
-            List<List<int>> paths = [];
-            Stack<int> path = new();
+            List<List<T>> paths = [];
+            List<T> path = [];
 
-            void DFS(int node)
+            void DFS(T node)
             {
-                path.Push(node);
-                if (node == end)
+                path.Add(node);
+                if (node.Equals(end))
                 {
-                    paths.Add(path.Reverse().ToList());
-                    path.Pop();
-                    return;
+                    paths.Add(new List<T>(path));
                 }
-                foreach (var (neighbor, _) in adj[node])
+                else
                 {
-                    if (!path.Contains(neighbor))
-                        DFS(neighbor);
+                    foreach (var (neighbor, _) in adj.GetValueOrDefault(node, []))
+                    {
+                        if (!path.Contains(neighbor))
+                            DFS(neighbor);
+                    }
                 }
-                path.Pop();
+                path.RemoveAt(path.Count - 1);
             }
             DFS(start);
             return paths;
         }
 
         // Count paths
-        public int CountPaths(int start, int end)
+        public int CountPaths(T start, T end)
         {
             int count = 0;
-            HashSet<int> path = [];
+            HashSet<T> path = [];
 
-            void DFS(int node)
+            void DFS(T node)
             {
                 path.Add(node);
-                if (node == end)
+                if (node.Equals(end))
                 {
                     count++;
                 }
                 else
                 {
-                    foreach (var (neighbor, _) in adj[node])
+                    foreach (var (neighbor, _) in adj.GetValueOrDefault(node, []))
                     {
                         if (!path.Contains(neighbor))
                             DFS(neighbor);
@@ -302,21 +414,23 @@ namespace Modules.DataStructures
             return count;
         }
 
-        public List<int> ShortestPathBFS(int start, int end)
+        public List<T> ShortestPathBFS(T start, T end)
         {
             // unweighted
-            var parent = new Dictionary<int, int>();
-            var queue = new Queue<int>([start]);
-            var visited = new HashSet<int> { start };
-            parent[start] = -1;
+            var parent = new Dictionary<T, T?>();
+            var queue = new Queue<T>([start]);
+            var visited = new HashSet<T> { start };
+            parent[start] = default(T);
 
             while (queue.Count > 0)
             {
-                int node = queue.Dequeue();
-                if (node == end)
+                var node = queue.Dequeue();
+                if (node.Equals(end))
+                {
                     break;
+                }
 
-                foreach (var (neighbor, _) in adj[node])
+                foreach (var (neighbor, _) in adj.GetValueOrDefault(node, []))
                 {
                     if (visited.Add(neighbor))
                     {
@@ -328,27 +442,28 @@ namespace Modules.DataStructures
             if (!parent.ContainsKey(end))
                 return [];
 
-            var path = new List<int>();
-            int curr = end;
+            var path = new List<T>();
+            var curr = end;
 
-            while (curr != -1)
+            while (!curr.Equals(start))
             {
                 path.Add(curr);
                 curr = parent[curr];
             }
+            path.Add(start);
             path.Reverse();
             return path;
         }
 
-        public List<int> Dijkstra(int start, int end)
+        public List<T> Dijkstra(T start, T end)
         {
             var dist = adj.Keys.ToDictionary(k => k, k => int.MaxValue);
-            var prev = new Dictionary<int, int>();
-            var pq = new SortedSet<(int, int)>(
-                Comparer<(int, int)>.Create(
+            var prev = new Dictionary<T, T>();
+            var pq = new SortedSet<(int distance, T vertex)>(
+                Comparer<(int, T)>.Create(
                     (a, b) =>
                     {
-                        int cmp = a.Item1.CompareTo(b.Item2);
+                        int cmp = a.Item1.CompareTo(b.Item1);
                         return cmp == 0 ? a.Item2.CompareTo(b.Item2) : cmp;
                     }
                 )
@@ -359,37 +474,50 @@ namespace Modules.DataStructures
 
             while (pq.Count > 0)
             {
-                var (d, node) = pq.Min;
+                var (d, vertex) = pq.Min;
                 pq.Remove(pq.Min);
 
-                if (node == end)
-                    break;
+                if (d > dist[vertex])
+                {
+                    continue;
+                }
 
-                foreach (var (neighbor, weight) in adj[node])
+                if (vertex.Equals(end))
+                {
+                    break;
+                }
+
+                foreach (var (neighbor, weight) in adj.GetValueOrDefault(vertex, []))
                 {
                     int newDist = d + weight;
 
                     if (newDist < dist[neighbor])
                     {
                         if (dist[neighbor] != int.MaxValue)
+                        {
                             pq.Remove((dist[neighbor], neighbor));
-
+                        }
                         dist[neighbor] = newDist;
-                        prev[neighbor] = node;
+                        prev[neighbor] = vertex;
                         pq.Add((newDist, neighbor));
                     }
                 }
             }
-            if (!prev.ContainsKey(end))
-                return [];
 
-            var path = new List<int>();
-            int curr = end;
+            if (!prev.ContainsKey(end))
+            {
+                return [];
+            }
+
+            var path = new List<T>();
+            var curr = end;
+
             while (prev.ContainsKey(curr))
             {
                 path.Add(curr);
                 curr = prev[curr];
             }
+
             path.Add(start);
             path.Reverse();
             return path;
@@ -400,83 +528,150 @@ namespace Modules.DataStructures
 
         #region Cycle
 
-        // Directed Cycle Detection
-        public bool HasCycleDirected()
+        public bool HasCycle()
         {
-            var visited = new HashSet<int>();
-            var stack = new HashSet<int>();
-
-            bool Dfs(int node)
+            if (IsDirected)
             {
-                if (stack.Contains(node))
+                return HasCycleDirectedHelper();
+            }
+            else
+            {
+                return HasCycleUndirectedHelper();
+            }
+        }
+
+        private bool HasCycleDirectedHelper()
+        {
+            var visited = new HashSet<T>();
+            var recursionStack = new HashSet<T>();
+
+            bool Dfs(T node)
+            {
+                if (recursionStack.Contains(node))
+                {
                     return true;
+                }
                 if (visited.Contains(node))
+                {
                     return false;
+                }
 
                 visited.Add(node);
-                stack.Add(node);
-                foreach (var (neighbor, _) in adj[node])
+                recursionStack.Add(node);
+
+                foreach (var (neighbor, _) in adj.GetValueOrDefault(node, []))
                 {
                     if (Dfs(neighbor))
+                    {
                         return true;
+                    }
                 }
-                stack.Remove(node);
+
+                recursionStack.Remove(node);
                 return false;
             }
+
             foreach (var node in adj.Keys)
             {
                 if (Dfs(node))
+                {
                     return true;
+                }
             }
             return false;
         }
 
-        // Find Directed Cycle
-        public List<int> FindCycle()
+        private bool HasCycleUndirectedHelper()
         {
-            var parent = new Dictionary<int, int>();
-            var stack = new HashSet<int>();
+            var visited = new HashSet<T>();
 
-            List<int> cycle = [];
-
-            bool Dfs(int node)
+            bool Dfs(T node, T parent)
             {
-                stack.Add(node);
-                foreach (var (neighbor, _) in adj[node])
+                visited.Add(node);
+
+                foreach (var (neighbor, _) in adj.GetValueOrDefault(node, []))
+                {
+                    if (!visited.Contains(neighbor))
+                    {
+                        if (Dfs(neighbor, node))
+                            return true;
+                    }
+                    else if (!neighbor.Equals(parent))
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            foreach (var node in adj.Keys)
+            {
+                if (!visited.Contains(node))
+                {
+                    if (Dfs(node, default(T)!))
+                        return true;
+                }
+            }
+            return false;
+        }
+
+        [Obsolete("Use HasCycle instead!")]
+        public bool HasCycleDirected() => HasCycle();
+
+        public List<T> FindCycle()
+        {
+            var parent = new Dictionary<T, T?>();
+            var recursionStack = new HashSet<T>();
+
+            List<T> cycle = [];
+
+            bool Dfs(T node)
+            {
+                recursionStack.Add(node);
+
+                foreach (var (neighbor, _) in adj.GetValueOrDefault(node, []))
                 {
                     if (!parent.ContainsKey(neighbor))
                     {
                         parent[neighbor] = node;
+
                         if (Dfs(neighbor))
+                        {
                             return true;
+                        }
                     }
-                    else if (stack.Contains(neighbor))
+                    else if (recursionStack.Contains(neighbor))
                     {
-                        // backtrack to find cycle path
-                        int current = node;
+                        var current = node;
                         cycle.Add(neighbor);
-                        while (current != neighbor)
+
+                        while (!current.Equals(neighbor))
                         {
                             cycle.Add(current);
-                            current = parent[current];
+                            current = parent[current]!;
                         }
                         cycle.Reverse();
+
                         return true;
                     }
                 }
-                stack.Remove(node);
+                recursionStack.Remove(node);
                 return false;
             }
+
             foreach (var node in adj.Keys)
             {
                 if (!parent.ContainsKey(node))
                 {
-                    parent[node] = -1;
+                    parent[node] = default(T);
+
                     if (Dfs(node))
+                    {
                         return cycle;
+                    }
                 }
             }
-            return cycle;
+            return [];
         }
 
         #endregion
@@ -484,19 +679,23 @@ namespace Modules.DataStructures
 
         #region Connectivity
 
-        public bool IsConnected()
+        public bool IsGraphConnected()
         {
             if (adj.Keys.Count == 0)
+            {
                 return true;
+            }
+
             var start = adj.Keys.First();
             var reached = BFS(start);
+
             return reached.Count == adj.Keys.Count;
         }
 
-        public List<List<int>> COnnectedComponents()
+        public List<List<T>> ConnectedComponents()
         {
-            var components = new List<List<int>>();
-            var visited = new HashSet<int>();
+            var components = new List<List<T>>();
+            var visited = new HashSet<T>();
 
             foreach (var node in adj.Keys)
             {
@@ -513,7 +712,7 @@ namespace Modules.DataStructures
 
         public int CountConnectedComponents()
         {
-            return COnnectedComponents().Count;
+            return ConnectedComponents().Count;
         }
 
         #endregion
@@ -521,57 +720,73 @@ namespace Modules.DataStructures
 
         #region Graph Coloring
 
-        public int[] GraphColoring(int maxColors)
+        public Dictionary<T, int> GraphColoring(int maxColors)
         {
             var nodes = adj.Keys.ToList();
-            int n = nodes.Count;
-            int[] colors = new int[n];
-            Array.Fill(colors, -1);
-            var nodeIndex = nodes
-                .Select((node, idx) => new { node, idx })
-                .ToDictionary(x => x.node, x => x.idx);
+            var colors = new Dictionary<T, int>();
 
-            for (int i = 0; i < n; i++)
+            // Initialize all colors to -1 (uncolored)
+            foreach (var node in nodes)
             {
-                int node = nodes[i];
+                colors[node] = -1;
+            }
+
+            // Color each node
+            foreach (var node in nodes)
+            {
                 var unavailable = new HashSet<int>();
 
-                // Outgoing neighbors
+                // Check colors of all neighbors (both outgoing and incoming edges)
+                var allNeighbors = new HashSet<T>();
+
+                // Add outgoing neighbors
                 foreach (var neighbor in GetNeighbors(node))
                 {
-                    int idx = nodeIndex[neighbor];
-                    if (colors[idx] != -1)
-                        unavailable.Add(colors[idx]);
+                    allNeighbors.Add(neighbor);
                 }
-                // Incoming neighbors
-                foreach (var other in nodes)
+
+                // Add incoming neighbors (nodes that point to this node)
+                foreach (var kvp in adj)
                 {
-                    if (GetNeighbors(other).Contains(node))
+                    if (kvp.Value.Any(e => e.vertex.Equals(node)))
                     {
-                        int idx = nodeIndex[other];
-                        if (colors[idx] != -1)
-                            unavailable.Add(colors[idx]);
+                        allNeighbors.Add(kvp.Key);
                     }
                 }
 
+                // Check colors of all connected neighbors
+                foreach (var neighbor in allNeighbors)
+                {
+                    if (colors.ContainsKey(neighbor) && colors[neighbor] != -1)
+                    {
+                        unavailable.Add(colors[neighbor]);
+                    }
+                }
+
+                // Find the smallest available color
                 int color = 0;
                 while (unavailable.Contains(color))
                 {
                     color++;
                 }
+
+                // Check if we exceeded max colors
                 if (color >= maxColors)
-                    throw new Exception("Impossible coloring.");
-                colors[i] = color;
+                {
+                    throw new Exception("Impossible Coloring...");
+                }
+
+                colors[node] = color;
             }
+
             return colors;
         }
-
         #endregion
 
 
         #region AStar
 
-        public List<int> AStar(int start, int end, Func<int, int, int>? heuristic = null)
+        public List<T> AStar(T start, T end, Func<T, T, int>? heuristic = null)
         {
             heuristic ??= (a, b) => 0;
             var gScore = adj.Keys.ToDictionary(k => k, k => int.MaxValue);
@@ -580,17 +795,17 @@ namespace Modules.DataStructures
             var fScore = adj.Keys.ToDictionary(k => k, k => int.MaxValue);
             fScore[start] = heuristic(start, end);
 
-            var cameFrom = new Dictionary<int, int>();
+            var cameFrom = new Dictionary<T, T>();
 
-            var open = new SortedSet<(int, int)>(
-                Comparer<(int, int)>.Create(
-                    (a, b) =>
-                    {
+            var open = new SortedSet<(int score, T vertex)>(
+                    Comparer<(int, T)>.Create(
+                        (a, b) =>
+                        {
                         int cmp = a.Item1.CompareTo(b.Item1);
                         return cmp == 0 ? a.Item2.CompareTo(b.Item2) : cmp;
-                    }
-                )
-            )
+                        }
+                        )
+                    )
             {
                 (fScore[start], start),
             };
@@ -598,12 +813,15 @@ namespace Modules.DataStructures
             while (open.Count > 0)
             {
                 var (currentScore, current) = open.Min;
-                if (current == end)
+
+                if (current.Equals(end))
+                {
                     break;
+                }
 
                 open.Remove(open.Min);
 
-                foreach (var (neighbor, weight) in adj[current])
+                foreach (var (neighbor, weight) in adj.GetValueOrDefault(current, []))
                 {
                     int tentativeG = gScore[current] + weight;
 
@@ -614,23 +832,30 @@ namespace Modules.DataStructures
                         cameFrom[neighbor] = current;
 
                         if (!open.Contains((fScore[neighbor], neighbor)))
+                        {
                             open.Add((fScore[neighbor], neighbor));
+                        }
                     }
                 }
             }
-            if (!cameFrom.ContainsKey(end))
-                return [];
 
-            var path = new List<int>();
-            int curr = end;
+            if (!cameFrom.ContainsKey(end))
+            {
+                return [];
+            }
+
+            var path = new List<T>();
+            var curr = end;
 
             while (cameFrom.ContainsKey(curr))
             {
                 path.Add(curr);
                 curr = cameFrom[curr];
             }
+
             path.Add(start);
             path.Reverse();
+
             return path;
         }
 
@@ -639,10 +864,10 @@ namespace Modules.DataStructures
 
         #region Bellman-Ford
 
-        public List<int> BellmanFord(int start, int end)
+        public List<T> BellmanFord(T start, T end)
         {
             var dist = adj.Keys.ToDictionary(k => k, k => int.MaxValue);
-            var pred = new Dictionary<int, int>();
+            var pred = new Dictionary<T, T>();
 
             dist[start] = 0;
 
@@ -651,7 +876,9 @@ namespace Modules.DataStructures
                 foreach (var u in adj.Keys)
                 {
                     if (dist[u] == int.MaxValue)
+                    {
                         continue;
+                    }
 
                     foreach (var (v, w) in adj[u])
                     {
@@ -663,21 +890,31 @@ namespace Modules.DataStructures
                     }
                 }
             }
+
             foreach (var u in adj.Keys)
             {
                 if (dist[u] == int.MaxValue)
+                {
                     continue;
+                }
+
                 foreach (var (v, w) in adj[u])
                 {
                     if (dist[u] + w < dist[v])
-                        throw new Exception("Graph contains a negative-weight cycle.");
+                    {
+                        throw new Exception("Graph contains a negative-weight cycle...");
+                    }
                 }
             }
-            if (!pred.ContainsKey(end))
-                return [];
 
-            var path = new List<int>();
-            int curr = end;
+            if (!pred.ContainsKey(end))
+            {
+                return [];
+            }
+
+            var path = new List<T>();
+            var curr = end;
+
             while (pred.ContainsKey(curr))
             {
                 path.Add(curr);
@@ -694,75 +931,94 @@ namespace Modules.DataStructures
 
         #region MST
 
-        // Kruskal MST
-        public List<(int, int, int)> KruskalMST()
+        public List<(T src, T dst, int weight)> KruskalMST()
         {
-            var edges = adj.SelectMany(kvp => kvp.Value.Select(e => (kvp.Key, e.Item1, e.Item2)))
+            var edges = adj.SelectMany(kvp => kvp.Value.Select(e => (kvp.Key, e.vertex, e.weight)))
                 .ToList();
-            edges.Sort((a, b) => a.Item3.CompareTo(b.Item3));
+            edges.Sort((a, b) => a.weight.CompareTo(b.weight));
 
             var parent = adj.Keys.ToDictionary(k => k, k => k);
-            int Find(int x)
+
+            T Find(T x)
             {
-                while (parent[x] != x)
-                    x = parent[x];
-                return x;
-            }
-            void Union(int a, int b)
-            {
-                int rootA = Find(a);
-                int rootB = Find(b);
-                if (rootA != rootB)
-                    parent[rootB] = rootA;
+                if (!parent[x].Equals(x))
+                {
+                    parent[x] = Find(parent[x]); // Path compression
+                }
+                return parent[x];
             }
 
-            List<(int, int, int)> mst = [];
+            void Union(T a, T b)
+            {
+                T rootA = Find(a);
+                T rootB = Find(b);
+
+                if (!rootA.Equals(rootB))
+                {
+                    parent[rootB] = rootA;
+                }
+            }
+
+            List<(T, T, int)> mst = [];
 
             foreach (var (u, v, w) in edges)
             {
-                if (Find(u) != Find(v))
+                if (!Find(u).Equals(Find(v)))
                 {
                     mst.Add((u, v, w));
                     Union(u, v);
                 }
             }
+
             return mst;
         }
 
-        // Prim MST
-        public List<(int, int, int)> PrimMST()
+        public List<(T src, T dst, int weight)> PrimMST()
         {
             if (adj.Count == 0)
+            {
                 return [];
+            }
 
-            var inMST = new HashSet<int>();
-            var pq = new SortedSet<(int, int, int)>(
-                Comparer<(int, int, int)>.Create(
-                    (a, b) =>
-                    {
-                        int cmp = a.Item3.CompareTo(b.Item3);
+            var inMST = new HashSet<T>();
+
+            var pq = new SortedSet<(int weight, T src, T dst)>(
+                    Comparer<(int, T, T)>.Create(
+                        (a, b) =>
+                        {
+                        int cmp = a.Item1.CompareTo(b.Item1);
                         if (cmp == 0)
-                            cmp = a.Item1.CompareTo(b.Item1);
+                        {
+                        cmp = a.Item2.CompareTo(b.Item2);
+                        }
                         if (cmp == 0)
-                            cmp = a.Item2.CompareTo(b.Item2);
+                        {
+                        cmp = a.Item3.CompareTo(b.Item3);
+                        }
                         return cmp;
-                    }
-                )
-            );
+                        }
+                        )
+                    );
 
-            int start = adj.Keys.First();
+            T start = adj.Keys.First();
             inMST.Add(start);
-            foreach (var (neighbor, weight) in adj[start])
-                pq.Add((start, neighbor, weight));
 
-            List<(int, int, int)> mst = [];
+            foreach (var (neighbor, weight) in adj[start])
+            {
+                pq.Add((weight, start, neighbor));
+            }
+
+            List<(T, T, int)> mst = [];
 
             while (pq.Count > 0 && inMST.Count < adj.Keys.Count)
             {
-                var (u, v, w) = pq.Min;
+                var (w, u, v) = pq.Min;
                 pq.Remove(pq.Min);
+
                 if (inMST.Contains(v))
+                {
                     continue;
+                }
 
                 inMST.Add(v);
                 mst.Add((u, v, w));
@@ -770,11 +1026,15 @@ namespace Modules.DataStructures
                 foreach (var (neighbor, weight) in adj[v])
                 {
                     if (!inMST.Contains(neighbor))
-                        pq.Add((v, neighbor, weight));
+                    {
+                        pq.Add((weight, v, neighbor));
+                    }
                 }
             }
+
             return mst;
         }
+
         #endregion
     }
 }
