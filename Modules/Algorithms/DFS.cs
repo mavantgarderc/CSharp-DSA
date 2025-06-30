@@ -36,7 +36,7 @@ namespace Modules.Algorithms
         #endregion
 
         // classic DFS traversal (returns order)
-        public static List<int> DFSOrder(Graph g, int src)
+        public static List<int> DFSOrder(Graph<int> g, int src)
         {
             var order = new List<int>();
             var visited = new HashSet<int>();
@@ -58,7 +58,7 @@ namespace Modules.Algorithms
         }
 
         // path existence (is there a path from src to dst)
-        public static bool HasPath(Graph g, int src, int dst)
+        public static bool HasPath(Graph<int> g, int src, int dst)
         {
             var visited = new HashSet<int>();
             var stack = new Stack<int>();
@@ -77,7 +77,7 @@ namespace Modules.Algorithms
         }
 
         // all simple paths from src to dst, up to maxDepth
-        public static List<List<int>> AllPathsDFS(Graph g, int src, int dst, int maxDepth = int.MaxValue)
+        public static List<List<int>> AllPathsDFS(Graph<int> g, int src, int dst, int maxDepth = int.MaxValue)
         {
             var result = new List<List<int>>();
             var path = new List<int>();
@@ -99,7 +99,7 @@ namespace Modules.Algorithms
         }
 
         // cycle Detection for Directed Graphs
-        public static bool HasCycleDirected(Graph g)
+        public static bool HasCycleDirected(Graph<int> g)
         {
             var visited = new HashSet<int>();
             var stack = new HashSet<int>();
@@ -121,7 +121,7 @@ namespace Modules.Algorithms
         }
 
         // cycle Detection for Undirected Graphs
-        public static bool HasCycleUndirected(Graph g)
+        public static bool HasCycleUndirected(Graph<int> g)
         {
             var visited = new HashSet<int>();
             bool Dfs(int u, int parent)
@@ -147,7 +147,7 @@ namespace Modules.Algorithms
         }
 
         // topological Sort (DFS based)
-        public static List<int> TopologicalSortDFS(Graph g)
+        public static List<int> TopologicalSortDFS(Graph<int> g)
         {
             var visited = new HashSet<int>();
             var result = new List<int>();
@@ -167,7 +167,7 @@ namespace Modules.Algorithms
         }
 
         // connected Components (undirected)
-        public static List<List<int>> ConnectedComponents(Graph g)
+        public static List<List<int>> ConnectedComponents(Graph<int> g)
         {
             var visited = new HashSet<int>();
             var components = new List<List<int>>();
@@ -192,7 +192,7 @@ namespace Modules.Algorithms
         }
 
         // DFS with predicate (returns depth for first match, else -1)
-        public static int DFSWithPredicate(Graph g, int src, Func<int, bool> predicate)
+        public static int DFSWithPredicate(Graph<int> g, int src, Func<int, bool> predicate)
         {
             var visited = new HashSet<int>();
             var stack = new Stack<(int, int)>();

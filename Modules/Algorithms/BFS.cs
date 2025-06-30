@@ -33,7 +33,7 @@ namespace Modules.Algorithms
         #endregion
 
 
-        public static int[] DistanceFromSource(Graph g, int src)
+        public static int[] DistanceFromSource(Graph<int> g, int src)
         {
             int[] dist = new int[g.VertexCount];
             Array.Fill(dist, -1);
@@ -58,7 +58,7 @@ namespace Modules.Algorithms
             return dist;
         }
 
-        public static bool DetectCycleUndirected(Graph g)
+        public static bool DetectCycleUndirected(Graph<int> g)
         {
             bool[] visited = new bool[g.VertexCount];
             for (int i = 0; i < g.VertexCount; i++)
@@ -68,7 +68,7 @@ namespace Modules.Algorithms
             }
             return false;
 
-            static bool DetectCycleBFS(Graph g, int src, int parent, bool[] visited)
+            static bool DetectCycleBFS(Graph<int> g, int src, int parent, bool[] visited)
             {
                 Queue<(int, int)> q = new();
                 q.Enqueue((src, parent));
@@ -93,17 +93,17 @@ namespace Modules.Algorithms
             }
         }
 
-        public static List<int> TopologicalSortKahn(Graph g)
+        public static List<int> TopologicalSortKahn(Graph<int> g)
         {
             int[] inDegree = new int[g.VertexCount];
-            for (int u = 0; u < g.VertexCount; u++)
+            foreach (var u in g.Vertices)
                 foreach (var v in g.Adj[u])
                     inDegree[v]++;
 
             Queue<int> q = new();
-            for (int i = 0; i < g.VertexCount; i++)
-                if (inDegree[i] == 0)
-                    q.Enqueue(i);
+            foreach (var vertex in g.Vertices)
+                if (inDegree[vertex] == 0)
+                    q.Enqueue(vertex);
 
             List<int> topo = [];
 
@@ -157,7 +157,7 @@ namespace Modules.Algorithms
             return 0;
         }
 
-        public static int[] MultiSourceBFS(Graph g, List<int> sources)
+        public static int[] MultiSourceBFS(Graph<int> g, List<int> sources)
         {
             int[] dist = new int[g.VertexCount];
             Array.Fill(dist, -1);
@@ -184,20 +184,20 @@ namespace Modules.Algorithms
             return dist;
         }
 
-        public static List<List<int>> ConnectedComponents(Graph g)
+        public static List<List<int>> ConnectedComponents(Graph<int> g)
         {
             bool[] visited = new bool[g.VertexCount];
             List<List<int>> components = [];
 
-            for (int i = 0; i < g.VertexCount; i++)
+            foreach (var vertex in g.Vertices)
             {
-                if (!visited[i])
+                if (!visited[vertex])
                 {
                     List<int> comp = [];
                     Queue<int> q = new();
 
-                    q.Enqueue(i);
-                    visited[i] = true;
+                    q.Enqueue(vertex);
+                    visited[vertex] = true;
 
                     while (q.Count > 0)
                     {
@@ -219,7 +219,7 @@ namespace Modules.Algorithms
             return components;
         }
 
-        public static List<List<int>> AllPathsBFS(Graph g, int src, int dst, int maxDepth)
+        public static List<List<int>> AllPathsBFS(Graph<int> g, int src, int dst, int maxDepth)
         {
             List<List<int>> paths = [];
             Queue<List<int>> q = new();
@@ -277,7 +277,7 @@ namespace Modules.Algorithms
             return -1;
         }
 
-        public static int BFSWithPredicate(Graph g, int src, Func<int, bool> predicate)
+        public static int BFSWithPredicate(Graph<int> g, int src, Func<int, bool> predicate)
         {
             bool[] visited = new bool[g.VertexCount];
             Queue<(int, int)> q = new();
