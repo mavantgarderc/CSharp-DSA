@@ -47,7 +47,7 @@ MOST IMAGINARY APPROACH
 
             - Binary Tree
 
-            - BST (Binary Searhc Tree)
+            - BST (Binary Search Tree)
 
             - AVL Tree
 

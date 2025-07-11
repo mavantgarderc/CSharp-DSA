@@ -79,3 +79,8 @@ Index (in order of development):
 8. `ArrayList`
 9. `TupleUtils`
 10. `SequentialTraversals`
+11. `StreamProcessing`
+12. `DFS`
+13. `BFS`
+14. `Serialization`
+15. `LinearSearch`
