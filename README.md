@@ -1,6 +1,6 @@
 # CSharp-DSA Project
 
-> C# 13
+> C# 12
 
 > .NET 9.0
 

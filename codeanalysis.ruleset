@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RuleSet Name="Custom Rules" Description="Custom code analysis rules for the project" ToolsVersion="16.0">
+  <Localization ResourceAssembly="Microsoft.VisualStudio.CodeAnalysis.RuleSets.Strings.dll" ResourceBaseName="Microsoft.VisualStudio.CodeAnalysis.RuleSets.Strings.Localized">
+    <Name Resource="CustomRules_Name" />
+    <Description Resource="CustomRules_Description" />
+  </Localization>
+
+  <!-- Include Microsoft Minimal Recommended Rules -->
+  <Include Path="microsoftmanagedminimum.ruleset" Action="Default" />
+
+  <!-- Customize specific rules -->
+  <Rules AnalyzerId="Microsoft.Analyzers.ManagedCodeAnalysis" RuleNamespace="Microsoft.Rules.Managed">
+    <Rule Id="CA1303" Action="None" /> <!-- Do not pass literals as localized parameters -->
+    <Rule Id="CA1062" Action="Info" />  <!-- Validate arguments of public methods -->
+    <Rule Id="CA2007" Action="Info" />  <!-- Do not directly await a Task -->
+  </Rules>
+
+  <!-- Style rules -->
+  <Rules AnalyzerId="Microsoft.CodeAnalysis.CSharp" RuleNamespace="Microsoft.CodeAnalysis.CSharp">
+    <Rule Id="CS1591" Action="None" /> <!-- Missing XML comment for publicly visible type or member -->
+  </Rules>
+</RuleSet>
