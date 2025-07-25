@@ -1,0 +1,177 @@
+name: Performance Regression
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 2 * * *'  # Run daily at 2 AM
+
+jobs:
+  performance-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch full history for comparison
+
+    - name: Setup .NET 9
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+
+    - name: Build Application
+      run: |
+        dotnet restore
+        dotnet build -c Release --no-restore
+
+    - name: Start Application
+      run: |
+        dotnet run -c Release --no-build &
+        sleep 10  # Wait for app to start
+        echo "API_PID=$!" >> $GITHUB_ENV
+
+    - name: Wait for API Ready
+      run: |
+        timeout 60 bash -c 'until curl -f http://localhost:5000/health 2>/dev/null; do sleep 2; done' || exit 1
+
+    - name: Install Performance Tools
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y apache2-utils wrk
+
+    - name: Run Load Tests
+      run: |
+        echo "Running performance tests..."
+
+        # Test 1: Basic endpoint load test
+        echo "=== Load Test: GET /api/health ==="
+        ab -n 1000 -c 10 http://localhost:5000/health > load_test_health.txt
+
+        # Test 2: API endpoint stress test
+        echo "=== Stress Test: GET /api/values ==="
+        wrk -t4 -c100 -d30s http://localhost:5000/api/values > stress_test_values.txt || true
+
+        # Test 3: Memory usage test
+        echo "=== Memory Usage Test ==="
+        ps -p $API_PID -o pid,vsz,rss,pmem,comm > memory_usage.txt
+
+    - name: Parse Performance Results
+      run: |
+        echo "## Performance Test Results" > performance_results.md
+        echo "" >> performance_results.md
+
+        # Parse Apache Bench results
+        if [ -f load_test_health.txt ]; then
+          RPS=$(grep "Requests per second" load_test_health.txt | awk '{print $4}')
+          MEAN_TIME=$(grep "Time per request" load_test_health.txt | head -1 | awk '{print $4}')
+          echo "### Health Endpoint Load Test" >> performance_results.md
+          echo "- Requests per second: $RPS" >> performance_results.md
+          echo "- Mean response time: ${MEAN_TIME}ms" >> performance_results.md
+          echo "" >> performance_results.md
+
+          # Store metrics for comparison
+          echo "HEALTH_RPS=$RPS" >> $GITHUB_ENV
+          echo "HEALTH_MEAN_TIME=$MEAN_TIME" >> $GITHUB_ENV
+        fi
+
+        # Parse WRK results
+        if [ -f stress_test_values.txt ]; then
+          echo "### Values Endpoint Stress Test" >> performance_results.md
+          echo "\`\`\`" >> performance_results.md
+          tail -10 stress_test_values.txt >> performance_results.md
+          echo "\`\`\`" >> performance_results.md
+          echo "" >> performance_results.md
+        fi
+
+        # Memory usage
+        if [ -f memory_usage.txt ]; then
+          MEMORY_MB=$(tail -1 memory_usage.txt | awk '{print int($3/1024)}')
+          echo "### Memory Usage" >> performance_results.md
+          echo "- Memory usage: ${MEMORY_MB}MB" >> performance_results.md
+          echo "" >> performance_results.md
+
+          echo "MEMORY_USAGE_MB=$MEMORY_MB" >> $GITHUB_ENV
+        fi
+
+    - name: Compare with Baseline
+      run: |
+        # Set baseline thresholds (adjust these for your app)
+        BASELINE_RPS=100
+        BASELINE_MEMORY_MB=150
+        BASELINE_MEAN_TIME=50
+
+        echo "## Performance Analysis" >> performance_results.md
+        echo "" >> performance_results.md
+
+        # Check RPS regression
+        if [ ! -z "$HEALTH_RPS" ]; then
+          RPS_INT=$(echo $HEALTH_RPS | cut -d'.' -f1)
+          if [ $RPS_INT -lt $BASELINE_RPS ]; then
+            echo "⚠️ **RPS Regression**: Current $HEALTH_RPS < Baseline $BASELINE_RPS" >> performance_results.md
+            echo "PERFORMANCE_REGRESSION=true" >> $GITHUB_ENV
+          else
+            echo "✅ **RPS Good**: Current $HEALTH_RPS >= Baseline $BASELINE_RPS" >> performance_results.md
+          fi
+        fi
+
+        # Check memory regression
+        if [ ! -z "$MEMORY_USAGE_MB" ]; then
+          if [ $MEMORY_USAGE_MB -gt $BASELINE_MEMORY_MB ]; then
+            echo "⚠️ **Memory Regression**: Current ${MEMORY_USAGE_MB}MB > Baseline ${BASELINE_MEMORY_MB}MB" >> performance_results.md
+            echo "PERFORMANCE_REGRESSION=true" >> $GITHUB_ENV
+          else
+            echo "✅ **Memory Good**: Current ${MEMORY_USAGE_MB}MB <= Baseline ${BASELINE_MEMORY_MB}MB" >> performance_results.md
+          fi
+        fi
+
+        # Check response time regression
+        if [ ! -z "$HEALTH_MEAN_TIME" ]; then
+          MEAN_TIME_INT=$(echo $HEALTH_MEAN_TIME | cut -d'.' -f1)
+          if [ $MEAN_TIME_INT -gt $BASELINE_MEAN_TIME ]; then
+            echo "⚠️ **Response Time Regression**: Current ${HEALTH_MEAN_TIME}ms > Baseline ${BASELINE_MEAN_TIME}ms" >> performance_results.md
+            echo "PERFORMANCE_REGRESSION=true" >> $GITHUB_ENV
+          else
+            echo "✅ **Response Time Good**: Current ${HEALTH_MEAN_TIME}ms <= Baseline ${BASELINE_MEAN_TIME}ms" >> performance_results.md
+          fi
+        fi
+
+    - name: Comment PR with Results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const results = fs.readFileSync('performance_results.md', 'utf8');
+
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: results
+          });
+
+    - name: Upload Performance Results
+      uses: actions/upload-artifact@v4
+      with:
+        name: performance-results-${{ github.sha }}
+        path: |
+          performance_results.md
+          load_test_health.txt
+          stress_test_values.txt
+          memory_usage.txt
+
+    - name: Fail on Performance Regression
+      if: env.PERFORMANCE_REGRESSION == 'true'
+      run: |
+        echo "Performance regression detected! Check the results above."
+        exit 1
+
+    - name: Cleanup
+      if: always()
+      run: |
+        if [ ! -z "$API_PID" ]; then
+          kill $API_PID || true
+        fi
