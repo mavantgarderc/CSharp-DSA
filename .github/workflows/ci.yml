@@ -2,41 +2,29 @@ name: CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ main ]
 
 jobs:
-  build-and-test:
-    strategy:
-        fail-fast: false
-        matrix:
-            dotnet-version: [6.0.423, 8.0.203]
-    runs-on: ${{ matrix.os }}
+  build-test:
+    runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Cache NuGet packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.nuget/packages
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
-          restore-keys: ${{ runner.os }}-nuget-
+    - name: Setup .NET 9
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
 
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: ${{ matrix.dotnet-version }}
+    - name: Restore & Build
+      run: |
+        dotnet restore
+        dotnet build --no-restore
 
-      - name: Restore dependencies
-        run: dotnet restore
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
 
-      - name: Build
-        run: dotnet build --configuration Release --no-restore
-
-      - name: Test with Coverage
-        run: dotnet test --configuration Release --no-build --collect:"XPlat Code Coverage"
-
-      - name: Upload Coverage to Codecov
-        uses: codecov/codecov-action@v4
+    - name: Build Docker Image
+      run: docker build -t my-api:${{ github.sha }} .

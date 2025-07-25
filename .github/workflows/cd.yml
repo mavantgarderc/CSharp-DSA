@@ -1,0 +1,36 @@
+name: CD
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET 9
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+
+    - name: Build & Push Docker Image
+      run: |
+        echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        docker build -t ghcr.io/${{ github.repository }}:latest .
+        docker push ghcr.io/${{ github.repository }}:latest
+
+    - name: Deploy to Production
+      run: |
+        echo "Deploying to production..."
+        # Replace with your deployment command:
+        # kubectl set image deployment/my-api my-api=ghcr.io/${{ github.repository }}:latest
+        # or az webapp config container set --docker-custom-image-name ghcr.io/${{ github.repository }}:latest
+
+    - name: Health Check
+      run: |
+        sleep 30
+        # curl -f https://your-app-url.com/health || exit 1
