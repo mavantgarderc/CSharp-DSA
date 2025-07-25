@@ -14,7 +14,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Csdsa.Application\Csdsa.Application.csproj" />
-    <ProjectReference Include="..\Csdsa.Infrastructure\Csdsa.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

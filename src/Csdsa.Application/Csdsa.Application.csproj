@@ -1,8 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
     <ProjectReference Include="..\Csdsa.Domain\Csdsa.Domain.csproj" />
-    <ProjectReference Include="..\Csdsa.Shared\Csdsa.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>

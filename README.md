@@ -3,47 +3,37 @@
 
 ## Project Structure
 ```
-󱡂 CSharp-DSA
-├── README.md
-├── csdsa.sln
-├── Directory.Build.props
-├── docker/
-│   └── Dockerfile
-├── scripts/
-│   ├── benchmark.sh
-│   ├── build.sh
-│   ├── deploy.sh
-│   └── test.sh
+CSharp-DSA/
+├── src/
+│   ├── Csdsa.Api/
+│   │   └── Csdsa.Api.csproj
+│   ├── Csdsa.Application/
+│   │   └── Csdsa.Application.csproj
+│   └── Csdsa.Domain/
+│       └── Csdsa.Domain.csproj
+├── tests/
+│   ├── Csdsa.UnitTests/
+│   │   └── Csdsa.UnitTests.csproj
+│   ├── Csdsa.IntegrationTests/
+│   │   └── Csdsa.IntegrationTests.csproj
+│   ├── Csdsa.PerformanceTests/
+│   │   └── Csdsa.PerformanceTests.csproj
+│   └── Csdsa.PropertyTests/
+│       └── Csdsa.PropertyTests.csproj
 ├── docs/
+├── scripts/
+├── docker/
+├── .github/
+├── CSharp-DSA.sln
+├── Directory.Build.props
+├── Directory.Packages.props
 ├── global.json
+├── .gitignore
+├── .editorconfig
 ├── README.md
 ├── ROADMAP.md
-├── src/
-│   ├── Csdsa.Api/
-│   │   ├── appsettings.Development.json
-│   │   ├── appsettings.json
-│   │   ├── Csdsa.Api.csproj
-│   │   ├── Csdsa.Api.http
-│   │   ├── Program.cs
-│   │   └── Properties/
-│   │       └── launchSettings.json
-│   ├── Csdsa.Application/
-│   │   └── Csdsa.Application.csproj
-│   ├── Csdsa.Domain/
-│   │   └── Csdsa.Domain.csproj
-│   ├── Csdsa.Infrastructure/
-│   │   └── Csdsa.Infrastructure.csproj
-│   └── Csdsa.Shared/
-│       └── Csdsa.Shared.csproj
-└── tests/
-    ├── Csdsa.IntegrationTests/
-    │   └── Csdsa.IntegrationTests.csproj
-    ├── Csdsa.PerformanceTests/
-    │   └── Csdsa.PerformanceTests.csproj
-    ├── Csdsa.PropertyTests/
-    │   └── Csdsa.PropertyTests.csproj
-    └── Csdsa.UnitTests/
-        └── Csdsa.UnitTests.csproj
+├── CONTRIBUTING.md
+└── LICENSE
 ```
 
 ### Scripts
