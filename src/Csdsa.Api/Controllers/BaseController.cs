@@ -26,18 +26,23 @@ namespace Csdsa.Api.Controllers.Base
 
         protected Guid GetUserId()
         {
-            var userIdClaim = User.FindFirst("UserId")?.Value ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userIdClaim =
+                User.FindFirst("UserId")?.Value ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             return Guid.TryParse(userIdClaim, out var userId) ? userId : Guid.Empty;
         }
 
         protected string GetUserEmail()
         {
-            return User.FindFirst("Email")?.Value ?? User.FindFirst(ClaimTypes.Email)?.Value ?? string.Empty;
+            return User.FindFirst("Email")?.Value
+                ?? User.FindFirst(ClaimTypes.Email)?.Value
+                ?? string.Empty;
         }
 
         protected string GetUserRole()
         {
-            return User.FindFirst("Role")?.Value ?? User.FindFirst(ClaimTypes.Role)?.Value ?? string.Empty;
+            return User.FindFirst("Role")?.Value
+                ?? User.FindFirst(ClaimTypes.Role)?.Value
+                ?? string.Empty;
         }
 
         protected List<string> GetUserPermissions()
@@ -57,14 +62,18 @@ namespace Csdsa.Api.Controllers.Base
 
         protected bool IsInRole(string role)
         {
-            return User.IsInRole(role) || GetUserRole().Equals(role, StringComparison.OrdinalIgnoreCase);
+            return User.IsInRole(role)
+                || GetUserRole().Equals(role, StringComparison.OrdinalIgnoreCase);
         }
 
         #endregion
 
         #region Response Helper Methods
 
-        protected ActionResult<ApiResponse<T>> SuccessResponse<T>(T data, string message = "Operation successful")
+        protected ActionResult<ApiResponse<T>> SuccessResponse<T>(
+            T data,
+            string message = "Operation successful"
+        )
         {
             _logger.LogInformation("Success: {Message}", message);
             return Ok(ApiResponse<T>.SuccessResult(data, message));
@@ -76,7 +85,10 @@ namespace Csdsa.Api.Controllers.Base
             return Ok(ApiResponse.SuccessResult(message));
         }
 
-        protected ActionResult<ApiResponse<T>> ErrorResponse<T>(string message, object? errors = null)
+        protected ActionResult<ApiResponse<T>> ErrorResponse<T>(
+            string message,
+            object? errors = null
+        )
         {
             _logger.LogError("Error: {Message}", message);
             return BadRequest(ApiResponse<T>.ErrorResult(message, errors));
@@ -88,7 +100,9 @@ namespace Csdsa.Api.Controllers.Base
             return BadRequest(ApiResponse.ErrorResult(message, errors));
         }
 
-        protected ActionResult<ApiResponse<T>> NotFoundResponse<T>(string message = "Resource not found")
+        protected ActionResult<ApiResponse<T>> NotFoundResponse<T>(
+            string message = "Resource not found"
+        )
         {
             _logger.LogWarning("Not Found: {Message}", message);
             return NotFound(ApiResponse<T>.ErrorResult(message));
@@ -100,28 +114,96 @@ namespace Csdsa.Api.Controllers.Base
             return NotFound(ApiResponse.ErrorResult(message));
         }
 
-        protected ActionResult<ApiResponse<T>> UnauthorizedRespons<T>(string message = "Unauthorized access")
+        // FIXED: Added missing 'e' to method name and added missing non-generic overload
+        protected ActionResult<ApiResponse<T>> UnauthorizedResponse<T>(
+            string message = "Unauthorized access"
+        )
         {
             _logger.LogWarning("Unauthorized: {Message}", message);
             return Unauthorized(ApiResponse<T>.ErrorResult(message));
         }
 
-        protected ActionResult<PaginatedResponse<T>> PaginatedResponse<T>(IEnumerable<T> data, int page, int pageSize, int totalCount, string message = "Data retrieved successfully")
+        // ADDED: Non-generic UnauthorizedResponse method
+        protected ActionResult<ApiResponse> UnauthorizedResponse(
+            string message = "Unauthorized access"
+        )
         {
-            _logger.LogInformation("Paginated data retrieved: Page {Page}, PageSize {PageSize}, Total {Total}", page, pageSize, totalCount);
-            return Ok(PaginatedResponse<T>.Create(data, page, pageSize, totalCount, message));
+            _logger.LogWarning("Unauthorized: {Message}", message);
+            return Unauthorized(ApiResponse.ErrorResult(message));
+        }
+
+        protected ActionResult<ApiResponse<IEnumerable<T>>> PaginatedResponse<T>(
+            IEnumerable<T> data,
+            int page,
+            int pageSize,
+            int totalCount,
+            string message = "Data retrieved successfully"
+        )
+        {
+            _logger.LogInformation(
+                "Paginated data retrieved: Page {Page}, PageSize {PageSize}, Total {Total}",
+                page,
+                pageSize,
+                totalCount
+            );
+            return PaginatedResponse(data, page, pageSize, totalCount, message);
         }
 
         #endregion
 
         #region Validation Helper Methods
 
-        protected async Task<ActionResult<ApiResponse>?> ValidateModelAsync<T>(T model, IValidator<T> validator)
+        // FIXED: Changed return type to match the expected generic type
+        protected async Task<ActionResult<ApiResponse<T>>?> ValidateModelAsync<T, TModel>(
+            TModel model,
+            IValidator<TModel> validator
+        )
         {
             var validationResult = await validator.ValidateAsync(model);
             if (!validationResult.IsValid)
             {
-                var errors = validationResult.Errors.Select(x => new { Field = x.PropertyName, Error = x.ErrorMessage });
+                var errors = validationResult.Errors.Select(x => new
+                {
+                    Field = x.PropertyName,
+                    Error = x.ErrorMessage,
+                });
+                return ErrorResponse<T>("Validation failed", errors);
+            }
+            return null;
+        }
+
+        // FIXED: Changed return type to match the expected generic type
+        protected ActionResult<ApiResponse<T>>? ValidateModel<T>()
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState
+                    .Where(x => x.Value?.Errors.Count > 0)
+                    .ToDictionary(
+                        kvp => kvp.Key,
+                        kvp =>
+                            kvp.Value?.Errors.Select(e => e.ErrorMessage).ToArray()
+                            ?? Array.Empty<string>()
+                    );
+                return ErrorResponse<T>("Validation failed", errors);
+            }
+            return null;
+        }
+
+        // Keep the original non-generic versions for backward compatibility
+        protected async Task<ActionResult<ApiResponse>?> ValidateModelAsync<TModel>(
+            TModel model,
+            IValidator<TModel> validator
+        )
+        {
+            var validationResult = await validator.ValidateAsync(model);
+            if (!validationResult.IsValid)
+            {
+                var errors = validationResult.Errors.Select(x => new
+                {
+                    Field = x.PropertyName,
+                    Error = x.ErrorMessage,
+                });
                 return ErrorResponse("Validation failed", errors);
             }
             return null;
@@ -135,7 +217,11 @@ namespace Csdsa.Api.Controllers.Base
                     .Where(x => x.Value?.Errors.Count > 0)
                     .ToDictionary(
                         kvp => kvp.Key,
-                        kvp => kvp.Value?.Errors.Select(e => e.ErrorMessage).ToArray()
+                        kvp =>
+                            (object)(
+                                kvp.Value?.Errors.Select(e => e.ErrorMessage).ToArray()
+                                ?? Array.Empty<string>()
+                            )
                     );
                 return ErrorResponse("Validation failed", errors);
             }
@@ -154,7 +240,8 @@ namespace Csdsa.Api.Controllers.Base
             long executionTime,
             int dataSize,
             string? description = null,
-            Dictionary<string, object>? metadata = null)
+            Dictionary<string, object>? metadata = null
+        )
         {
             return new AlgorithmResponse<T>
             {
@@ -166,9 +253,13 @@ namespace Csdsa.Api.Controllers.Base
                     SpaceComplexity = spaceComplexity,
                     ExecutionTimeMs = executionTime,
                     DataSize = dataSize,
-                    Description = description ?? string.Empty
+                    Description = description ?? string.Empty,
                 },
-                Metadata = metadata ?? new Dictionary<string, object>()
+                Metadata =
+                    metadata?.ToDictionary(
+                        kvp => kvp.Key,
+                        kvp => kvp.Value?.ToString() ?? string.Empty
+                    ) ?? new Dictionary<string, string>(),
             };
         }
 
@@ -179,7 +270,8 @@ namespace Csdsa.Api.Controllers.Base
             string spaceComplexity,
             int dataSize,
             string? description = null,
-            Dictionary<string, object>? metadata = null)
+            Dictionary<string, object>? metadata = null
+        )
         {
             var stopwatch = Stopwatch.StartNew();
 
@@ -214,7 +306,8 @@ namespace Csdsa.Api.Controllers.Base
             string spaceComplexity,
             int dataSize,
             string? description = null,
-            Dictionary<string, object>? metadata = null)
+            Dictionary<string, object>? metadata = null
+        )
         {
             var stopwatch = Stopwatch.StartNew();
 
@@ -249,7 +342,8 @@ namespace Csdsa.Api.Controllers.Base
         protected async Task<ActionResult<ApiResponse<TResponse>>> GetByIdAsync<TEntity, TResponse>(
             Guid id,
             Func<TEntity, TResponse> mapper,
-            string entityName = "Entity")
+            string entityName = "Entity"
+        )
             where TEntity : BaseEntity
         {
             try
@@ -270,41 +364,66 @@ namespace Csdsa.Api.Controllers.Base
             }
         }
 
-        protected async Task<ActionResult<PaginatedResponse<TResponse>>> GetPagedAsync<TEntity, TResponse>(
+        protected async Task<ActionResult<ApiResponse<IEnumerable<TResponse>>>> GetPagedAsync<
+            TEntity,
+            TResponse
+        >(
             int page = 1,
             int pageSize = 10,
             Func<TEntity, TResponse>? mapper = null,
-            string entityName = "Entity")
+            string entityName = "Entity"
+        )
             where TEntity : BaseEntity
         {
             try
             {
-                if (page < 1) page = 1;
-                if (pageSize < 1) pageSize = 10;
-                if (pageSize > 100) pageSize = 100;
+                if (page < 1)
+                    page = 1;
+                if (pageSize < 1)
+                    pageSize = 10;
+                if (pageSize > 100)
+                    pageSize = 100;
 
-                var (items, totalCount) = await _unitOfWork.Repository<TEntity>().GetPagedAsync(page, pageSize);
+                var (items, totalCount) = await _unitOfWork
+                    .Repository<TEntity>()
+                    .GetPagedAsync(page, pageSize);
 
-                var response = mapper != null
-                    ? items.Select(mapper)
-                    : items.Cast<TResponse>();
+                var response = mapper != null ? items.Select(mapper) : items.Cast<TResponse>();
 
-                return PaginatedResponse(response, page, pageSize, totalCount, $"{entityName} list retrieved successfully");
+                // FIXED: Call the method instead of using it as a type
+                return PaginatedResponse(
+                    response,
+                    page,
+                    pageSize,
+                    totalCount,
+                    $"{entityName} list retrieved successfully"
+                );
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving paged {EntityName}", entityName);
-                return BadRequest(PaginatedResponse<TResponse>.Create(
-                    Enumerable.Empty<TResponse>(), page, pageSize, 0, $"Error retrieving {entityName}"));
+
+                return PaginatedResponse(
+                    Enumerable.Empty<TResponse>(),
+                    page,
+                    pageSize,
+                    0,
+                    $"Error retrieving {entityName}"
+                );
             }
         }
 
-        protected async Task<ActionResult<ApiResponse<TResponse>>> CreateAsync<TEntity, TRequest, TResponse>(
+        protected async Task<ActionResult<ApiResponse<TResponse>>> CreateAsync<
+            TEntity,
+            TRequest,
+            TResponse
+        >(
             TRequest request,
             Func<TRequest, TEntity> mapper,
             Func<TEntity, TResponse> responseMapper,
             IValidator<TRequest>? validator = null,
-            string entityName = "Entity")
+            string entityName = "Entity"
+        )
             where TEntity : BaseEntity
         {
             try
@@ -312,13 +431,20 @@ namespace Csdsa.Api.Controllers.Base
                 // Validate request if validator provided
                 if (validator != null)
                 {
-                    var validationError = await ValidateModelAsync(request, validator);
-                    if (validationError != null) return validationError;
+                    // FIXED: Use the generic version that matches the return type
+                    var validationError = await ValidateModelAsync<TResponse, TRequest>(
+                        request,
+                        validator
+                    );
+                    if (validationError != null)
+                        return validationError;
                 }
 
                 // Validate model state
-                var modelError = ValidateModel();
-                if (modelError != null) return modelError;
+                // FIXED: Use the generic version that matches the return type
+                var modelError = ValidateModel<TResponse>();
+                if (modelError != null)
+                    return modelError;
 
                 var entity = mapper(request);
                 entity.CreatedBy = GetUserId().ToString();
@@ -336,13 +462,18 @@ namespace Csdsa.Api.Controllers.Base
             }
         }
 
-        protected async Task<ActionResult<ApiResponse<TResponse>>> UpdateAsync<TEntity, TRequest, TResponse>(
+        protected async Task<ActionResult<ApiResponse<TResponse>>> UpdateAsync<
+            TEntity,
+            TRequest,
+            TResponse
+        >(
             Guid id,
             TRequest request,
             Func<TEntity, TRequest, TEntity> mapper,
             Func<TEntity, TResponse> responseMapper,
             IValidator<TRequest>? validator = null,
-            string entityName = "Entity")
+            string entityName = "Entity"
+        )
             where TEntity : BaseEntity
         {
             try
@@ -350,13 +481,20 @@ namespace Csdsa.Api.Controllers.Base
                 // Validate request if validator provided
                 if (validator != null)
                 {
-                    var validationError = await ValidateModelAsync(request, validator);
-                    if (validationError != null) return validationError;
+                    // FIXED: Use the generic version that matches the return type
+                    var validationError = await ValidateModelAsync<TResponse, TRequest>(
+                        request,
+                        validator
+                    );
+                    if (validationError != null)
+                        return validationError;
                 }
 
                 // Validate model state
-                var modelError = ValidateModel();
-                if (modelError != null) return modelError;
+                // FIXED: Use the generic version that matches the return type
+                var modelError = ValidateModel<TResponse>();
+                if (modelError != null)
+                    return modelError;
 
                 var entity = await _unitOfWork.Repository<TEntity>().GetByIdAsync(id);
                 if (entity == null)
@@ -383,7 +521,8 @@ namespace Csdsa.Api.Controllers.Base
         protected async Task<ActionResult<ApiResponse>> DeleteAsync<TEntity>(
             Guid id,
             bool softDelete = true,
-            string entityName = "Entity")
+            string entityName = "Entity"
+        )
             where TEntity : BaseEntity
         {
             try
@@ -419,7 +558,10 @@ namespace Csdsa.Api.Controllers.Base
 
         #region Exception Handling
 
-        protected ActionResult<ApiResponse<T>> HandleException<T>(Exception ex, string operation = "Operation")
+        protected ActionResult<ApiResponse<T>> HandleException<T>(
+            Exception ex,
+            string operation = "Operation"
+        )
         {
             _logger.LogError(ex, "Error during {Operation}", operation);
 
@@ -429,7 +571,7 @@ namespace Csdsa.Api.Controllers.Base
                 UnauthorizedAccessException => UnauthorizedResponse<T>("Access denied"),
                 KeyNotFoundException => NotFoundResponse<T>("Resource not found"),
                 InvalidOperationException => ErrorResponse<T>("Invalid operation"),
-                _ => ErrorResponse<T>($"An error occurred during {operation}")
+                _ => ErrorResponse<T>($"An error occurred during {operation}"),
             };
         }
 
