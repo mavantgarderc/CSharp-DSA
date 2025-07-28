@@ -15,7 +15,6 @@ namespace Csdsa.Api.Controllers.Base
     {
         protected readonly IUnitOfWork _unitOfWork;
         protected readonly ILogger _logger;
-
         protected BaseController(IUnitOfWork unitOfWork, ILogger logger)
         {
             _unitOfWork = unitOfWork;
@@ -114,7 +113,6 @@ namespace Csdsa.Api.Controllers.Base
             return NotFound(ApiResponse.ErrorResult(message));
         }
 
-        // FIXED: Added missing 'e' to method name and added missing non-generic overload
         protected ActionResult<ApiResponse<T>> UnauthorizedResponse<T>(
             string message = "Unauthorized access"
         )
@@ -123,7 +121,6 @@ namespace Csdsa.Api.Controllers.Base
             return Unauthorized(ApiResponse<T>.ErrorResult(message));
         }
 
-        // ADDED: Non-generic UnauthorizedResponse method
         protected ActionResult<ApiResponse> UnauthorizedResponse(
             string message = "Unauthorized access"
         )
@@ -153,7 +150,6 @@ namespace Csdsa.Api.Controllers.Base
 
         #region Validation Helper Methods
 
-        // FIXED: Changed return type to match the expected generic type
         protected async Task<ActionResult<ApiResponse<T>>?> ValidateModelAsync<T, TModel>(
             TModel model,
             IValidator<TModel> validator
@@ -172,7 +168,6 @@ namespace Csdsa.Api.Controllers.Base
             return null;
         }
 
-        // FIXED: Changed return type to match the expected generic type
         protected ActionResult<ApiResponse<T>>? ValidateModel<T>()
         {
             if (!ModelState.IsValid)
@@ -190,7 +185,6 @@ namespace Csdsa.Api.Controllers.Base
             return null;
         }
 
-        // Keep the original non-generic versions for backward compatibility
         protected async Task<ActionResult<ApiResponse>?> ValidateModelAsync<TModel>(
             TModel model,
             IValidator<TModel> validator
@@ -390,7 +384,6 @@ namespace Csdsa.Api.Controllers.Base
 
                 var response = mapper != null ? items.Select(mapper) : items.Cast<TResponse>();
 
-                // FIXED: Call the method instead of using it as a type
                 return PaginatedResponse(
                     response,
                     page,
@@ -428,10 +421,8 @@ namespace Csdsa.Api.Controllers.Base
         {
             try
             {
-                // Validate request if validator provided
                 if (validator != null)
                 {
-                    // FIXED: Use the generic version that matches the return type
                     var validationError = await ValidateModelAsync<TResponse, TRequest>(
                         request,
                         validator
@@ -440,8 +431,6 @@ namespace Csdsa.Api.Controllers.Base
                         return validationError;
                 }
 
-                // Validate model state
-                // FIXED: Use the generic version that matches the return type
                 var modelError = ValidateModel<TResponse>();
                 if (modelError != null)
                     return modelError;
@@ -478,10 +467,8 @@ namespace Csdsa.Api.Controllers.Base
         {
             try
             {
-                // Validate request if validator provided
                 if (validator != null)
                 {
-                    // FIXED: Use the generic version that matches the return type
                     var validationError = await ValidateModelAsync<TResponse, TRequest>(
                         request,
                         validator
@@ -490,8 +477,6 @@ namespace Csdsa.Api.Controllers.Base
                         return validationError;
                 }
 
-                // Validate model state
-                // FIXED: Use the generic version that matches the return type
                 var modelError = ValidateModel<TResponse>();
                 if (modelError != null)
                     return modelError;
