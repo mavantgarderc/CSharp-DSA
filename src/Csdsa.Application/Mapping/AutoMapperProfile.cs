@@ -6,7 +6,7 @@ namespace University.Application
     {
         public AutoMapperProfile()
         {
-            // CreateMap<DTO, Domain>().ReverseMap();
+            //CreateMap<UserDTO, Domain>().ReverseMap();
         }
     }
 }

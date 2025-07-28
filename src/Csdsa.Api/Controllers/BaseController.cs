@@ -3,6 +3,7 @@ using System.Security.Claims;
 using Csdsa.Domain.Models.Common;
 using Csdsa.Domain.Repository.IRepositories;
 using FluentValidation;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,12 +14,14 @@ namespace Csdsa.Api.Controllers.Base
     [Authorize]
     public abstract class BaseController : ControllerBase
     {
+        protected readonly IMediator _mediator;
         protected readonly IUnitOfWork _unitOfWork;
         protected readonly ILogger _logger;
-        protected BaseController(IUnitOfWork unitOfWork, ILogger logger)
+        protected BaseController(IUnitOfWork unitOfWork, ILogger logger, IMediator mediator)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
+            _mediator = mediator;
         }
 
         #region User CLaims Helper Methods

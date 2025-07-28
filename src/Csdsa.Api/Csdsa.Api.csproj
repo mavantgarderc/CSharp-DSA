@@ -17,6 +17,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Csdsa.Application\Csdsa.Application.csproj" />
+    <ProjectReference Include="..\Csdsa.Domain\Csdsa.Domain.csproj" />
     <ProjectReference Include="..\Csdsa.Infrastructure\Csdsa.Infrastructure.csproj" />
   </ItemGroup>
 </Project>

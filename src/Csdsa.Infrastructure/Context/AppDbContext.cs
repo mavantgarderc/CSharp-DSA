@@ -46,10 +46,8 @@ namespace Csdsa.Domain.Context
 
         private void ConfigurePostgreSQL(ModelBuilder modelBuilder)
         {
-            // Use snake_case naming convention for PostgreSQL
             foreach (var entity in modelBuilder.Model.GetEntityTypes())
             {
-                // converting table names to snake_case
                 entity.SetTableName(ToSnakeCase(entity.GetTableName() ?? entity.DisplayName()));
 
                 foreach (var property in entity.GetProperties())
@@ -57,13 +55,11 @@ namespace Csdsa.Domain.Context
                     property.SetColumnName(ToSnakeCase(property.Name));
                 }
 
-                // convert key names to snake_case
                 foreach (var key in entity.GetKeys())
                 {
                     key.SetName(ToSnakeCase(key.GetName() ?? $"pk_{entity.GetTableName()}"));
                 }
 
-                // convert foreign key names to snake_case
                 foreach (var foreignKey in entity.GetForeignKeys())
                 {
                     foreignKey.SetConstraintName(
@@ -74,7 +70,6 @@ namespace Csdsa.Domain.Context
                     );
                 }
 
-                // convert index names to snake_case
                 foreach (var index in entity.GetIndexes())
                 {
                     index.SetDatabaseName(
@@ -89,12 +84,10 @@ namespace Csdsa.Domain.Context
 
         private void ConfigureBaseEntities(ModelBuilder modelBuilder)
         {
-            // configure all entities that inherit from BaseEntity
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
                 if (typeof(BaseEntity).IsAssignableFrom(entityType.ClrType))
                 {
-                    // config Id as pk with default value
                     modelBuilder.Entity(entityType.ClrType).HasKey("Id");
 
                     modelBuilder
@@ -102,26 +95,22 @@ namespace Csdsa.Domain.Context
                         .Property("Id")
                         .HasDefaultValueSql("gen_random_uuid()");
 
-                    // configure CreatedAt with default value
                     modelBuilder
                         .Entity(entityType.ClrType)
                         .Property("CreatedAt")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP")
                         .ValueGeneratedOnAdd();
 
-                    // config UpdatedAt
                     modelBuilder
                         .Entity(entityType.ClrType)
                         .Property("UpdatedAt")
                         .ValueGeneratedOnUpdate();
 
-                    // config IsDeleted with default value
                     modelBuilder
                         .Entity(entityType.ClrType)
                         .Property("IsDeleted")
                         .HasDefaultValue(false);
 
-                    // config string properties
                     modelBuilder
                         .Entity(entityType.ClrType)
                         .Property("CreatedBy")
@@ -139,12 +128,10 @@ namespace Csdsa.Domain.Context
 
         private void ConfigureIndexes(ModelBuilder modelBuilder)
         {
-            // add indexes for common query patterns on base entity properties
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
                 if (typeof(BaseEntity).IsAssignableFrom(entityType.ClrType))
                 {
-                    // index on CreatedAt for date-based queries
                     modelBuilder
                         .Entity(entityType.ClrType)
                         .HasIndex("CreatedAt")
@@ -152,7 +139,6 @@ namespace Csdsa.Domain.Context
                             $"ix_{ToSnakeCase(entityType.GetTableName() ?? entityType.DisplayName())}_created_at"
                         );
 
-                    // index on IsDeleted for soft delete queries
                     modelBuilder
                         .Entity(entityType.ClrType)
                         .HasIndex("IsDeleted")
@@ -160,7 +146,6 @@ namespace Csdsa.Domain.Context
                             $"ix_{ToSnakeCase(entityType.GetTableName() ?? entityType.DisplayName())}_is_deleted"
                         );
 
-                    // composite index on IsDeleted & CreatedAt
                     modelBuilder
                         .Entity(entityType.ClrType)
                         .HasIndex("IsDeleted", "CreatedAt")
@@ -173,20 +158,10 @@ namespace Csdsa.Domain.Context
 
         private void ConfigureRelationships(ModelBuilder modelBuilder)
         {
-            // Add relationship configurations here as needed
-            // This method was referenced but not implemented in the original code
-
-            // Example:
-            // modelBuilder.Entity<ChildEntity>()
-            //     .HasOne(c => c.Parent)
-            //     .WithMany(p => p.Children)
-            //     .HasForeignKey(c => c.ParentId)
-            //     .OnDelete(DeleteBehavior.Cascade);
         }
 
         private void ConfigureQueryFilters(ModelBuilder modelBuilder)
         {
-            // add global query filter for soft delete
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
                 if (typeof(BaseEntity).IsAssignableFrom(entityType.ClrType))
@@ -281,14 +256,12 @@ namespace Csdsa.Domain.Context
             return null;
         }
 
-        // ignore soft delete filter for specific queries
         public IQueryable<T> IncludeDeleted<T>()
             where T : BaseEntity
         {
             return Set<T>().IgnoreQueryFilters();
         }
 
-        // get only deleted entities
         public IQueryable<T> OnlyDeleted<T>()
             where T : BaseEntity
         {

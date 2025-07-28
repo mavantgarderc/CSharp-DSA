@@ -1,3 +1,11 @@
+using AutoMapper.Configuration;
+using Csdsa.Domain.Context;
+using Csdsa.Domain.Repository.Implementation;
+using Csdsa.Domain.Repository.IRepositories;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography.X509Certificates;
+
 namespace Csdsa.Api;
 
 public class Program
@@ -10,6 +18,24 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
+        //    builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        //    public void ConfigureServices(IServiceCollection services)
+        //    {
+        //        services.AddAutoMapper(typeof(ApiMappingProfile)),
+        //                typeof(MappingProfile),
+        //                typeof(InfrastructureMappingProfile));
+
+        //        services.AddMediatR(typeof(CreateUserCommandHandler));
+
+        //        services.AddScoped<IGenericRepository, GenericRepository>();
+        //        services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        //        services.AddDbContext<AppDbContext>(options =>
+        //        options.UseNpgsql("connectionString"));
+
+
+        //    }
 
         // builder.Services.AddApplicationServices();
 
@@ -17,9 +43,9 @@ public class Program
 
         var app = builder.Build();
 
-        builder.Services.AddScoped<IArrayManipulationService, ArrayManipulationService>();
-        builder.Services.AddScoped<IArraySearchService, ArraySearchService>();
-        builder.Services.AddScoped<IArrayTransformationService, ArrayTransformationService>();
+        //builder.Services.AddScoped<IArrayManipulationService, ArrayManipulationService>();
+        //builder.Services.AddScoped<IArraySearchService, ArraySearchService>();
+        //builder.Services.AddScoped<IArrayTransformationService, ArrayTransformationService>();
 
         if (app.Environment.IsDevelopment())
         {
@@ -27,7 +53,7 @@ public class Program
             app.UseSwaggerUI();
         }
 
-        app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 
         app.UseAuthentication();
         app.UseAuthorization();

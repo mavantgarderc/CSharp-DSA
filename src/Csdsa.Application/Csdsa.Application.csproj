@@ -26,4 +26,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Csdsa.Domain\Csdsa.Domain.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Services\EntityServices\Users\Responses\" />
+  </ItemGroup>
 </Project>
