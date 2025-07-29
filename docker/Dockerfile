@@ -1,25 +1,17 @@
-# Build stage
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-WORKDIR /src
-
-# Copy project files and restore dependencies
-COPY *.csproj ./
-RUN dotnet restore
-
-# Copy source code and build
-COPY . .
-RUN dotnet build -c Release --no-restore
-RUN dotnet publish -c Release --no-build -o /app/publish
-
-# Runtime stage
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:9.0-preview AS base
 WORKDIR /app
+EXPOSE 80
 
-# Copy published app
-COPY --from=build /app/publish .
+FROM mcr.microsoft.com/dotnet/sdk:9.0-preview AS build
+WORKDIR /src
+COPY . .
+RUN dotnet restore src/Api/Api.csproj
+RUN dotnet build src/Api/Api.csproj -c Release -o /app/build
 
-# Expose port
-EXPOSE 8080
+FROM build AS publish
+RUN dotnet publish src/Api/Api.csproj -c Release -o /app/publish
 
-# Set entry point
-ENTRYPOINT ["dotnet", "csdsa.dll"]
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "Api.dll"]
