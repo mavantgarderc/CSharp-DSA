@@ -81,7 +81,6 @@ namespace Csdsa.Api.Controllers
             return Ok(result);
         }
 
-        // POST: /api/user/deactivate => DeactivateUserAccount
         [HttpPost("DeactivateUserAccount")]
         public async Task<IActionResult> DeactivateUserAccount(Guid userId)
         {
