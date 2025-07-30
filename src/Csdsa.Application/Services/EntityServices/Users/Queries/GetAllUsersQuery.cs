@@ -4,4 +4,4 @@ using MediatR;
 
 namespace Csdsa.Application.Users.Queries;
 
-public record GetUserByEmailQuery(string Email) : IRequest<UserDto?>;
+public record GetAllUsersQuery() : IRequest<IEnumerable<UserDto?>>;

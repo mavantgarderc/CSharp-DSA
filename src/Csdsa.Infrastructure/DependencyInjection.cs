@@ -16,15 +16,9 @@ public static class DependencyInjection
         IConfiguration configuration
     )
     {
-        // Database Configuration
         services.AddDatabase(configuration);
-
-        // Security Services
         services.AddPasswordHashing(configuration);
-
-        // Repository Pattern
         services.AddRepositories();
-
         return services;
     }
 
@@ -56,8 +50,8 @@ public static class DependencyInjection
     private static string BuildConnectionString(IConfiguration configuration)
     {
         var host = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
-        var database = Environment.GetEnvironmentVariable("DB_DATABASE") ?? "CsdsaDb"; // Fixed typo: was "csdsadB"
-        var username = Environment.GetEnvironmentVariable("DB_USERNAME") ?? "postgres"; // Changed default to postgres
+        var database = Environment.GetEnvironmentVariable("DB_DATABASE") ?? "CsdsaDb";
+        var username = Environment.GetEnvironmentVariable("DB_USERNAME") ?? "postgres";
         var password =
             Environment.GetEnvironmentVariable("DB_PASSWORD")
             ?? throw new InvalidOperationException("DB_PASSWORD environment variable is required");
@@ -68,9 +62,7 @@ public static class DependencyInjection
 
     private static IServiceCollection AddRepositories(this IServiceCollection services)
     {
-        // Register UnitOfWork directly - DI will handle AppDbContext injection automatically
         services.AddScoped<IUnitOfWork, UnitOfWork>();
-
         return services;
     }
 

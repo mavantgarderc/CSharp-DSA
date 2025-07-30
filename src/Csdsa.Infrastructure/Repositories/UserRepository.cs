@@ -1,6 +1,5 @@
 using Csdsa.Application.Common.Interfaces;
 using Csdsa.Domain.Models.Common.UserEntities.User;
-using Csdsa.Infrastructure.Common.Repository;
 using Csdsa.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 

@@ -1,9 +1,9 @@
 using Csdsa.Application.Common.Interfaces;
 using Csdsa.Application.Interfaces;
 using Csdsa.Infrastructure;
-using Csdsa.Infrastructure.Common.Repository;
 using Csdsa.Infrastructure.Context;
 using Csdsa.Infrastructure.Persistence;
+using Csdsa.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace Csdsa.Api;
@@ -24,6 +24,8 @@ public class Program
         builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
         );
+
+        builder.Services.AddHttpContextAccessor();
 
         builder.Services.AddInfrastructure(builder.Configuration);
 

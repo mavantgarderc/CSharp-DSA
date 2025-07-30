@@ -4,7 +4,7 @@ using Csdsa.Domain.Models.Common;
 using Csdsa.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 
-namespace Csdsa.Infrastructure.Common.Repository
+namespace Csdsa.Infrastructure.Repositories
 {
     public class GenericRepository<T> : IGenericRepository<T>
         where T : BaseEntity
