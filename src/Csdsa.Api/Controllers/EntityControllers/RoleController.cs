@@ -18,6 +18,7 @@ namespace Csdsa.Api.Controllers
         // PUT: /api/roles/{id} => UpdateExistingRole
         // DELETE: /api/roles/{id} => DeleteRole
         // GET: /api/roles/{id}/users => ListUsersAssignedToRole
+
         // POST: /api/roles/{id}/permissions => AssignPermissionsToRole
     }
 }
