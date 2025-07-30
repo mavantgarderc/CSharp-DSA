@@ -1,12 +1,13 @@
-namespace Csdsa.Domain.Models.Common.UserEntities
+using Domain.Enums;
+
+namespace Csdsa.Domain.Models.Common.UserEntities.User
 {
     public class User : BaseEntity
     {
-        public string FirstName { get; set; } = string.Empty;
-        public string LastName { get; set; } = string.Empty;
-        public string FullName() => FirstName + LastName;
-        public required string Email { get; set; }
-        public required string Password { get; set; }
-        public required string UserName { get; set; }
+        public string UserName { get; set; } = default!;
+        public string Email { get; set; } = default!;
+        public string PasswordHash { get; set; } = default!;
+        public UserRole Role { get; set; } = UserRole.User;
+        public bool IsActive { get; set; } = true;
     }
 }

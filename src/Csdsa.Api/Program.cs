@@ -1,10 +1,14 @@
+using System.Security.Cryptography.X509Certificates;
 using AutoMapper.Configuration;
+// using Csdsa.Application.Common.Interfaces;
+using Csdsa.Application.Common.Interfaces;
 using Csdsa.Domain.Context;
-using Csdsa.Domain.Repository.Implementation;
-using Csdsa.Domain.Repository.IRepositories;
+using Csdsa.Infrastructure.Common.Repository;
+using Csdsa.Infrastructure.Context;
+using Csdsa.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography.X509Certificates;
+using Csdsa.Infrastructure;
 
 namespace Csdsa.Api;
 
@@ -18,34 +22,15 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
-        //    builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+        builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+        builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+        // Add this in your Program.cs
+        builder.Services.AddDbContext<AppDbContext>(options =>
+                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-        //    public void ConfigureServices(IServiceCollection services)
-        //    {
-        //        services.AddAutoMapper(typeof(ApiMappingProfile)),
-        //                typeof(MappingProfile),
-        //                typeof(InfrastructureMappingProfile));
-
-        //        services.AddMediatR(typeof(CreateUserCommandHandler));
-
-        //        services.AddScoped<IGenericRepository, GenericRepository>();
-        //        services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-        //        services.AddDbContext<AppDbContext>(options =>
-        //        options.UseNpgsql("connectionString"));
-
-
-        //    }
-
-        // builder.Services.AddApplicationServices();
-
-        // builder.Services.AddInfrastructureServices(builder.Configuration);
+        builder.Services.AddInfrastructure(builder.Configuration);
 
         var app = builder.Build();
-
-        //builder.Services.AddScoped<IArrayManipulationService, ArrayManipulationService>();
-        //builder.Services.AddScoped<IArraySearchService, ArraySearchService>();
-        //builder.Services.AddScoped<IArrayTransformationService, ArrayTransformationService>();
 
         if (app.Environment.IsDevelopment())
         {
@@ -53,7 +38,7 @@ public class Program
             app.UseSwaggerUI();
         }
 
-app.UseHttpsRedirection();
+        app.UseHttpsRedirection();
 
         app.UseAuthentication();
         app.UseAuthorization();
