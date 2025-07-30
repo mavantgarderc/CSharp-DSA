@@ -11,6 +11,7 @@ public static class MediatorEntryPoint
 
         // Repository Injections
         // services.AddScoped<IUnitOfWork, UnitOfWork>();
+        // services.AddScoped<IGenericRepository, GenericRepository>();
 
         // External API/Services Injection
         // services.AddScoped<IExternalAPICaller, ExternalAPICaller>();

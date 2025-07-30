@@ -1,15 +1,6 @@
-using Csdsa.Domain.ViewModel.EntityViewModel.Users;
-using FluentValidation;
+using Csdsa.Application.DTOs.Entities.User;
 using MediatR;
 
-namespace Csdsa.Application.Services.EntityServices.Users.Requests;
+namespace Csdsa.Application.Commands.Users.CreateUser;
 
-public sealed class CreateUserCommandValidator : AbstractValidator<CreateUserCommandValidator>
-{
-    public CreateUserCommandValidator()
-    {
-
-    }
-}
-
-public record CreateUserCommand(CreateUserRequest Command) : IRequest<bool>;
+public record CreateUserCommand(string Username, string Email, string Password) : IRequest<UserDto>;
