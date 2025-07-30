@@ -1,6 +1,6 @@
 using Csdsa.Api.Controllers.Base;
-using Csdsa.Application.Services.EntityServices.Users.Requests;
-using Csdsa.Domain.Repository.IRepositories;
+using Csdsa.Application.Commands.Users.CreateUser;
+using Csdsa.Application.Common.Interfaces;
 using Csdsa.Domain.ViewModel.EntityViewModel.Users;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -12,15 +12,19 @@ namespace Csdsa.Api.Controllers
     public class UserController : BaseController
     {
         public UserController(IUnitOfWork unitOfWork, ILogger logger, IMediator mediator)
-            : base(unitOfWork, logger, mediator)
-        {
-        }
+            : base(unitOfWork, logger, mediator) { }
 
         [HttpPost]
         [Route(nameof(CreateUser))]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request)
         {
-            var result = await _mediator.Send(new CreateUserCommand(request));
+            var result = await _mediator.Send(
+                new CreateUserCommand(
+                    request.UserName,
+                    request.Email,
+                    request.Password
+                )
+            );
             return Ok(result);
         }
     }

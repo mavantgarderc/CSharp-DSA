@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Security.Claims;
+using Csdsa.Application.Common.Interfaces;
 using Csdsa.Domain.Models.Common;
-using Csdsa.Domain.Repository.IRepositories;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
