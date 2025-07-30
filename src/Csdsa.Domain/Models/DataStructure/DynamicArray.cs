@@ -1,12 +1,7 @@
 using System.Text;
 
-namespace Csdsa.Domain.Models;
+namespace Csdsa.Domain.Models.DataStructure.LinearStructures;
 
-/// <summary>
-/// A generic dynamic array implementation that provides resizable array functionality.
-/// This is a domain model representing a dynamic collection with specific behaviors.
-/// </summary>
-/// <typeparam name="T">The type of elements stored in the dynamic array</typeparam>
 public class DynamicArray<T>
 {
     private T[] _items;
@@ -22,9 +17,6 @@ public class DynamicArray<T>
         _count = 0;
     }
 
-    /// <summary>
-    /// Gets or sets the element at the specified index
-    /// </summary>
     public T this[int index]
     {
         get

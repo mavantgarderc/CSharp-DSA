@@ -1,4 +1,4 @@
-using Csdsa.Application.Common.Interfaces;
+using Csdsa.Application.Interfaces;
 using Csdsa.Domain.Models.Common.UserEntities.User;
 
 namespace Csdsa.Application.Common.Interfaces;

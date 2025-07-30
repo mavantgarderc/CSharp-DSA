@@ -1,8 +1,8 @@
-using Csdsa.Infrastructure.Context;
-using Csdsa.Domain.Models.Common.UserEntities.User;
 using Csdsa.Application.Common.Interfaces;
-using Microsoft.EntityFrameworkCore;
+using Csdsa.Domain.Models.Common.UserEntities.User;
 using Csdsa.Infrastructure.Common.Repository;
+using Csdsa.Infrastructure.Context;
+using Microsoft.EntityFrameworkCore;
 
 namespace Csdsa.Infrastructure.Repositories
 {

@@ -1,5 +1,5 @@
 using System.Linq.Expressions;
-using Csdsa.Application.Common.Interfaces;
+using Csdsa.Application.Interfaces;
 using Csdsa.Domain.Models.Common;
 using Csdsa.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;

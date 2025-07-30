@@ -1,7 +1,7 @@
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace UnitAPI.Application.Utilities;
+namespace Csdsa.Application.Validators;
 
 public static class ValidatorEntryPoint
 {

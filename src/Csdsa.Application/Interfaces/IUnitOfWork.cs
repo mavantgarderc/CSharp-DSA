@@ -1,3 +1,4 @@
+using Csdsa.Application.Interfaces;
 using Csdsa.Domain.Models.Common;
 
 namespace Csdsa.Application.Common.Interfaces;

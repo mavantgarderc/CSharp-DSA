@@ -17,6 +17,7 @@ namespace Csdsa.Api.Controllers.Base
         protected readonly IMediator _mediator;
         protected readonly IUnitOfWork _unitOfWork;
         protected readonly ILogger _logger;
+
         protected BaseController(IUnitOfWork unitOfWork, ILogger logger, IMediator mediator)
         {
             _unitOfWork = unitOfWork;

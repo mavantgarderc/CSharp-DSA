@@ -1,8 +1,8 @@
-using MediatR;
-using Microsoft.AspNetCore.Mvc;
 using Application.Users.Commands;
 using Csdsa.Application.Commands.Users.CreateUser;
 using Csdsa.Application.Users.Queries;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
 

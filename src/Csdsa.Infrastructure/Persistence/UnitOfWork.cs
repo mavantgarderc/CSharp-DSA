@@ -1,9 +1,10 @@
-using Csdsa.Infrastructure.Context;
 using Csdsa.Application.Common.Interfaces;
-using Microsoft.EntityFrameworkCore.Storage;
+using Csdsa.Application.Interfaces;
 using Csdsa.Domain.Models.Common;
 using Csdsa.Infrastructure.Common.Repository;
+using Csdsa.Infrastructure.Context;
 using Csdsa.Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Csdsa.Infrastructure.Persistence;
 
@@ -21,6 +22,7 @@ public class UnitOfWork : IUnitOfWork
     }
 
     public IUserRepository Users { get; }
+
     // public IRoleRepository Roles { get; }
 
     public IGenericRepository<T> Repository<T>()

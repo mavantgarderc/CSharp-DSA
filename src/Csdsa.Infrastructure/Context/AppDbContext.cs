@@ -1,10 +1,10 @@
 using System.Security.Claims;
+using Csdsa.Domain.Context.Extensions;
+using Csdsa.Domain.Models.Common;
+using Csdsa.Domain.Models.Common.UserEntities.User;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Csdsa.Domain.Models.Common;
-using Csdsa.Domain.Context.Extensions;
-using Csdsa.Domain.Models.Common.UserEntities.User;
 
 namespace Csdsa.Infrastructure.Context
 {
@@ -12,9 +12,13 @@ namespace Csdsa.Infrastructure.Context
     {
         private readonly IHttpContextAccessor? _httpContextAccessor;
 
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+        public AppDbContext(DbContextOptions<AppDbContext> options)
+            : base(options) { }
 
-        public AppDbContext(DbContextOptions<AppDbContext> options, IHttpContextAccessor httpContextAccessor)
+        public AppDbContext(
+            DbContextOptions<AppDbContext> options,
+            IHttpContextAccessor httpContextAccessor
+        )
             : base(options)
         {
             _httpContextAccessor = httpContextAccessor;
@@ -61,7 +65,7 @@ namespace Csdsa.Infrastructure.Context
                     foreignKey.SetConstraintName(
                         ToSnakeCase(
                             foreignKey.GetConstraintName()
-                            ?? $"fk_{entity.GetTableName()}_{foreignKey.PrincipalEntityType.GetTableName()}"
+                                ?? $"fk_{entity.GetTableName()}_{foreignKey.PrincipalEntityType.GetTableName()}"
                         )
                     );
                 }
@@ -71,7 +75,7 @@ namespace Csdsa.Infrastructure.Context
                     index.SetDatabaseName(
                         ToSnakeCase(
                             index.GetDatabaseName()
-                            ?? $"ix_{entity.GetTableName()}_{string.Join("_", index.Properties.Select(p => p.Name))}"
+                                ?? $"ix_{entity.GetTableName()}_{string.Join("_", index.Properties.Select(p => p.Name))}"
                         )
                     );
                 }
@@ -86,30 +90,36 @@ namespace Csdsa.Infrastructure.Context
                 {
                     modelBuilder.Entity(entityType.ClrType).HasKey("Id");
 
-                    modelBuilder.Entity(entityType.ClrType)
+                    modelBuilder
+                        .Entity(entityType.ClrType)
                         .Property("Id")
                         .HasColumnType("uuid")
                         .HasDefaultValueSql("gen_random_uuid()");
 
-                    modelBuilder.Entity(entityType.ClrType)
+                    modelBuilder
+                        .Entity(entityType.ClrType)
                         .Property("CreatedAt")
                         .HasDefaultValueSql("TIMEZONE('utc', now())")
                         .ValueGeneratedOnAdd();
 
-                    modelBuilder.Entity(entityType.ClrType)
+                    modelBuilder
+                        .Entity(entityType.ClrType)
                         .Property("UpdatedAt")
                         .ValueGeneratedOnUpdate();
 
-                    modelBuilder.Entity(entityType.ClrType)
+                    modelBuilder
+                        .Entity(entityType.ClrType)
                         .Property("IsDeleted")
                         .HasDefaultValue(false);
 
-                    modelBuilder.Entity(entityType.ClrType)
+                    modelBuilder
+                        .Entity(entityType.ClrType)
                         .Property("CreatedBy")
                         .HasMaxLength(450)
                         .IsRequired(false);
 
-                    modelBuilder.Entity(entityType.ClrType)
+                    modelBuilder
+                        .Entity(entityType.ClrType)
                         .Property("UpdatedBy")
                         .HasMaxLength(450)
                         .IsRequired(false);
@@ -123,17 +133,22 @@ namespace Csdsa.Infrastructure.Context
             {
                 if (typeof(BaseEntity).IsAssignableFrom(entityType.ClrType))
                 {
-                    var tableName = ToSnakeCase(entityType.GetTableName() ?? entityType.DisplayName());
+                    var tableName = ToSnakeCase(
+                        entityType.GetTableName() ?? entityType.DisplayName()
+                    );
 
-                    modelBuilder.Entity(entityType.ClrType)
+                    modelBuilder
+                        .Entity(entityType.ClrType)
                         .HasIndex("CreatedAt")
                         .HasDatabaseName($"ix_{tableName}_created_at");
 
-                    modelBuilder.Entity(entityType.ClrType)
+                    modelBuilder
+                        .Entity(entityType.ClrType)
                         .HasIndex("IsDeleted")
                         .HasDatabaseName($"ix_{tableName}_is_deleted");
 
-                    modelBuilder.Entity(entityType.ClrType)
+                    modelBuilder
+                        .Entity(entityType.ClrType)
                         .HasIndex("IsDeleted", "CreatedAt")
                         .HasDatabaseName($"ix_{tableName}_is_deleted_created_at");
                 }
@@ -152,7 +167,11 @@ namespace Csdsa.Infrastructure.Context
                 if (typeof(BaseEntity).IsAssignableFrom(entityType.ClrType))
                 {
                     var method = typeof(AppDbContext)
-                        .GetMethod(nameof(GetSoftDeleteFilter), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)
+                        .GetMethod(
+                            nameof(GetSoftDeleteFilter),
+                            System.Reflection.BindingFlags.NonPublic
+                                | System.Reflection.BindingFlags.Static
+                        )
                         ?.MakeGenericMethod(entityType.ClrType);
 
                     var filter = method?.Invoke(null, Array.Empty<object>());
@@ -164,24 +183,29 @@ namespace Csdsa.Infrastructure.Context
         private static System.Linq.Expressions.LambdaExpression GetSoftDeleteFilter<TEntity>()
             where TEntity : BaseEntity
         {
-            System.Linq.Expressions.Expression<System.Func<TEntity, bool>> filter = x => !x.IsDeleted;
+            System.Linq.Expressions.Expression<System.Func<TEntity, bool>> filter = x =>
+                !x.IsDeleted;
             return filter;
         }
 
         private static string ToSnakeCase(string input)
         {
-            if (string.IsNullOrEmpty(input)) return input;
+            if (string.IsNullOrEmpty(input))
+                return input;
 
             var result = new System.Text.StringBuilder();
             for (int i = 0; i < input.Length; i++)
             {
-                if (char.IsUpper(input[i]) && i > 0) result.Append('_');
+                if (char.IsUpper(input[i]) && i > 0)
+                    result.Append('_');
                 result.Append(char.ToLower(input[i]));
             }
             return result.ToString();
         }
 
-        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        public override async Task<int> SaveChangesAsync(
+            CancellationToken cancellationToken = default
+        )
         {
             UpdateAuditFields();
             return await base.SaveChangesAsync(cancellationToken);
@@ -227,10 +251,10 @@ namespace Csdsa.Infrastructure.Context
             return null;
         }
 
-        public IQueryable<T> IncludeDeleted<T>() where T : BaseEntity =>
-            Set<T>().IgnoreQueryFilters();
+        public IQueryable<T> IncludeDeleted<T>()
+            where T : BaseEntity => Set<T>().IgnoreQueryFilters();
 
-        public IQueryable<T> OnlyDeleted<T>() where T : BaseEntity =>
-            Set<T>().IgnoreQueryFilters().Where(x => x.IsDeleted);
+        public IQueryable<T> OnlyDeleted<T>()
+            where T : BaseEntity => Set<T>().IgnoreQueryFilters().Where(x => x.IsDeleted);
     }
 }

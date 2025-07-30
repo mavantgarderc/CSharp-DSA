@@ -1,7 +1,8 @@
-using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Application.Utilities;
+namespace Csdsa.Application;
+
 public static class MediatorEntryPoint
 {
     public static IServiceCollection AddApplicaton(this IServiceCollection services)

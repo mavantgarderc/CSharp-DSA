@@ -25,7 +25,10 @@ namespace Csdsa.Application.Services.EntityServices.Users.Requests
             _passwordHasher = passwordHasher;
         }
 
-        public async Task<UserDto> Handle(CreateUserCommand request, CancellationToken cancellationToken)
+        public async Task<UserDto> Handle(
+            CreateUserCommand request,
+            CancellationToken cancellationToken
+        )
         {
             var user = new User
             {

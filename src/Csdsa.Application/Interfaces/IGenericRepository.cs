@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 using Csdsa.Domain.Models.Common;
 
-namespace Csdsa.Application.Common.Interfaces;
+namespace Csdsa.Application.Interfaces;
 
 public interface IGenericRepository<T> where T : BaseEntity
 {

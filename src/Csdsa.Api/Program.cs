@@ -1,14 +1,14 @@
 using System.Security.Cryptography.X509Certificates;
 using AutoMapper.Configuration;
-// using Csdsa.Application.Common.Interfaces;
 using Csdsa.Application.Common.Interfaces;
+using Csdsa.Application.Interfaces;
 using Csdsa.Domain.Context;
+using Csdsa.Infrastructure;
 using Csdsa.Infrastructure.Common.Repository;
 using Csdsa.Infrastructure.Context;
 using Csdsa.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Csdsa.Infrastructure;
 
 namespace Csdsa.Api;
 
@@ -24,9 +24,10 @@ public class Program
 
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
         builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-        // Add this in your Program.cs
+
         builder.Services.AddDbContext<AppDbContext>(options =>
-                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+            options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
+        );
 
         builder.Services.AddInfrastructure(builder.Configuration);
 

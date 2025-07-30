@@ -14,7 +14,8 @@ namespace Csdsa.Domain.Models.Common
             int page,
             int pageSize,
             int totalCount,
-            string message = "Data retrieved successfully")
+            string message = "Data retrieved successfully"
+        )
         {
             var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 

@@ -1,5 +1,4 @@
 using AutoMapper;
-using Csdsa.Domain.Models.Common.UserEntities;
 
 namespace Csdsa.Infrastructure.Services.Mappings;
 

@@ -1,7 +1,6 @@
 using Domain.Enums;
 
 namespace Csdsa.Domain.Models.Common.UserEntities
-
 {
     public class Role : BaseEntity
     {

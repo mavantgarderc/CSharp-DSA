@@ -1,4 +1,4 @@
-namespace Csdsa.Application.Common.Interfaces;
+namespace Csdsa.Application;
 
 public interface IAppConfig
 {

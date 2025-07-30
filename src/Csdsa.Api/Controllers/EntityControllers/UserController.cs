@@ -19,11 +19,7 @@ namespace Csdsa.Api.Controllers
         public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request)
         {
             var result = await _mediator.Send(
-                new CreateUserCommand(
-                    request.UserName,
-                    request.Email,
-                    request.Password
-                )
+                new CreateUserCommand(request.UserName, request.Email, request.Password)
             );
             return Ok(result);
         }
