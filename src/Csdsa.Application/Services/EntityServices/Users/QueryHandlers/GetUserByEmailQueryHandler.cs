@@ -6,12 +6,12 @@ using Csdsa.Application.Users.Queries;
 
 namespace Csdsa.Application.Services.EntityServices.Users.QueryHandlers;
 
-public class GetUserByEmailHandler : IRequestHandler<GetUserByEmailQuery, UserDto?>
+public class GetUserByEmailQueryHandler : IRequestHandler<GetUserByEmailQuery, UserDto?>
 {
     private readonly IUnitOfWork _uow;
     private readonly IMapper _mapper;
 
-    public GetUserByEmailHandler(IUnitOfWork uow, IMapper mapper)
+    public GetUserByEmailQueryHandler(IUnitOfWork uow, IMapper mapper)
     {
         _uow = uow;
         _mapper = mapper;

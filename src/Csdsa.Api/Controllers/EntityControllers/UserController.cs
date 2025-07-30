@@ -4,6 +4,7 @@ using Csdsa.Application.Services.EntityServices.Users.Requests;
 using Csdsa.Application.Users.Queries;
 using Csdsa.Domain.ViewModel.EntityViewModel.Users;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Csdsa.Api.Controllers
@@ -37,5 +38,52 @@ namespace Csdsa.Api.Controllers
             var user = await _mediator.Send(new SoftDeleteUserCommand(username));
             return Ok(user);
         }
+
+        // GET: /api/users => GetAllUsers
+        [HttpGet("GetAllUsers")]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var users = await _mediator.Send(new GetAllUsersQuery());
+            return Ok(users);
+        }
+
+        // GET: /api/users/{id} => GetUserById
+        [HttpGet("GetUserById")]
+        public async Task<IActionResult> GetUserById([FromBody] Guid id)
+        {
+            var user = await _mediator.Send(new GetUserByIdQuery(id));
+            return Ok(user);
+        }
+
+        // PUT: /api/users/{id} => UpdateExistingUser
+        [HttpPut("UpdateExistingUser")]
+        public async Task<IActionResult> UpdateExistingUser(
+            Guid id,
+            [FromBody] UpdateUserCommand cmd
+        )
+        {
+            if (id != cmd.userId)
+                return BadRequest("ID in URL does not match ID in body.");
+
+            await _mediator.Send(cmd);
+            return NoContent();
+        }
+
+        // GET: /api/users/me => GetCurrentAuthenticatedUser
+        [HttpGet("me")]
+        [Authorize]
+        public async Task<IActionResult> GetCurrent()
+        {
+            var result = await _mediator.Send(new GetCurrentUserQuery());
+            return Ok(result);
+        }
+
+        // POST: /api/user/activate => ActivateUserAccount
+
+        // POST: /api/user/deactivate => DeactivateUserAccount
+
+        // POST: /api/users/{id}/roles => AssignRoleToUser
+
+        // GET: /api/users/{id}/roles => GetRolesAssignedToUser
     }
 }
