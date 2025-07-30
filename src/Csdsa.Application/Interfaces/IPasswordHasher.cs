@@ -1,0 +1,10 @@
+using Csdsa.Domain.Common.ValueObjects;
+
+namespace Csdsa.Application.Common.Interfaces;
+
+public interface IPasswordHasher
+{
+    HashedPassword HashPassword(string plainPassword);
+
+    bool VerifyPassword(string plainPassword, HashedPassword hashedPassword);
+}
