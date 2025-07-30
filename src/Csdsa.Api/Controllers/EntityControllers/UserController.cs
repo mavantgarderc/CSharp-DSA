@@ -39,7 +39,6 @@ namespace Csdsa.Api.Controllers
             return Ok(user);
         }
 
-        // GET: /api/users => GetAllUsers
         [HttpGet("GetAllUsers")]
         public async Task<IActionResult> GetAllUsers()
         {
@@ -47,7 +46,6 @@ namespace Csdsa.Api.Controllers
             return Ok(users);
         }
 
-        // GET: /api/users/{id} => GetUserById
         [HttpGet("GetUserById")]
         public async Task<IActionResult> GetUserById([FromBody] Guid id)
         {
@@ -55,7 +53,6 @@ namespace Csdsa.Api.Controllers
             return Ok(user);
         }
 
-        // PUT: /api/users/{id} => UpdateExistingUser
         [HttpPut("UpdateExistingUser")]
         public async Task<IActionResult> UpdateExistingUser(
             Guid id,
@@ -69,18 +66,28 @@ namespace Csdsa.Api.Controllers
             return NoContent();
         }
 
-        // GET: /api/users/me => GetCurrentAuthenticatedUser
-        [HttpGet("me")]
         [Authorize]
+        [HttpGet("me")]
         public async Task<IActionResult> GetCurrent()
         {
             var result = await _mediator.Send(new GetCurrentUserQuery());
             return Ok(result);
         }
 
-        // POST: /api/user/activate => ActivateUserAccount
+        [HttpPost("ActivateUserAccount")]
+        public async Task<IActionResult> ActivateUserAccount(Guid userId)
+        {
+            var result = await _mediator.Send(new ActivateUserAccountCommand(userId));
+            return Ok(result);
+        }
 
         // POST: /api/user/deactivate => DeactivateUserAccount
+        [HttpPost("DeactivateUserAccount")]
+        public async Task<IActionResult> DeactivateUserAccount(Guid userId)
+        {
+            var result = await _mediator.Send(new ActivateUserAccountCommand(userId));
+            return Ok(result);
+        }
 
         // POST: /api/users/{id}/roles => AssignRoleToUser
 
