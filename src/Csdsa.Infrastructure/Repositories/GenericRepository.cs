@@ -1,12 +1,13 @@
-using Csdsa.Domain.Models.Common;
-using Csdsa.Domain.Repository.IRepositories;
-using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
-using Csdsa.Domain.Context;
+using Csdsa.Application.Common.Interfaces;
+using Csdsa.Domain.Models.Common;
+using Csdsa.Infrastructure.Context;
+using Microsoft.EntityFrameworkCore;
 
-namespace Csdsa.Domain.Repository.Implementation
+namespace Csdsa.Infrastructure.Common.Repository
 {
-    public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
+    public class GenericRepository<T> : IGenericRepository<T>
+        where T : BaseEntity
     {
         protected readonly AppDbContext _context;
         protected readonly DbSet<T> _dbSet;
@@ -22,7 +23,10 @@ namespace Csdsa.Domain.Repository.Implementation
             return await _dbSet.FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
         }
 
-        public virtual async Task<T?> GetByIdAsync(Guid id, params Expression<Func<T, object>>[] includes)
+        public virtual async Task<T?> GetByIdAsync(
+            Guid id,
+            params Expression<Func<T, object>>[] includes
+        )
         {
             IQueryable<T> query = _dbSet;
             foreach (var include in includes)
@@ -37,7 +41,9 @@ namespace Csdsa.Domain.Repository.Implementation
             return await _dbSet.Where(x => !x.IsDeleted).ToListAsync();
         }
 
-        public virtual async Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, object>>[] includes)
+        public virtual async Task<IEnumerable<T>> GetAllAsync(
+            params Expression<Func<T, object>>[] includes
+        )
         {
             IQueryable<T> query = _dbSet;
             foreach (var include in includes)
@@ -52,7 +58,10 @@ namespace Csdsa.Domain.Repository.Implementation
             return await _dbSet.Where(predicate).Where(x => !x.IsDeleted).ToListAsync();
         }
 
-        public virtual async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes)
+        public virtual async Task<IEnumerable<T>> FindAsync(
+            Expression<Func<T, bool>> predicate,
+            params Expression<Func<T, object>>[] includes
+        )
         {
             IQueryable<T> query = _dbSet;
             foreach (var include in includes)
@@ -82,7 +91,10 @@ namespace Csdsa.Domain.Repository.Implementation
             return await _dbSet.CountAsync(predicate);
         }
 
-        public virtual async Task<(IEnumerable<T> Items, int TotalCount)> GetPagedAsync(int page, int pageSize)
+        public virtual async Task<(IEnumerable<T> Items, int TotalCount)> GetPagedAsync(
+            int page,
+            int pageSize
+        )
         {
             var totalCount = await _dbSet.CountAsync(x => !x.IsDeleted);
             var items = await _dbSet
@@ -94,7 +106,11 @@ namespace Csdsa.Domain.Repository.Implementation
             return (items, totalCount);
         }
 
-        public virtual async Task<(IEnumerable<T> Items, int TotalCount)> GetPagedAsync(int page, int pageSize, Expression<Func<T, bool>>? filter = null)
+        public virtual async Task<(IEnumerable<T> Items, int TotalCount)> GetPagedAsync(
+            int page,
+            int pageSize,
+            Expression<Func<T, bool>>? filter = null
+        )
         {
             IQueryable<T> query = _dbSet.Where(x => !x.IsDeleted);
 
@@ -104,10 +120,7 @@ namespace Csdsa.Domain.Repository.Implementation
             }
 
             var totalCount = await query.CountAsync();
-            var items = await query
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
+            var items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
 
             return (items, totalCount);
         }
