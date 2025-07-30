@@ -4,36 +4,64 @@
 ## Project Structure
 ```
 CSharp-DSA/
-├── src/
-│   ├── Csdsa.Api/
-│   │   └── Csdsa.Api.csproj
-│   ├── Csdsa.Application/
-│   │   └── Csdsa.Application.csproj
-│   └── Csdsa.Domain/
-│       └── Csdsa.Domain.csproj
-├── tests/
-│   ├── Csdsa.UnitTests/
-│   │   └── Csdsa.UnitTests.csproj
-│   ├── Csdsa.IntegrationTests/
-│   │   └── Csdsa.IntegrationTests.csproj
-│   ├── Csdsa.PerformanceTests/
-│   │   └── Csdsa.PerformanceTests.csproj
-│   └── Csdsa.PropertyTests/
-│       └── Csdsa.PropertyTests.csproj
-├── docs/
-├── scripts/
-├── docker/
-├── .github/
-├── CSharp-DSA.sln
-├── Directory.Build.props
-├── Directory.Packages.props
 ├── global.json
-├── .gitignore
-├── .editorconfig
 ├── README.md
 ├── ROADMAP.md
-├── CONTRIBUTING.md
-└── LICENSE
+├── codeanalysis.ruleset
+├── Directory.Build.props
+├── Directory.Packages.props
+├── csdsa.sln
+├── .gitignore
+├── .editorconfig
+├── docs/
+├── docker
+│   └── Dockerfile
+├── docs
+├── protos
+│   └── user.proto
+├── .github/
+│    └── workflows
+│        ├── cd.yml
+│        ├── ci.yml
+│        ├── dotnet.yaml
+│        └── performance-regression.yml
+├── scripts
+│   ├── benchmark.sh
+│   ├── build.sh
+│   ├── deploy.sh
+│   └── test.sh
+│
+├── src
+│   ├── Csdsa.Api
+│   │   ├── Controllers
+│   │   ├── GraphQL
+│   │   ├── gRPC
+│   │   └── Program.cs
+│   ├── Csdsa.Application
+│   │   ├── DTOs
+│   │   ├── Interfaces
+│   │   ├── Services
+│   │   └── Validators
+│   ├── Csdsa.Domain
+│   │   ├── Common
+│   │   ├── Csdsa.Domain.csproj
+│   │   └── ViewModel
+│   └── Csdsa.Infrastructure
+│       ├── Auth
+│       ├── Config
+│       ├── Context
+│       ├── Csdsa.Infrastructure.csproj
+│       ├── DependencyInjection.cs
+│       ├── Migrations
+│       ├── obj
+│       ├── Persistence
+│       ├── Repositories
+│       └── Security
+└── tests
+    ├── Csdsa.IntegrationTests
+    ├── Csdsa.PerformanceTests
+    ├── Csdsa.PropertyTests
+    └── Csdsa.UnitTests
 ```
 
 ### Scripts
