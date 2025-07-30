@@ -3,4 +3,4 @@ using MediatR;
 
 namespace Csdsa.Application.Services.EntityServices.Users.Requests;
 
-public record CreateUserCommand(string Username, string Email, string Password) : IRequest<UserDto>;
+public record SoftDeleteUserCommand(string Email) : IRequest<bool>;

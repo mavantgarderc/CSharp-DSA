@@ -1,12 +1,12 @@
 using AutoMapper;
-using Csdsa.Application.Commands.Users.CreateUser;
 using Csdsa.Application.Common.Interfaces;
 using Csdsa.Application.DTOs.Entities.User;
+using Csdsa.Application.Services.EntityServices.Users.Requests;
 using Csdsa.Domain.Models.Common.UserEntities.User;
 using Domain.Enums;
 using MediatR;
 
-namespace Csdsa.Application.Services.EntityServices.Users.Requests
+namespace Csdsa.Application.Services.EntityServices.Users.RequestHandlers
 {
     public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, UserDto>
     {

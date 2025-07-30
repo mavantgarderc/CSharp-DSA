@@ -1,13 +1,9 @@
-using System.Security.Cryptography.X509Certificates;
-using AutoMapper.Configuration;
 using Csdsa.Application.Common.Interfaces;
 using Csdsa.Application.Interfaces;
-using Csdsa.Domain.Context;
 using Csdsa.Infrastructure;
 using Csdsa.Infrastructure.Common.Repository;
 using Csdsa.Infrastructure.Context;
 using Csdsa.Infrastructure.Persistence;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Csdsa.Api;

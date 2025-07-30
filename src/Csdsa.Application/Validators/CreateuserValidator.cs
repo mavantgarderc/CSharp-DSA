@@ -1,4 +1,4 @@
-using Csdsa.Application.Commands.Users.CreateUser;
+using Csdsa.Application.Services.EntityServices.Users.Requests;
 using FluentValidation;
 
 namespace Application.Users.Commands;

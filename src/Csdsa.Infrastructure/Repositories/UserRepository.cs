@@ -30,5 +30,18 @@ namespace Csdsa.Infrastructure.Repositories
         {
             return await _dbSet.AnyAsync(u => u.UserName == username && !u.IsDeleted);
         }
+
+        public virtual async Task<bool> SoftDeleteAsync(string email)
+        {
+            var entity = await GetByEmailAsync(email);
+            if (entity != null)
+            {
+                entity.IsDeleted = true;
+                entity.UpdatedAt = DateTime.UtcNow;
+                await UpdateAsync(entity);
+                return true;
+            }
+            return false;
+        }
     }
 }

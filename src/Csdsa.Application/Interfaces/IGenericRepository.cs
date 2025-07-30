@@ -23,5 +23,4 @@ public interface IGenericRepository<T> where T : BaseEntity
     Task<T> DeleteAsync(Guid id);
     Task<T> DeleteAsync(T entity);
     Task<bool> SoftDeleteAsync(Guid id);
-
 }

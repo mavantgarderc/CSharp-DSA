@@ -2,8 +2,9 @@ using MediatR;
 using AutoMapper;
 using Csdsa.Application.DTOs.Entities.User;
 using Csdsa.Application.Common.Interfaces;
+using Csdsa.Application.Users.Queries;
 
-namespace Csdsa.Application.Users.Queries;
+namespace Csdsa.Application.Services.EntityServices.Users.QueryHandlers;
 
 public class GetUserByEmailHandler : IRequestHandler<GetUserByEmailQuery, UserDto?>
 {

@@ -1,6 +1,9 @@
 using Application.Users.Commands;
-using Csdsa.Application.Commands.Users.CreateUser;
+using Csdsa.Api.Controllers.Base;
+using Csdsa.Application.Common.Interfaces;
+using Csdsa.Application.Services.EntityServices.Users.Requests;
 using Csdsa.Application.Users.Queries;
+using Csdsa.Domain.ViewModel.EntityViewModel.Users;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,26 +11,22 @@ namespace Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController : ControllerBase
+public class AuthController : BaseController
 {
-    private readonly IMediator _mediator;
+    public AuthController(IUnitOfWork unitOfWork, ILogger logger, IMediator mediator)
+        : base(unitOfWork, logger, mediator) { }
 
-    public AuthController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
-    [HttpPost("register")]
-    public async Task<IActionResult> Register(CreateUserCommand cmd)
+    [HttpPost("UserRegister")]
+    public async Task<IActionResult> RegisterUser(CreateUserCommand cmd)
     {
         var user = await _mediator.Send(cmd);
         return Ok(user);
     }
 
-    [HttpGet("user")]
-    public async Task<IActionResult> GetUserByEmail([FromQuery] string email)
+    [HttpGet("LoginUser")]
+    public async Task<IActionResult> LoginUser([FromBody] LoginUserRequest request)
     {
-        var user = await _mediator.Send(new GetUserByEmailQuery(email));
-        return user == null ? NotFound() : Ok(user);
+        var result = await _mediator.Send(new LoginUserCommand(request.Email, request.Password));
+        return Ok(result);
     }
 }
