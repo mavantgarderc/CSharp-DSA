@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Csdsa.Domain.Context.Extensions;
 using Csdsa.Domain.Models.Common;
+using Csdsa.Domain.Models.Common.UserEntities;
 using Csdsa.Domain.Models.Common.UserEntities.User;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -25,6 +26,7 @@ namespace Csdsa.Infrastructure.Context
         }
 
         public DbSet<User> Users => Set<User>();
+        public DbSet<Role> Roles => Set<Role>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

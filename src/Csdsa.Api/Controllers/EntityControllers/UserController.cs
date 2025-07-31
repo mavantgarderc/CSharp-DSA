@@ -212,7 +212,6 @@ namespace Csdsa.Api.Controllers.EntityControllers
             }
         }
 
-        // POST: /api/users/{id}/roles => AssignRoleToUser
         [HttpGet("AssignRoleToUser")]
         [Authorize(Roles = "Admin,SuperAdmin")]
         public async Task<IActionResult> GetRolesAssignedToUser(Guid id)
@@ -234,8 +233,6 @@ namespace Csdsa.Api.Controllers.EntityControllers
                 );
             }
         }
-
-        // GET: /api/users/{id}/roles => GetRolesAssignedToUser
 
         [HttpPost("GetRolesAssignedToUser")]
         [Authorize(Roles = "Admin,SuperAdmin")]
