@@ -30,18 +30,27 @@ namespace Csdsa.Application.Services.EntityServices.Users.RequestHandlers
             CancellationToken cancellationToken
         )
         {
-            var user = new User
+            await _uow.BeginTransactionAsync();
+            try
             {
-                UserName = request.Username,
-                Email = request.Email,
-                PasswordHash = _passwordHasher.HashPassword(request.Password),
-                Role = UserRole.User,
-            };
+                var user = new User
+                {
+                    UserName = request.Username,
+                    Email = request.Email,
+                    PasswordHash = _passwordHasher.HashPassword(request.Password),
+                    Role = UserRole.User,
+                };
 
-            await _uow.Users.AddAsync(user);
-            await _uow.CommitTransactionAsync();
+                await _uow.Users.AddAsync(user);
+                await _uow.CommitTransactionAsync();
 
-            return _mapper.Map<UserDto>(user);
+                return _mapper.Map<UserDto>(user);
+            }
+            catch
+            {
+                await _uow.RollbackTransactionAsync();
+                throw;
+            }
         }
     }
 }

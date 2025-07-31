@@ -22,25 +22,26 @@ namespace Csdsa.Application.Services.EntityServices.Users.RequestHandlers
             CancellationToken cancellationToken
         )
         {
+            await _uow.BeginTransactionAsync();
             try
             {
-                // Find the user by email instead of trying to map email to User
                 var user = await _uow.Users.GetByEmailAsync(request.Email);
 
                 if (user == null)
                 {
-                    return false; // User not found
+                    return false;
                 }
 
-                // Perform soft delete using user ID
                 await _uow.Users.SoftDeleteAsync(user.Email);
-                await _uow.SaveChangesAsync();
 
+                await _uow.SaveChangesAsync();
+                await _uow.CommitTransactionAsync();
                 return true;
             }
             catch
             {
-                return false;
+                await _uow.RollbackTransactionAsync();
+                throw;
             }
         }
     }

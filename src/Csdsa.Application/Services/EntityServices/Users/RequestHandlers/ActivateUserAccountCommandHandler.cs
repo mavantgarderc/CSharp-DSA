@@ -6,11 +6,11 @@ namespace Csdsa.Application.Services.EntityServices.Users.RequestHandlers;
 
 public class ActivateUserAccountCommandHandler : IRequestHandler<ActivateUserAccountCommand, bool>
 {
-    private readonly IUnitOfWork uow;
+    private readonly IUnitOfWork _uow;
 
     public ActivateUserAccountCommandHandler(IUnitOfWork unitOfWork)
     {
-        uow = unitOfWork;
+        _uow = unitOfWork;
     }
 
     async Task<bool> IRequestHandler<ActivateUserAccountCommand, bool>.Handle(
@@ -18,19 +18,30 @@ public class ActivateUserAccountCommandHandler : IRequestHandler<ActivateUserAcc
         CancellationToken cancellationToken
     )
     {
-        var userRepo = uow.Repository<User>();
-        var user = await userRepo.GetByIdAsync(request.userId);
+        await _uow.BeginTransactionAsync();
+        try
+        {
+            var userRepo = _uow.Repository<User>();
+            var user = await userRepo.GetByIdAsync(request.userId);
 
-        if (user == null)
-            throw new KeyNotFoundException("User not found.");
+            if (user == null)
+                throw new KeyNotFoundException("User not found.");
 
-        if (user.IsActive) return true;
+            if (user.IsActive)
+                return true;
 
-        user.IsActive = true;
+            user.IsActive = true;
 
-        await userRepo.UpdateAsync(user);
-        await uow.SaveChangesAsync();
+            await userRepo.UpdateAsync(user);
+            await _uow.SaveChangesAsync();
+            await _uow.CommitTransactionAsync();
 
-        return true;
+            return true;
+        }
+        catch
+        {
+            await _uow.RollbackTransactionAsync();
+            throw;
+        }
     }
 }

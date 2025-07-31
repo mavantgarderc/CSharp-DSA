@@ -29,20 +29,42 @@ namespace Csdsa.Application.Services.EntityServices.Users.RequestHandlers
             CancellationToken cancellationToken
         )
         {
-            var user = await _uow.Users.GetByEmailAsync(request.Email);
+            await _uow.BeginTransactionAsync();
+            try
+            {
+                var user = await _uow.Users.GetByEmailAsync(request.Email);
 
-            if (user == null) { throw new UnauthorizedAccessException("Invalid credentials"); }
+                if (user == null)
+                {
+                    throw new UnauthorizedAccessException("Invalid credentials");
+                }
 
-            var hashedPassword = new HashedPassword(user.PasswordHash);
-            var isPasswordValid = _passwordHasher.VerifyPassword(request.Password, hashedPassword);
+                var hashedPassword = new HashedPassword(user.PasswordHash);
+                var isPasswordValid = _passwordHasher.VerifyPassword(
+                    request.Password,
+                    hashedPassword
+                );
 
-            if (!isPasswordValid) { throw new UnauthorizedAccessException("Invalid credentials"); }
+                if (!isPasswordValid)
+                {
+                    throw new UnauthorizedAccessException("Invalid credentials");
+                }
 
-            if (!user.IsActive) { throw new UnauthorizedAccessException("Account is not active"); }
+                if (!user.IsActive)
+                {
+                    throw new UnauthorizedAccessException("Account is not active");
+                }
 
-            await _uow.SaveChangesAsync();
+                await _uow.SaveChangesAsync();
+                await _uow.CommitTransactionAsync();
 
-            return _mapper.Map<UserDto>(user);
+                return _mapper.Map<UserDto>(user);
+            }
+            catch
+            {
+                await _uow.RollbackTransactionAsync();
+                throw;
+            }
         }
     }
 }

@@ -11,5 +11,10 @@ namespace Api.Controllers
     {
         public FeatureController(IUnitOfWork unitOfWork, ILogger logger, IMediator mediator)
             : base(unitOfWork, logger, mediator) { }
+
+        // GET: /api/features => GetAllFeatureToggles
+        // POST: /api/features => CreateFeatureFlag
+        // PUT: /api/features/{id} => UpdateFeatureFlagState
+        // DELETE: /api/feature/{id} => RemoveFeatureFlag
     }
 }

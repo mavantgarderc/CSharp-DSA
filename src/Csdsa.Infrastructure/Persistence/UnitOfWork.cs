@@ -1,8 +1,8 @@
 using Csdsa.Application.Common.Interfaces;
 using Csdsa.Application.Interfaces;
 using Csdsa.Domain.Models.Common;
-using Csdsa.Infrastructure.Repositories;
 using Csdsa.Infrastructure.Context;
+using Csdsa.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Csdsa.Infrastructure.Persistence;
