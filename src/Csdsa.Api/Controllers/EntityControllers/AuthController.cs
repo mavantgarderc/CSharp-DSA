@@ -9,57 +9,58 @@ using Csdsa.Domain.ViewModel.EntityViewModel.Users;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Api.Controllers;
-
-[ApiController]
-[Route("api/[controller]")]
-public class AuthController : BaseController
+namespace Csdsa.Api.Controllers.EntityControllers
 {
-    public AuthController(IUnitOfWork unitOfWork, ILogger logger, IMediator mediator)
-        : base(unitOfWork, logger, mediator) { }
-
-    [HttpPost("Register")]
-    public async Task<IActionResult> Register(CreateUserCommand cmd)
+    [ApiController]
+    [Route("api/[controller]")]
+    public class AuthController : BaseController
     {
-        try
+        public AuthController(IUnitOfWork unitOfWork, ILogger logger, IMediator mediator)
+            : base(unitOfWork, logger, mediator) { }
+
+        [HttpPost("Register")]
+        public async Task<IActionResult> Register(CreateUserCommand cmd)
         {
-            var user = await _mediator.Send(cmd);
-            return Ok(user);
+            try
+            {
+                var user = await _mediator.Send(cmd);
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(
+                    500,
+                    ApiResponse<UserDto>.ErrorResult("Unexpected error.", ex.Message)
+                );
+            }
         }
-        catch (Exception ex)
+
+        [HttpGet("Login")]
+        public async Task<IActionResult> Login([FromBody] LoginUserRequest request)
         {
-            return StatusCode(
-                500,
-                ApiResponse<UserDto>.ErrorResult("Unexpected error.", ex.Message)
-            );
+            try
+            {
+                var result = await _mediator.Send(
+                    new LoginUserCommand(request.Email, request.Password)
+                );
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(
+                    500,
+                    ApiResponse<UserDto>.ErrorResult("Unexpected error.", ex.Message)
+                );
+            }
         }
+
+        // POST: /api/auth/logout => LogOut
+        // POST: /api/auth/refresh-token => RefreshToken
+        // POST: /api/auth/reset-passwoord => ResetPassword
+        // GET: /api/auth/sessions => GetCurrentUserSessions
+        // DELETE: /api/auth/session/{id} => KillSession
+
+        // GET: /api/audit-log => ViewAuditLogs
+        // GET: /api/audit-log/{id} => ViewAuditLog
     }
-
-    [HttpGet("Login")]
-    public async Task<IActionResult> Login([FromBody] LoginUserRequest request)
-    {
-        try
-        {
-            var result = await _mediator.Send(
-                new LoginUserCommand(request.Email, request.Password)
-            );
-            return Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(
-                500,
-                ApiResponse<UserDto>.ErrorResult("Unexpected error.", ex.Message)
-            );
-        }
-    }
-
-    // POST: /api/auth/logout => LogOut
-    // POST: /api/auth/refresh-token => RefreshToken
-    // POST: /api/auth/reset-passwoord => ResetPassword
-    // GET: /api/auth/sessions => GetCurrentUserSessions
-    // DELETE: /api/auth/session/{id} => KillSession
-
-    // GET: /api/audit-log => ViewAuditLogs
-    // GET: /api/audit-log/{id} => ViewAuditLog
 }

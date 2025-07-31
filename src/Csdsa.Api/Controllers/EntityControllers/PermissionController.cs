@@ -3,7 +3,7 @@ using Csdsa.Application.Common.Interfaces;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Csdsa.Api.Controllers
+namespace Csdsa.Api.Controllers.EntityControllers
 {
     [Route("api/[controller]")]
     [ApiController]

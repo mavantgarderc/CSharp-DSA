@@ -3,4 +3,4 @@ using MediatR;
 
 namespace Csdsa.Application.Services.EntityServices.Users.Requests;
 
-public record RemoveRoleCommand(Guid UserId) : IRequest<bool>;
+public record RemoveRoleFromUserCommand(Guid UserId) : IRequest<bool>;

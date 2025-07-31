@@ -3,7 +3,7 @@ using Csdsa.Application.Common.Interfaces;
 using Csdsa.Application.DTOs.Entities.User;
 using Csdsa.Application.Services.EntityServices.Users.Requests;
 using Csdsa.Domain.Models.Common.UserEntities.User;
-using Domain.Enums;
+using Csdsa.Domain.Enums;
 using MediatR;
 
 namespace Csdsa.Application.Services.EntityServices.Users.RequestHandlers

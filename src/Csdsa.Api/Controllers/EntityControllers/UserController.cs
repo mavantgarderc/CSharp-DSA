@@ -1,6 +1,9 @@
 using Csdsa.Api.Controllers.Base;
 using Csdsa.Application.Common.Interfaces;
+using Csdsa.Application.DTOs.Entities.Role;
 using Csdsa.Application.DTOs.Entities.User;
+using Csdsa.Application.Roles.CommandHandler;
+using Csdsa.Application.Services.EntityServices.Roles.Queries;
 using Csdsa.Application.Services.EntityServices.Users.Requests;
 using Csdsa.Application.Users.Queries;
 using Csdsa.Domain.Models.Common;
@@ -9,7 +12,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Csdsa.Api.Controllers
+namespace Csdsa.Api.Controllers.EntityControllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -23,7 +26,9 @@ namespace Csdsa.Api.Controllers
         {
             try
             {
-                var result = await _mediator.Send(new CreateUserCommand(request.UserName, request.Email, request.Password));
+                var result = await _mediator.Send(
+                    new CreateUserCommand(request.UserName, request.Email, request.Password)
+                );
                 return Ok(result);
             }
             catch (Exception ex)
@@ -208,7 +213,62 @@ namespace Csdsa.Api.Controllers
         }
 
         // POST: /api/users/{id}/roles => AssignRoleToUser
+        [HttpGet("AssignRoleToUser")]
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        public async Task<IActionResult> GetRolesAssignedToUser(Guid id)
+        {
+            try
+            {
+                var role = await _mediator.Send(new GetUserRoleQuery(id));
+                return Ok(ApiResponse<RoleDto>.SuccessResult(role));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ApiResponse<RoleDto>.ErrorResult(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(
+                    500,
+                    ApiResponse<RoleDto>.ErrorResult("Unexpected error.", ex.Message)
+                );
+            }
+        }
 
         // GET: /api/users/{id}/roles => GetRolesAssignedToUser
+
+        [HttpPost("GetRolesAssignedToUser")]
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        public async Task<IActionResult> AssignRoleToUser(
+            Guid id,
+            [FromBody] AssignRoleToUserCommand request
+        )
+        {
+            if (id != request.UserId)
+                return BadRequest("ID in URL does not match ID in request body.");
+
+            try
+            {
+                var result = await _mediator.Send(
+                    new AssignRoleToUserCommand(request.UserId, request.Role)
+                );
+                return Ok(ApiResponse<bool>.SuccessResult(result, "Role assigned successfully"));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ApiResponse<bool>.ErrorResult(ex.Message));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ApiResponse<bool>.ErrorResult(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(
+                    500,
+                    ApiResponse<bool>.ErrorResult("Role assignment failed", ex.Message)
+                );
+            }
+        }
     }
 }

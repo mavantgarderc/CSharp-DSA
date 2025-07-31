@@ -42,6 +42,38 @@ namespace Csdsa.Infrastructure.Repositories
         }
 
         public virtual async Task<IEnumerable<T>> GetAllAsync(
+            Expression<Func<T, bool>>? filter = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+            params Expression<Func<T, object>>[] includes
+        )
+        {
+            IQueryable<T> query = _dbSet;
+
+            // Apply includes first
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
+
+            // Always filter out deleted items
+            query = query.Where(x => !x.IsDeleted);
+
+            // Apply additional filter if provided
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            // Apply ordering if provided, otherwise return unordered
+            if (orderBy != null)
+            {
+                return await orderBy(query).ToListAsync();
+            }
+
+            return await query.ToListAsync();
+        }
+
+        public virtual async Task<IEnumerable<T>> GetAllAsync(
             params Expression<Func<T, object>>[] includes
         )
         {

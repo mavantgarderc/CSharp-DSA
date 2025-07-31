@@ -1,4 +1,4 @@
-using Domain.Enums;
+using Csdsa.Domain.Enums;
 
 namespace Csdsa.Domain.Models.Common.UserEntities.User
 {
