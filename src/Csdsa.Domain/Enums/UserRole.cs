@@ -1,4 +1,4 @@
-namespace Domain.Enums
+namespace Csdsa.Domain.Enums
 {
     public enum UserRole
     {
