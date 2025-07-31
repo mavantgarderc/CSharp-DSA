@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using Csdsa.Domain.Enums;
+using Csdsa.Domain.Models.Enums;
 
-namespace Csdsa.Domain.Models.Common.UserEntities
+namespace Csdsa.Domain.Models.UserEntities
 {
     public class Role : BaseEntity
     {

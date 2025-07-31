@@ -1,4 +1,4 @@
-namespace Csdsa.Domain.Models.Common
+namespace Csdsa.Domain.Models
 {
     public class ApiResponse<T>
     {

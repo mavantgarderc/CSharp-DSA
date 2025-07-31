@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Csdsa.Domain.Models.Common
+namespace Csdsa.Domain.Models
 {
     public abstract class BaseEntity
     {

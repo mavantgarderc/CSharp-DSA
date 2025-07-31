@@ -1,6 +1,6 @@
-using Csdsa.Domain.Enums;
+using Csdsa.Domain.Models.Enums;
 
-namespace Csdsa.Domain.Models.Common.UserEntities.User
+namespace Csdsa.Domain.Models.UserEntities
 {
     public class User : BaseEntity
     {
