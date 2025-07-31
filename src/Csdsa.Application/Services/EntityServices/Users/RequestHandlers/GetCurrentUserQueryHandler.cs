@@ -1,8 +1,8 @@
 using System.Security.Claims;
 using AutoMapper;
-using Csdsa.Application.Common.Interfaces;
 using Csdsa.Application.DTOs.Entities.User;
-using Csdsa.Application.Users.Queries;
+using Csdsa.Application.Interfaces;
+using Csdsa.Application.Services.EntityServices.Users.Requests;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 

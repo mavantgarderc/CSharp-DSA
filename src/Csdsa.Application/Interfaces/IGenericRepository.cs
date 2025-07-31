@@ -1,5 +1,5 @@
 using System.Linq.Expressions;
-using Csdsa.Domain.Models.Common;
+using Csdsa.Domain.Models;
 
 namespace Csdsa.Application.Interfaces;
 

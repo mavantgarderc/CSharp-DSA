@@ -1,5 +1,5 @@
 using BCrypt.Net;
-using Csdsa.Application.Common.Interfaces;
+using Csdsa.Application.Interfaces;
 using Csdsa.Domain.Common.ValueObjects;
 using Microsoft.Extensions.Logging;
 

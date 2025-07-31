@@ -1,4 +1,12 @@
-
+using Csdsa.Application.DTOs.Entities.User;
 using MediatR;
 
-public record UpdateUserCommand(Guid userId, string Email, string Username, bool IsActive) : IRequest<bool>;
+namespace Csdsa.Application.Services.EntityServices.Users.Requests;
+
+public class UpdateUserCommand : IRequest<bool>
+{
+    public Guid userId { get; set; }
+    public string UserName { get; set; } = default!;
+    public string Email { get; set; } = default!;
+    public bool IsActive { get; set; }
+}

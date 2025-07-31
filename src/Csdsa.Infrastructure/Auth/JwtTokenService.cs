@@ -1,11 +1,11 @@
-using Csdsa.Application.Common.Interfaces;
+using Csdsa.Application.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace Infrastructure.Auth.JwtService;
+namespace Csdsa.Infrastructure.Auth.JwtTokenService;
 
 public class JwtTokenService : IJwtTokenService
 {

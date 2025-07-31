@@ -1,3 +1,5 @@
 using MediatR;
 
-public record ActivateUserAccountCommand(Guid userId) : IRequest<bool>;
+namespace Csdsa.Application.Services.EntityServices.Users.Requests;
+
+public record ActivateUserAccountCommand(Guid UserId) : IRequest<bool>;

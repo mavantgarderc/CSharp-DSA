@@ -1,5 +1,6 @@
-using Csdsa.Application.Common.Interfaces;
-using Csdsa.Domain.Models.Common.UserEntities.User;
+using Csdsa.Application.Interfaces;
+using Csdsa.Application.Services.EntityServices.Users.Requests;
+using Csdsa.Domain.Models.UserEntities;
 using MediatR;
 
 namespace Csdsa.Application.Services.EntityServices.Users.RequestHandlers;
@@ -22,7 +23,7 @@ public class DeactivateUserAccountCommandHandler : IRequestHandler<ActivateUserA
         try
         {
             var userRepo = _uow.Repository<User>();
-            var user = await userRepo.GetByIdAsync(request.userId);
+            var user = await userRepo.GetByIdAsync(request.UserId);
 
             if (user == null)
                 throw new KeyNotFoundException("User not found.");

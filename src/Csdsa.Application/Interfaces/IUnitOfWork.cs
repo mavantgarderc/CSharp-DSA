@@ -1,9 +1,8 @@
-using Csdsa.Application.Interfaces;
-using Csdsa.Domain.Models.Common;
+using Csdsa.Domain.Models;
 
-namespace Csdsa.Application.Common.Interfaces;
+namespace Csdsa.Application.Interfaces;
 
-public interface IUnitOfWork : IDisposable
+public interface IUnitOfWork : IDisposable, IAsyncDisposable
 {
     Task<int> SaveChangesAsync();
     Task BeginTransactionAsync();

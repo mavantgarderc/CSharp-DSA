@@ -1,4 +1,4 @@
-using Csdsa.Application.Common.Interfaces;
+using Csdsa.Application.Interfaces;
 using Csdsa.Infrastructure.Context;
 using Csdsa.Infrastructure.Persistence;
 using Csdsa.Infrastructure.Security;

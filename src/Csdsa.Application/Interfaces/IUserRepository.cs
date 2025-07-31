@@ -1,7 +1,6 @@
-using Csdsa.Application.Interfaces;
-using Csdsa.Domain.Models.Common.UserEntities.User;
+using Csdsa.Domain.Models.UserEntities;
 
-namespace Csdsa.Application.Common.Interfaces;
+namespace Csdsa.Application.Interfaces;
 
 public interface IUserRepository : IGenericRepository<User>
 {

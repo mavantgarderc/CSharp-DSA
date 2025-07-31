@@ -1,6 +1,6 @@
 using Csdsa.Domain.Common.ValueObjects;
 
-namespace Csdsa.Application.Common.Interfaces;
+namespace Csdsa.Application.Interfaces;
 
 public interface IPasswordHasher
 {

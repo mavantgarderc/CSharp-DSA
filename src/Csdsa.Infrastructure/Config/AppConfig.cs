@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Configuration;
-using Csdsa.Infrastructure.Config;
 
-namespace Csdsaa.Infrastructure.Config;
+namespace Csdsa.Infrastructure.Config;
 
 public class AppConfig : IAppConfig
 {

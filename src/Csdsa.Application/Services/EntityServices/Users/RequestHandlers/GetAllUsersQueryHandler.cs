@@ -1,7 +1,7 @@
 using AutoMapper;
-using Csdsa.Application.Common.Interfaces;
 using Csdsa.Application.DTOs.Entities.User;
-using Csdsa.Application.Users.Queries;
+using Csdsa.Application.Interfaces;
+using Csdsa.Application.Services.EntityServices.Users.Requests;
 using MediatR;
 
 namespace Csdsa.Application.Services.EntityServices.Users.QueryHandlers;

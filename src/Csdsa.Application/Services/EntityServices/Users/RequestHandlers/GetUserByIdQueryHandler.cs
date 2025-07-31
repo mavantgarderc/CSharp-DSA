@@ -1,7 +1,7 @@
 using AutoMapper;
-using Csdsa.Application.Common.Interfaces;
 using Csdsa.Application.DTOs.Entities.User;
-using Csdsa.Application.Users.Queries;
+using Csdsa.Application.Interfaces;
+using Csdsa.Application.Services.EntityServices.Users.Requests;
 using MediatR;
 
 namespace Csdsa.Application.Services.EntityServices.Users.QueryHandlers;
@@ -22,7 +22,7 @@ public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, UserDto
         CancellationToken cancellationToken
     )
     {
-        var user = await _uow.Users.FirstOrDefaultAsync(u => u.Id == request.userId);
+        var user = await _uow.Users.FirstOrDefaultAsync(u => u.Id == request.Id);
         return user == null ? null : _mapper.Map<UserDto>(user);
     }
 }

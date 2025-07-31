@@ -1,7 +1,8 @@
 using System.Linq;
-using Csdsa.Application.Common.Interfaces;
+using AutoMapper;
 using Csdsa.Application.DTOs.Entities.User;
-using Csdsa.Application.Services.EntityServices.Roles.Queries;
+using Csdsa.Application.Interfaces;
+using Csdsa.Application.Services.EntityServices.Roles.Request;
 using MediatR;
 
 namespace Csdsa.Application.Services.EntityServices.Roles.QueryHandlers;
@@ -9,10 +10,12 @@ namespace Csdsa.Application.Services.EntityServices.Roles.QueryHandlers;
 public class GetUsersByRoleQueryHandler : IRequestHandler<GetUsersByRoleQuery, List<UserDto>>
 {
     private readonly IUnitOfWork _uow;
+    private readonly IMapper _mapper;
 
-    public GetUsersByRoleQueryHandler(IUnitOfWork uow)
+    public GetUsersByRoleQueryHandler(IUnitOfWork uow, IMapper mapper)
     {
         _uow = uow;
+        _mapper = mapper;
     }
 
     public async Task<List<UserDto>> Handle(
@@ -25,8 +28,6 @@ public class GetUsersByRoleQueryHandler : IRequestHandler<GetUsersByRoleQuery, L
             orderBy: q => q.OrderBy(u => u.UserName)
         );
 
-        return users
-            .Select(u => new UserDto(u.Id, u.UserName, u.Email, u.Role.ToString(), u.IsActive))
-            .ToList();
+        return _mapper.Map<List<UserDto>>(users);
     }
 }

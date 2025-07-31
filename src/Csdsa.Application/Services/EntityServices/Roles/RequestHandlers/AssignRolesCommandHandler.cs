@@ -1,9 +1,9 @@
-using Csdsa.Application.Common.Interfaces;
 using Csdsa.Application.DTOs.Entities.Role;
-using Csdsa.Domain.Enums;
+using Csdsa.Application.Interfaces;
+using Csdsa.Domain.Models.Enums;
 using MediatR;
 
-namespace Csdsa.Application.Roles.Commands
+namespace Csdsa.Application.Services.EntityServices.Roles.RequestHandlers
 {
     public record AssignRolesCommand(List<Guid> UserIds, UserRole Role)
         : IRequest<AssignRolesResult>;
@@ -22,7 +22,6 @@ namespace Csdsa.Application.Roles.Commands
             CancellationToken cancellationToken
         )
         {
-            // Use local variables for tracking
             int successfulAssignments = 0;
             int failedAssignments = 0;
             var errors = new List<string>();
@@ -32,14 +31,12 @@ namespace Csdsa.Application.Roles.Commands
             var foundUserIds = users.Select(u => u.Id).ToHashSet();
             var notFoundUserIds = request.UserIds.Where(id => !foundUserIds.Contains(id)).ToList();
 
-            // Add errors for not found users
             foreach (var userId in notFoundUserIds)
             {
                 errors.Add($"User with ID {userId} not found.");
                 failedAssignments++;
             }
 
-            // Check SuperAdmin protection
             if (request.Role != UserRole.SuperAdmin)
             {
                 var superAdminsToModify = users.Where(u => u.Role == UserRole.SuperAdmin).ToList();
@@ -54,20 +51,18 @@ namespace Csdsa.Application.Roles.Commands
                             "Cannot modify SuperAdmin roles as it would leave no SuperAdmins in the system."
                         );
                         failedAssignments += superAdminsToModify.Count;
-                        // Remove SuperAdmins from processing
                         users = users.Where(u => u.Role != UserRole.SuperAdmin).ToList();
                     }
                 }
             }
 
-            // Update remaining users
             foreach (var user in users)
             {
                 try
                 {
                     user.Role = request.Role;
                     user.UpdatedAt = DateTime.UtcNow;
-                    await _uow.Users.UpdateAsync(user); // Added await
+                    await _uow.Users.UpdateAsync(user);
                     successfulAssignments++;
                 }
                 catch (Exception ex)
@@ -82,7 +77,6 @@ namespace Csdsa.Application.Roles.Commands
                 await _uow.SaveChangesAsync();
             }
 
-            // Create final result with all calculated values
             return new AssignRolesResult(
                 TotalUsers: request.UserIds.Count,
                 SuccessfulAssignments: successfulAssignments,

@@ -1,6 +1,8 @@
 using AutoMapper;
-using Csdsa.Application.Common.Interfaces;
-using Csdsa.Domain.Models.Common.UserEntities.User;
+using Csdsa.Application.DTOs.Entities.User;
+using Csdsa.Application.Interfaces;
+using Csdsa.Application.Services.EntityServices.Users.Requests;
+using Csdsa.Domain.Models.UserEntities;
 using MediatR;
 
 namespace Csdsa.Application.Services.EntityServices.Users.RequestHandlers
@@ -16,10 +18,7 @@ namespace Csdsa.Application.Services.EntityServices.Users.RequestHandlers
             _mapper = mapper;
         }
 
-        async Task<bool> IRequestHandler<UpdateUserCommand, bool>.Handle(
-            UpdateUserCommand request,
-            CancellationToken cancellationToken
-        )
+        public async Task<bool> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
         {
             await _uow.BeginTransactionAsync();
             try
@@ -34,7 +33,7 @@ namespace Csdsa.Application.Services.EntityServices.Users.RequestHandlers
                 }
 
                 user.Email = request.Email;
-                user.UserName = request.Username;
+                user.UserName = request.UserName;
                 user.IsActive = request.IsActive;
 
                 await userRepo.UpdateAsync(user);

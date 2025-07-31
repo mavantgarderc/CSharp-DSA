@@ -1,7 +1,8 @@
-using Csdsa.Application.Common.Interfaces;
+using Csdsa.Application.DTOs.Entities;
 using Csdsa.Application.DTOs.Entities.Role;
-using Csdsa.Application.Services.EntityServices.Roles.Queries;
-using Csdsa.Domain.Enums;
+using Csdsa.Application.Interfaces;
+using Csdsa.Application.Services.EntityServices.Roles.Request;
+using Csdsa.Domain.Models.Enums;
 using MediatR;
 
 namespace Csdsa.Application.Roles.QueryHandler
