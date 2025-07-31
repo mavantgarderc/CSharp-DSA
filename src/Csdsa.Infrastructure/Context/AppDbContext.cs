@@ -1,8 +1,7 @@
 using System.Security.Claims;
 using Csdsa.Domain.Context.Extensions;
-using Csdsa.Domain.Models.Common;
-using Csdsa.Domain.Models.Common.UserEntities;
-using Csdsa.Domain.Models.Common.UserEntities.User;
+using Csdsa.Domain.Models;
+using Csdsa.Domain.Models.UserEntities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -159,7 +158,7 @@ namespace Csdsa.Infrastructure.Context
 
         private void ConfigureRelationships(ModelBuilder modelBuilder)
         {
-            // Add fluent relationships here when needed
+            // add fluent relationships here when needed
         }
 
         private void ConfigureQueryFilters(ModelBuilder modelBuilder)
