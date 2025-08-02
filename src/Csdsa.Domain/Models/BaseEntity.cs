@@ -1,21 +1,20 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Csdsa.Domain.Models
+namespace Csdsa.Domain.Models;
+
+public abstract class BaseEntity
 {
-    public abstract class BaseEntity
-    {
-        [Key]
-        public Guid Id { get; set; } = Guid.NewGuid();
+    [Key]
+    public Guid Id { get; set; } = Guid.NewGuid();
 
-        [Required]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    [Required]
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        public DateTime? UpdatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
 
-        public bool IsDeleted { get; set; } = false;
+    public bool IsDeleted { get; set; } = false;
 
-        public string? CreatedBy { get; set; }
+    public string? CreatedBy { get; set; }
 
-        public string? UpdatedBy { get; set; }
-    }
+    public string? UpdatedBy { get; set; }
 }

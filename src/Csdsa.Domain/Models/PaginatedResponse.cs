@@ -1,6 +1,6 @@
 namespace Csdsa.Domain.Models
 {
-    public class PaginatedResponse<T> : ApiResponse<IEnumerable<T>>
+    public class PaginatedResponse<T> : OperationResult<IEnumerable<T>>
     {
         public int Page { get; set; }
         public int PageSize { get; set; }

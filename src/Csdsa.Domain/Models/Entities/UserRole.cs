@@ -1,4 +1,4 @@
-using Csdsa.Domain.Models.UserEntities;
+namespace Csdsa.Domain.Models.Entities;
 
 public class UserRole
 {

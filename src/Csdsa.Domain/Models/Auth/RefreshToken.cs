@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using Csdsa.Domain.Models;
-using Csdsa.Domain.Models.UserEntities;
+using Csdsa.Domain.Models.Entities;
+
+namespace Csdsa.Domain.Models.Auth;
 
 public class RefreshToken : BaseEntity
 {
