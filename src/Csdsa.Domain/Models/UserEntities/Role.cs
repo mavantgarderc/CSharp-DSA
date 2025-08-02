@@ -6,11 +6,8 @@ namespace Csdsa.Domain.Models.UserEntities
     public class Role : BaseEntity
     {
         [Required]
-        public Guid UserId { get; set; }
-
-        [Required]
-        public UserRole UserRoles { get; set; }
-
-        public required string RoleName { get; set; }
+        public string Name { get; set;} = string.Empty;
+        public string? Description {get; set;}
+        public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
     }
 }
