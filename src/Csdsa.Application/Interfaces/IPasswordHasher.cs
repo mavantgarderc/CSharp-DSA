@@ -1,4 +1,4 @@
-using Csdsa.Domain.Common.ValueObjects;
+using Csdsa.Domain.ValueObjects;
 
 namespace Csdsa.Application.Interfaces;
 

@@ -1,4 +1,4 @@
-using Csdsa.Domain.Models.UserEntities;
+using Csdsa.Domain.Models.Auth;
 
 namespace Csdsa.Application.Interfaces;
 

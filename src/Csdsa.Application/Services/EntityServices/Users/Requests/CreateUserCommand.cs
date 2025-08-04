@@ -1,6 +1,0 @@
-using Csdsa.Application.DTOs.Entities.User;
-using MediatR;
-
-namespace Csdsa.Application.Services.EntityServices.Users.Requests;
-
-public record CreateUserCommand(string Username, string Email, string Password) : IRequest<UserDto>;

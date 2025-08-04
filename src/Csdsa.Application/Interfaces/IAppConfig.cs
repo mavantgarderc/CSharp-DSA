@@ -1,10 +1,15 @@
-namespace Csdsa.Infrastructure.Config;
+namespace Csdsa.Application.Interfaces;
 
 public interface IAppConfig
 {
-    string JwtIssuer { get; }
     string JwtKey { get; }
+    string JwtIssuer { get; }
     string JwtAudience { get; }
-    string RedisHost { get; }
+
     string ConnectionString { get; }
+    string RedisConnection { get; }
+
+    OAuthConfig GoogleOAuth { get; }
 }
+
+public record OAuthConfig(string ClientId, string ClientSecret);
