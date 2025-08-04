@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace Csdsa.Infrastructure.Context;
+namespace Csdsa.Infrastructure.Persistence.Context;
 
 public class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
 {

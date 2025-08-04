@@ -1,6 +1,6 @@
 using Csdsa.Application.Interfaces;
-using Csdsa.Infrastructure.Context;
 using Csdsa.Infrastructure.Persistence;
+using Csdsa.Infrastructure.Persistence.Context;
 using Csdsa.Infrastructure.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;

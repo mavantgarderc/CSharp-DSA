@@ -1,6 +1,7 @@
 using Csdsa.Application.Interfaces;
 using Csdsa.Domain.Models;
-using Csdsa.Infrastructure.Context;
+using Csdsa.Infrastructure.Persistence.Context;
+using Csdsa.Infrastructure.Persistence.Repositories;
 using Csdsa.Infrastructure.Repositories;
 using Csdsa.Infrastructure.Repositories.EntityRepositories;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -102,5 +103,10 @@ public class UnitOfWork : IUnitOfWork
         }
 
         await _context.DisposeAsync();
+    }
+
+    public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
     }
 }

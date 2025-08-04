@@ -2,7 +2,8 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Net.Mail;
-using Csdsa.Application.Auth.Interfaces;
+using Csdsa.Infrastructure.Auth.Configuration;
+using Csdsa.Application.Interfaces;
 
 namespace Csdsa.Infrastructure.Auth.Services
 {
@@ -110,6 +111,11 @@ namespace Csdsa.Infrastructure.Auth.Services
                 _logger.LogError(ex, "Failed to send email to {Email} with subject: {Subject}", toEmail, subject);
                 throw;
             }
+        }
+
+        public Task SendAccountLockedAsync(string email, DateTime lockoutEnd)
+        {
+            throw new NotImplementedException();
         }
     }
 }

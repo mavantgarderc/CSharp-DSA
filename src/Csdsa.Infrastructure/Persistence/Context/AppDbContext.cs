@@ -1,12 +1,12 @@
 using System.Security.Claims;
-using Csdsa.Domain.Context.Extensions;
 using Csdsa.Domain.Models;
-using Csdsa.Domain.Models.UserEntities;
+using Csdsa.Domain.Models.Auth;
+using Csdsa.Infrastructure.Persistence.Context.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
-namespace Csdsa.Infrastructure.Context
+namespace Csdsa.Infrastructure.Persistence.Context
 {
     public class AppDbContext : DbContext
     {
@@ -26,6 +26,11 @@ namespace Csdsa.Infrastructure.Context
 
         public DbSet<User> Users => Set<User>();
         public DbSet<Role> Roles => Set<Role>();
+        public DbSet<UserRole> UserRoles => Set<UserRole>();
+        public DbSet<Permission> Permissions => Set<Permission>();
+        public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
+        public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+        public DbSet<BlacklistedToken> BlacklistedTokens => Set<BlacklistedToken>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -35,6 +40,7 @@ namespace Csdsa.Infrastructure.Context
 
             ConfigurePostgreSQL(modelBuilder);
             ConfigureBaseEntities(modelBuilder);
+            ConfigureAuthEntities(modelBuilder);
             ConfigureIndexes(modelBuilder);
             ConfigureRelationships(modelBuilder);
             ConfigureQueryFilters(modelBuilder);
@@ -44,6 +50,93 @@ namespace Csdsa.Infrastructure.Context
             modelBuilder.ConfigureUtcDateTime();
             modelBuilder.SeedData();
         }
+
+        private void ConfigureAuthEntities(ModelBuilder modelBuilder)
+        {
+            // User configuration
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasIndex(e => e.Email).IsUnique();
+                entity.HasIndex(e => e.UserName).IsUnique();
+                entity.Property(e => e.Email).HasMaxLength(255).IsRequired();
+                entity.Property(e => e.UserName).HasMaxLength(50).IsRequired();
+                entity.Property(e => e.PasswordHash).HasMaxLength(255).IsRequired();
+                entity.Property(e => e.FirstName).HasMaxLength(50);
+                entity.Property(e => e.LastName).HasMaxLength(50);
+            });
+
+            // Role configuration
+            modelBuilder.Entity<Role>(entity =>
+            {
+                entity.HasIndex(e => e.Name).IsUnique();
+                entity.Property(e => e.Name).HasMaxLength(50).IsRequired();
+                entity.Property(e => e.Description).HasMaxLength(255);
+            });
+
+            // Permission configuration
+            modelBuilder.Entity<Permission>(entity =>
+            {
+                entity.HasIndex(e => new { e.Resource, e.Action }).IsUnique();
+                entity.Property(e => e.Name).HasMaxLength(100).IsRequired();
+                entity.Property(e => e.Resource).HasMaxLength(50).IsRequired();
+                entity.Property(e => e.Action).HasMaxLength(50).IsRequired();
+            });
+
+            // UserRole configuration
+            modelBuilder.Entity<UserRole>(entity =>
+            {
+                entity.HasKey(e => new { e.UserId, e.RoleId });
+                entity.HasOne(e => e.User)
+                    .WithMany(e => e.Role)
+                    .HasForeignKey(e => e.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(e => e.Role)
+                    .WithMany(e => e.UserRoles)
+                    .HasForeignKey(e => e.RoleId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // RolePermission configuration
+            modelBuilder.Entity<RolePermission>(entity =>
+            {
+                entity.HasKey(e => new { e.RoleId, e.PermissionId });
+                entity.HasOne(e => e.Role)
+                    .WithMany(e => e.RolePermissions)
+                    .HasForeignKey(e => e.RoleId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(e => e.Permission)
+                    .WithMany(e => e.RolePermissions)
+                    .HasForeignKey(e => e.PermissionId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // RefreshToken configuration
+            modelBuilder.Entity<RefreshToken>(entity =>
+            {
+                entity.HasIndex(e => e.Token).IsUnique();
+                entity.Property(e => e.Token).HasMaxLength(255).IsRequired();
+                entity.Property(e => e.CreatedByIp).HasMaxLength(45);
+                entity.Property(e => e.RevokedByIp).HasMaxLength(45);
+                entity.HasOne(e => e.User)
+                    .WithMany(e => e.RefreshTokens)
+                    .HasForeignKey(e => e.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // BlacklistedToken configuration
+            modelBuilder.Entity<BlacklistedToken>(entity =>
+            {
+                entity.HasIndex(e => e.TokenId).IsUnique();
+                entity.Property(e => e.TokenId).HasMaxLength(255).IsRequired();
+                entity.Property(e => e.Reason).HasMaxLength(255);
+                entity.HasOne(e => e.User)
+                    .WithMany()
+                    .HasForeignKey(e => e.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+        }
+
+        // ... rest of your existing methods remain the same ...
 
         private void ConfigurePostgreSQL(ModelBuilder modelBuilder)
         {
@@ -184,7 +277,7 @@ namespace Csdsa.Infrastructure.Context
         private static System.Linq.Expressions.LambdaExpression GetSoftDeleteFilter<TEntity>()
             where TEntity : BaseEntity
         {
-            System.Linq.Expressions.Expression<System.Func<TEntity, bool>> filter = x =>
+            System.Linq.Expressions.Expression<Func<TEntity, bool>> filter = x =>
                 !x.IsDeleted;
             return filter;
         }

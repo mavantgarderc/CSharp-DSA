@@ -1,3 +1,4 @@
+using Csdsa.Application.Interfaces;
 using Microsoft.Extensions.Configuration;
 
 namespace Csdsa.Infrastructure.Config;
@@ -16,4 +17,8 @@ public class AppConfig : IAppConfig
     public string JwtAudience => _config["Jwt:Audience"]!;
     public string RedisHost => _config["Redis:Host"]!;
     public string ConnectionString => _config.GetConnectionString("Default")!;
+
+    public string RedisConnection => throw new NotImplementedException();
+
+    public OAuthConfig GoogleOAuth => throw new NotImplementedException();
 }

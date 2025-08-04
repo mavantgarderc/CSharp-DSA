@@ -1,10 +1,10 @@
 using System.Linq.Expressions;
 using Csdsa.Application.Interfaces;
 using Csdsa.Domain.Models;
-using Csdsa.Infrastructure.Context;
+using Csdsa.Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 
-namespace Csdsa.Infrastructure.Repositories;
+namespace Csdsa.Infrastructure.Persistence.Repositories;
 
 public class GenericRepository<T> : IGenericRepository<T>
     where T : BaseEntity

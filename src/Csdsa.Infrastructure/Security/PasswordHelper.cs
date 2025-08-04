@@ -1,6 +1,5 @@
-using BCrypt.Net;
 using Csdsa.Application.Interfaces;
-using Csdsa.Domain.Common.ValueObjects;
+using Csdsa.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;
 
 namespace Csdsa.Infrastructure.Security;

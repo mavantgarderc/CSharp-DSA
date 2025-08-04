@@ -1,141 +1,212 @@
-using Csdsa.Application.Auth;
-using Csdsa.Domain.Models.UserEntities;
-using Csdsa.Infrastructure.Auth.Configuration;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
+using Csdsa.Application.Interfaces;
+using Csdsa.Domain.Models.Auth;
+using Csdsa.Infrastructure.Persistence.Context;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using Serilog;
 
-namespace Csdsa.Infrastructure.Auth.Services
+namespace Csdsa.Infrastructure.Services
 {
     public class JwtService : IJwtService
     {
-        private readonly JwtSettings _jwtSettings;
+        private readonly IConfiguration _configuration;
+        private readonly AppDbContext _context;
         private readonly RSA _rsa;
+        private readonly ILogger _logger = Log.ForContext<JwtService>();
 
-        public JwtService(IOptions<JwtSettings> jwtSettings)
+        public JwtService(IConfiguration configuration, AppDbContext context)
         {
-            _jwtSettings = jwtSettings.Value;
+            _configuration = configuration;
+            _context = context;
             _rsa = RSA.Create();
 
-            if (!string.IsNullOrEmpty(_jwtSettings.PrivateKey))
+            var privateKey = _configuration["JWT:PrivateKey"];
+            if (!string.IsNullOrEmpty(privateKey))
             {
-                _rsa.ImportRSAPrivateKey(Convert.FromBase64String(_jwtSettings.PrivateKey), out _);
+                _rsa.ImportRSAPrivateKey(Convert.FromBase64String(privateKey), out _);
             }
         }
 
-        public string GenerateAccessToken(User user, IEnumerable<string> roles)
+        public async Task<string> GenerateAccessTokenAsync(User user)
         {
+            var jwtSettings = _configuration.GetSection("JWT");
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = new RsaSecurityKey(_rsa);
+
+            // Get user roles and permissions
+            var userRoles = await _context.UserRoles
+                .Include(ur => ur.Role)
+                .ThenInclude(r => r.RolePermissions)
+                .ThenInclude(rp => rp.Permission)
+                .Where(ur => ur.UserId == user.Id)
+                .ToListAsync();
+
+            var roles = userRoles.Select(ur => ur.Role.Name).ToList();
+            var permissions = userRoles
+                .SelectMany(ur => ur.Role.RolePermissions)
+                .Select(rp => rp.Permission.Name)
+                .Distinct()
+                .ToList();
 
             var claims = new List<Claim>
             {
                 new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new("UserId", user.Id.ToString()),
                 new(JwtRegisteredClaimNames.Email, user.Email),
+                new(JwtRegisteredClaimNames.UniqueName, user.UserName),
                 new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new(JwtRegisteredClaimNames.Iat,
-                    new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds().ToString(),
-                    ClaimValueTypes.Integer64),
-                new("email_verified", user.IsEmailVerified.ToString().ToLower())
+                new(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
             };
 
-            // Add role claims
+            if (!string.IsNullOrEmpty(user.FirstName))
+                claims.Add(new(JwtRegisteredClaimNames.GivenName, user.FirstName));
+
+            if (!string.IsNullOrEmpty(user.LastName))
+                claims.Add(new(JwtRegisteredClaimNames.FamilyName, user.LastName));
+
+            // Add roles
             foreach (var role in roles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
-                claims.Add(new Claim("role", role)); // For easier frontend consumption
+            }
+
+            // Add permissions
+            foreach (var permission in permissions)
+            {
+                claims.Add(new Claim("permission", permission));
             }
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpirationMinutes),
-                Issuer = _jwtSettings.Issuer,
-                Audience = _jwtSettings.Audience,
+                Expires = DateTime.UtcNow.AddMinutes(int.Parse(jwtSettings["AccessTokenExpiryInMinutes"] ?? "15")),
+                Issuer = jwtSettings["Issuer"],
+                Audience = jwtSettings["Audience"],
                 SigningCredentials = new SigningCredentials(key, SecurityAlgorithms.RsaSha256)
             };
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
+            var tokenString = tokenHandler.WriteToken(token);
+
+            _logger.Information("Access token generated for user {UserId} with roles: {Roles}",
+                user.Id, string.Join(", ", roles));
+
+            return tokenString;
         }
 
-        public RefreshToken GenerateRefreshToken(string ipAddress)
+        public async Task<string> GenerateRefreshTokenAsync()
         {
-            using var rngCryptoServiceProvider = RandomNumberGenerator.Create();
             var randomBytes = new byte[64];
-            rngCryptoServiceProvider.GetBytes(randomBytes);
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(randomBytes);
+            var refreshToken = Convert.ToBase64String(randomBytes);
 
-            return new RefreshToken
+            // Ensure uniqueness
+            while (await _context.RefreshTokens.AnyAsync(rt => rt.Token == refreshToken))
             {
-                Id = Guid.NewGuid(),
-                Token = Convert.ToBase64String(randomBytes),
-                ExpiresAt = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpirationDays),
-                CreatedAt = DateTime.UtcNow,
-                CreatedByIp = ipAddress
-            };
+                rng.GetBytes(randomBytes);
+                refreshToken = Convert.ToBase64String(randomBytes);
+            }
+
+            return refreshToken;
         }
 
-        public ClaimsPrincipal? GetPrincipalFromExpiredToken(string token)
+        public async Task<ClaimsPrincipal?> ValidateTokenAsync(string token)
         {
-            var tokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateAudience = true,
-                ValidateIssuer = true,
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new RsaSecurityKey(_rsa),
-                ValidateLifetime = false, // Don't validate lifetime for expired tokens
-                ValidIssuer = _jwtSettings.Issuer,
-                ValidAudience = _jwtSettings.Audience,
-                ClockSkew = TimeSpan.Zero
-            };
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-
             try
             {
-                var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out var validatedToken);
+                var jwtSettings = _configuration.GetSection("JWT");
+                var tokenHandler = new JwtSecurityTokenHandler();
 
-                if (validatedToken is not JwtSecurityToken jwtSecurityToken ||
-                    !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.RsaSha256, StringComparison.InvariantCultureIgnoreCase))
+                // Create public key for validation
+                var publicKeyRsa = RSA.Create();
+                var publicKey = _configuration["JWT:PublicKey"];
+                if (!string.IsNullOrEmpty(publicKey))
                 {
+                    publicKeyRsa.ImportRSAPublicKey(Convert.FromBase64String(publicKey), out _);
+                }
+
+                var key = new RsaSecurityKey(publicKeyRsa);
+
+                var validationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtSettings["Issuer"],
+                    ValidAudience = jwtSettings["Audience"],
+                    IssuerSigningKey = key,
+                    ClockSkew = TimeSpan.Zero
+                };
+
+                var principal = tokenHandler.ValidateToken(token, validationParameters, out var validatedToken);
+
+                // Check if token is blacklisted
+                var jti = principal.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
+                if (!string.IsNullOrEmpty(jti) && await IsTokenBlacklistedAsync(jti))
+                {
+                    _logger.Warning("Attempted to use blacklisted token {TokenId}", jti);
                     return null;
                 }
 
                 return principal;
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.Warning(ex, "Token validation failed");
                 return null;
             }
         }
 
-        public string? GetTokenIdFromToken(string token)
+        public async Task<string?> GetTokenIdAsync(string token, JwtSecurityTokenHandler tokenHandler)
         {
             try
             {
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var jsonToken = tokenHandler.ReadJwtToken(token);
-                return jsonToken.Claims?.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Jti)?.Value;
+                return await Task.FromResult(jsonToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Jti)?.Value);
             }
             catch
             {
-                return null;
+                return await Task.FromResult<string?>(null);
             }
         }
 
-        public bool IsTokenExpired(string token)
+        public async Task<bool> IsTokenBlacklistedAsync(string tokenId)
+        {
+            return await _context.BlacklistedTokens
+                .AnyAsync(bt => bt.TokenId == tokenId && bt.ExpiresAt > DateTime.UtcNow);
+        }
+
+        public async Task BlacklistTokenAsync(string tokenId, Guid userId, string reason)
         {
             try
             {
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var jsonToken = tokenHandler.ReadJwtToken(token);
-                return jsonToken.ValidTo < DateTime.UtcNow;
+                var expiryDate = DateTime.UtcNow.AddDays(1); // Default to 1 day for safety
+
+                var blacklistedToken = new BlacklistedToken
+                {
+                    TokenId = tokenId,
+                    UserId = userId,
+                    ExpiresAt = expiryDate,
+                    Reason = reason
+                };
+
+                _context.BlacklistedTokens.Add(blacklistedToken);
+                await _context.SaveChangesAsync();
+
+                _logger.Information("Token {TokenId} blacklisted for user {UserId}. Reason: {Reason}",
+                    tokenId, userId, reason);
             }
-            catch
+            catch (Exception ex)
             {
-                return true;
+                _logger.Error(ex, "Failed to blacklist token {TokenId}", tokenId);
+                throw;
             }
         }
 
