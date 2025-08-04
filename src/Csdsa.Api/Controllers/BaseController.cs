@@ -7,7 +7,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Csdsa.Api.Controllers.Base;
+namespace Csdsa.Api.Controllers;
 
 [ApiController]
 [Route("api[controller]")]
@@ -73,67 +73,67 @@ public abstract class BaseController : ControllerBase
 
     #region Response Helper Methods
 
-    protected ActionResult<ApiResponse<T>> SuccessResponse<T>(
+    protected ActionResult<OperationResult<T>> SuccessResponse<T>(
         T data,
         string message = "Operation successful"
     )
     {
         _logger.LogInformation("Success: {Message}", message);
-        return Ok(ApiResponse<T>.SuccessResult(data, message));
+        return Ok(OperationResult<T>.SuccessResult(data, message));
     }
 
-    protected ActionResult<ApiResponse> SuccessResponse(string message = "Operation successful")
+    protected ActionResult<OperationResult> SuccessResponse(string message = "Operation successful")
     {
         _logger.LogInformation("Success: {Message}", message);
-        return Ok(ApiResponse.SuccessResult(message));
+        return Ok(OperationResult.SuccessResult(message));
     }
 
-    protected ActionResult<ApiResponse<T>> ErrorResponse<T>(
+    protected ActionResult<OperationResult<T>> ErrorResponse<T>(
         string message,
         object? errors = null
     )
     {
         _logger.LogError("Error: {Message}", message);
-        return BadRequest(ApiResponse<T>.ErrorResult(message, errors));
+        return BadRequest(OperationResult<T>.ErrorResult(message, errors));
     }
 
-    protected ActionResult<ApiResponse> ErrorResponse(string message, object? errors = null)
+    protected ActionResult<OperationResult> ErrorResponse(string message, object? errors = null)
     {
         _logger.LogError("Error: {Message}", message);
-        return BadRequest(ApiResponse.ErrorResult(message, errors));
+        return BadRequest(OperationResult.ErrorResult(message, errors));
     }
 
-    protected ActionResult<ApiResponse<T>> NotFoundResponse<T>(
+    protected ActionResult<OperationResult<T>> NotFoundResponse<T>(
         string message = "Resource not found"
     )
     {
         _logger.LogWarning("Not Found: {Message}", message);
-        return NotFound(ApiResponse<T>.ErrorResult(message));
+        return NotFound(OperationResult<T>.ErrorResult(message));
     }
 
-    protected ActionResult<ApiResponse> NotFoundResponse(string message = "Resource not found")
+    protected ActionResult<OperationResult> NotFoundResponse(string message = "Resource not found")
     {
         _logger.LogWarning("Not Found: {Message}", message);
-        return NotFound(ApiResponse.ErrorResult(message));
+        return NotFound(OperationResult.ErrorResult(message));
     }
 
-    protected ActionResult<ApiResponse<T>> UnauthorizedResponse<T>(
+    protected ActionResult<OperationResult<T>> UnauthorizedResponse<T>(
         string message = "Unauthorized access"
     )
     {
         _logger.LogWarning("Unauthorized: {Message}", message);
-        return Unauthorized(ApiResponse<T>.ErrorResult(message));
+        return Unauthorized(OperationResult<T>.ErrorResult(message));
     }
 
-    protected ActionResult<ApiResponse> UnauthorizedResponse(
+    protected ActionResult<OperationResult> UnauthorizedResponse(
         string message = "Unauthorized access"
     )
     {
         _logger.LogWarning("Unauthorized: {Message}", message);
-        return Unauthorized(ApiResponse.ErrorResult(message));
+        return Unauthorized(OperationResult.ErrorResult(message));
     }
 
-    protected ActionResult<ApiResponse<IEnumerable<T>>> PaginatedResponse<T>(
+    protected ActionResult<OperationResult<IEnumerable<T>>> PaginatedResponse<T>(
         IEnumerable<T> data,
         int page,
         int pageSize,
@@ -154,7 +154,7 @@ public abstract class BaseController : ControllerBase
 
     #region Validation Helper Methods
 
-    protected async Task<ActionResult<ApiResponse<T>>?> ValidateModelAsync<T, TModel>(
+    protected async Task<ActionResult<OperationResult<T>>?> ValidateModelAsync<T, TModel>(
         TModel model,
         IValidator<TModel> validator
     )
@@ -172,7 +172,7 @@ public abstract class BaseController : ControllerBase
         return null;
     }
 
-    protected ActionResult<ApiResponse<T>>? ValidateModel<T>()
+    protected ActionResult<OperationResult<T>>? ValidateModel<T>()
     {
         if (!ModelState.IsValid)
         {
@@ -189,7 +189,7 @@ public abstract class BaseController : ControllerBase
         return null;
     }
 
-    protected async Task<ActionResult<ApiResponse>?> ValidateModelAsync<TModel>(
+    protected async Task<ActionResult<OperationResult>?> ValidateModelAsync<TModel>(
         TModel model,
         IValidator<TModel> validator
     )
@@ -207,7 +207,7 @@ public abstract class BaseController : ControllerBase
         return null;
     }
 
-    protected ActionResult<ApiResponse>? ValidateModel()
+    protected ActionResult<OperationResult>? ValidateModel()
     {
         if (!ModelState.IsValid)
         {
@@ -337,7 +337,7 @@ public abstract class BaseController : ControllerBase
 
     #region CRUD Helper Methods
 
-    protected async Task<ActionResult<ApiResponse<TResponse>>> GetByIdAsync<TEntity, TResponse>(
+    protected async Task<ActionResult<OperationResult<TResponse>>> GetByIdAsync<TEntity, TResponse>(
         Guid id,
         Func<TEntity, TResponse> mapper,
         string entityName = "Entity"
@@ -362,7 +362,7 @@ public abstract class BaseController : ControllerBase
         }
     }
 
-    protected async Task<ActionResult<ApiResponse<IEnumerable<TResponse>>>> GetPagedAsync<
+    protected async Task<ActionResult<OperationResult<IEnumerable<TResponse>>>> GetPagedAsync<
         TEntity,
         TResponse
     >(
@@ -410,7 +410,7 @@ public abstract class BaseController : ControllerBase
         }
     }
 
-    protected async Task<ActionResult<ApiResponse<TResponse>>> CreateAsync<
+    protected async Task<ActionResult<OperationResult<TResponse>>> CreateAsync<
         TEntity,
         TRequest,
         TResponse
@@ -455,7 +455,7 @@ public abstract class BaseController : ControllerBase
         }
     }
 
-    protected async Task<ActionResult<ApiResponse<TResponse>>> UpdateAsync<
+    protected async Task<ActionResult<OperationResult<TResponse>>> UpdateAsync<
         TEntity,
         TRequest,
         TResponse
@@ -507,7 +507,7 @@ public abstract class BaseController : ControllerBase
         }
     }
 
-    protected async Task<ActionResult<ApiResponse>> DeleteAsync<TEntity>(
+    protected async Task<ActionResult<OperationResult>> DeleteAsync<TEntity>(
         Guid id,
         bool softDelete = true,
         string entityName = "Entity"
@@ -547,7 +547,7 @@ public abstract class BaseController : ControllerBase
 
     #region Exception Handling
 
-    protected ActionResult<ApiResponse<T>> HandleException<T>(
+    protected ActionResult<OperationResult<T>> HandleException<T>(
         Exception ex,
         string operation = "Operation"
     )
