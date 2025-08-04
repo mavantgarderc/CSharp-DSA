@@ -1,4 +1,4 @@
-namespace Csdsa.Domain.Common.ValueObjects;
+namespace Csdsa.Domain.ValueObjects;
 
 public sealed class HashedPassword : IEquatable<HashedPassword>
 {

@@ -14,8 +14,8 @@ public class ComplexityAnalysis
 
 public class AlgorithmResponse<T>
 {
-    public T Result { get; set; } = default(T)!;
+    public T Result { get; set; } = default!;
     public ComplexityAnalysis Complexity { get; set; } = new();
     public string AlgorithmName { get; set; } = string.Empty;
-    public Dictionary<string, string> Metadata { get; set; } = new();
+    public Dictionary<string, string> Metadata { get; set; } = [];
 }

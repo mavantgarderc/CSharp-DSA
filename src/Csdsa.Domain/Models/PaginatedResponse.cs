@@ -17,7 +17,7 @@ namespace Csdsa.Domain.Models
             string message = "Data retrieved successfully"
         )
         {
-            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+            int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
             return new PaginatedResponse<T>
             {

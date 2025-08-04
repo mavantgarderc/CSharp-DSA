@@ -1,4 +1,4 @@
-namespace Csdsa.Domain.Models.Entities;
+namespace Csdsa.Domain.Models.Auth;
 
 public class UserRole
 {

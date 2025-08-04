@@ -1,7 +1,6 @@
 using System.ComponentModel.DataAnnotations;
-using Csdsa.Domain.Models.Auth;
 
-namespace Csdsa.Domain.Models.Entities;
+namespace Csdsa.Domain.Models.Auth;
 
 public class User : BaseEntity
 {
@@ -23,7 +22,7 @@ public class User : BaseEntity
     public DateTime? EmailVerificationTokenExpires { get; set; }
 
     // Account Lockout
-    public int FailedLoginAttempts { get; set; } = 0;
+    public int FailedLoginAttempts { get; set; }
     public DateTime? LockoutEnd { get; set; }
     public bool IsLockedOut => LockoutEnd.HasValue && LockoutEnd > DateTime.UtcNow;
 
@@ -32,10 +31,10 @@ public class User : BaseEntity
     public DateTime? PasswordResetTokenExpires { get; set; }
 
     // Roles
-    public ICollection<UserRole> Role { get; set; } = new List<UserRole>();
+    public ICollection<UserRole> Role { get; set; } = [];
 
     // Refresh Tokens
-    public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+    public ICollection<RefreshToken> RefreshTokens { get; set; } = [];
 
     public bool IsActive { get; set; } = true;
 }
