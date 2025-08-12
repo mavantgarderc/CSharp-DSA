@@ -167,8 +167,8 @@ namespace Csdsa.Infrastructure.Services
         {
             try
             {
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var jsonToken = tokenHandler.ReadJwtToken(token);
+                var tokenHandle = new JwtSecurityTokenHandler();
+                var jsonToken = tokenHandle.ReadJwtToken(token);
                 return await Task.FromResult(jsonToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Jti)?.Value);
             }
             catch
@@ -213,6 +213,11 @@ namespace Csdsa.Infrastructure.Services
         public void Dispose()
         {
             _rsa?.Dispose();
+        }
+
+        public Task<string?> GetTokenIdAsync(string token)
+        {
+            throw new NotImplementedException();
         }
     }
 }
