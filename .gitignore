@@ -1,3 +1,11 @@
+*.key
+*.pem
+rsa-*.txt
+appsettings.Production.json
+
+# Environment files
+.env
+.env.local
 # .NET Core & ASP.NET Core
 bin/
 obj/
