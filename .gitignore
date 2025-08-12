@@ -87,3 +87,4 @@ secrets.json
 
 # Global tool config
 *.global.json
+.env
