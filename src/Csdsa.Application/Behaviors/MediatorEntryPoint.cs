@@ -1,21 +1,20 @@
+using System.Reflection;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Csdsa.Application.Behaviors;
 
+/// <summary>
+/// configuration entry point for MediatR setup and registration
+/// </summary>
 public static class MediatorEntryPoint
 {
-    public static IServiceCollection AddApplicaton(this IServiceCollection services)
+    /// <summary>
+    /// registers MediatR services and handlers from the current assembly
+    /// </summary>
+    public static IServiceCollection AddApplicationMediatR(this IServiceCollection services)
     {
-        // MediatR Configuration
-        // services.AddMediatR(config => config.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
-
-        // Repository Injections
-        // services.AddScoped<IUnitOfWork, UnitOfWork>();
-        // services.AddScoped<IGenericRepository, GenericRepository>();
-
-        // External API/Services Injection
-        // services.AddScoped<IExternalAPICaller, ExternalAPICaller>();
-
+        services.AddMediatR(typeof(MediatorEntryPoint).Assembly);
         return services;
     }
 }
