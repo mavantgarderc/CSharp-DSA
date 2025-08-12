@@ -1,9 +1,9 @@
-namespace Csdsa.Domain.Models.Enums
+namespace Csdsa.Domain.Models.Enums;
+
+public enum UserRole
 {
-    public enum UserRole
-    {
-        User = 0,
-        Admin = 1,
-        SuperAdmin = 2,
-    }
+    User = 0,
+    Admin = 1,
+    SuperAdmin = 2,
+    Dev = 3,
 }
