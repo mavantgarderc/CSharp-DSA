@@ -254,10 +254,8 @@ public abstract class BaseController : ControllerBase
                 Description = description ?? string.Empty,
             },
             Metadata =
-                metadata?.ToDictionary(
-                    kvp => kvp.Key,
-                    kvp => kvp.Value?.ToString() ?? string.Empty
-                ) ?? new Dictionary<string, string>(),
+                metadata?.ToDictionary(kvp => kvp.Key, kvp => kvp.Value?.ToString() ?? string.Empty)
+                ?? new Dictionary<string, string>(),
         };
     }
 

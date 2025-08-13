@@ -173,4 +173,13 @@ public class UserRepository : GenericRepository<User>, IUserRepository
     {
         return base.UpdateAsync(entity);
     }
+
+    public async Task<User?> GetUserByRefreshTokenAsync(string refreshToken)
+    {
+        return await FirstOrDefaultAsync(
+            u => u.RefreshTokens.Any(rt => rt.Token == refreshToken),
+            u => u.RefreshTokens,
+            u => u.Role
+        );
+    }
 }

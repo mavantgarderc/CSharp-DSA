@@ -6,7 +6,11 @@ namespace Csdsa.Application.Interfaces;
 public interface IJwtService
 {
     Task<string> GenerateAccessTokenAsync(User user);
+    Task<string> GenerateAccessTokenAsync(User user, string ipAddress);
+
     Task<string> GenerateRefreshTokenAsync();
+    Task<string> GenerateRefreshTokenAsync(string ipAddress);
+
     Task<ClaimsPrincipal?> ValidateTokenAsync(string token);
     Task<string?> GetTokenIdAsync(string token);
     Task<bool> IsTokenBlacklistedAsync(string tokenId);

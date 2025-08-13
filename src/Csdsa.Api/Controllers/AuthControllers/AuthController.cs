@@ -1,6 +1,9 @@
-using Csdsa.Application.Commands.Auth;
 using Csdsa.Application.DTOs.Auth;
 using Csdsa.Application.Interfaces;
+using Csdsa.Application.Services.Auth.GetUserProfile;
+using Csdsa.Application.Services.Auth.Login;
+using Csdsa.Application.Services.Auth.Logout;
+using Csdsa.Application.Services.Auth.Register;
 using Csdsa.Domain.Exceptions;
 using Csdsa.Domain.Models;
 using MediatR;
@@ -8,7 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace Csdsa.Api.Controllers;
+namespace Csdsa.Api.Controllers.AuthControllers;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -165,7 +168,7 @@ public class AuthController : BaseController
         }
         catch (Exception ex)
         {
-            _logger.Error(ex, "Get profile error");
+            _logger.LogError(ex, "Get profile error");
             return StatusCode(
                 500,
                 CreateProblemDetails("Internal Server Error", "An unexpected error occurred.", 500)
@@ -173,6 +176,7 @@ public class AuthController : BaseController
         }
     }
 
+    // Helper Functions
     private string GetClientIpAddress()
     {
         var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();

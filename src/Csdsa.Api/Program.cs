@@ -8,7 +8,6 @@ using Csdsa.Infrastructure.Persistence;
 using Csdsa.Infrastructure.Persistence.Context;
 using Csdsa.Infrastructure.Persistence.Repositories;
 using Csdsa.Infrastructure.Repositories.EntityRepositories;
-using Csdsa.Infrastructure.Services;
 using DotNetEnv;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -261,16 +260,20 @@ public class Program
 
             app.UseHttpsRedirection();
             Console.WriteLine("HTTPS redirection configured");
+
             app.UseRateLimiter();
             Console.WriteLine("Rate limiter configured");
+
             app.UseAuthentication();
             Console.WriteLine("Authentication configured");
+
             app.UseAuthorization();
             Console.WriteLine("Authorization configured");
+
             app.MapControllers();
             Console.WriteLine("Controllers mapped");
 
-            Console.WriteLine("=== STARTING WEB APPLICATION ===");
+            Console.WriteLine("=== WEB APPLICATION Initiated ===");
             await app.RunAsync();
         }
         catch (Exception ex)

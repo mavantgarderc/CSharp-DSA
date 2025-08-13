@@ -104,6 +104,23 @@ public class GenericRepository<T> : IGenericRepository<T>
         return await _dbSet.FirstOrDefaultAsync(predicate);
     }
 
+    public async Task<T?> FirstOrDefaultAsync(
+        Expression<Func<T, bool>> predicate,
+        params Expression<Func<T, object>>[] includes
+    )
+    {
+        IQueryable<T> query = _dbSet;
+
+        if (includes != null)
+        {
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
+        }
+        return await query.FirstOrDefaultAsync(predicate);
+    }
+
     public virtual async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate)
     {
         return await _dbSet.AnyAsync(predicate);

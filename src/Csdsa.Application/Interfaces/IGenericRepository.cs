@@ -16,6 +16,7 @@ public interface IGenericRepository<T>
         params Expression<Func<T, object>>[] includes
     );
     Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate);
+    Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes);
     Task<bool> AnyAsync(Expression<Func<T, bool>> predicate);
     Task<int> CountAsync();
     Task<int> CountAsync(Expression<Func<T, bool>> predicate);
