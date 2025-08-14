@@ -21,6 +21,8 @@ public class RefreshToken : BaseEntity
     [StringLength(45)]
     public string? RevokedByIp { get; set; }
 
+    public string? RevokedReason { get; set; }
+
     [StringLength(512)]
     public string? ReplacedByToken { get; set; }
 
@@ -38,7 +40,10 @@ public class RefreshToken : BaseEntity
             throw new InvalidOperationException("Token is already revoked");
 
         if (string.IsNullOrWhiteSpace(revokedByIp))
-            throw new ArgumentException("Revoked by IP cannot be null or empty", nameof(revokedByIp));
+            throw new ArgumentException(
+                "Revoked by IP cannot be null or empty",
+                nameof(revokedByIp)
+            );
 
         IsRevoked = true;
         RevokedAt = DateTime.UtcNow;
@@ -59,8 +64,10 @@ public class RefreshToken : BaseEntity
 
     public override string ToString()
     {
-        var tokenPreview = string.IsNullOrEmpty(Token) ? "null" : $"{Token[..Math.Min(8, Token.Length)]}...";
-        return $"RefreshToken[Id={Id}, TokenPreview={tokenPreview}, UserId={UserId}, " +
-               $"ExpiresAt={ExpiresAt:yyyy-MM-dd HH:mm:ss}, IsActive={IsActive}]";
+        var tokenPreview = string.IsNullOrEmpty(Token)
+            ? "null"
+            : $"{Token[..Math.Min(8, Token.Length)]}...";
+        return $"RefreshToken[Id={Id}, TokenPreview={tokenPreview}, UserId={UserId}, "
+            + $"ExpiresAt={ExpiresAt:yyyy-MM-dd HH:mm:ss}, IsActive={IsActive}]";
     }
 }
