@@ -117,9 +117,10 @@ public class AuthController : BaseController
     /// <returns>Logout confirmation</returns>
     [HttpPost("logout")]
     [Authorize]
-    [ProducesResponseType(typeof(OperationResult), 200)]
+    [ProducesResponseType(typeof(OperationResult<AuthResponse>), 200)]
     [ProducesResponseType(typeof(ProblemDetails), 401)]
-    public async Task<ActionResult<OperationResult>> Logout(
+    [ProducesResponseType(typeof(ProblemDetails), 500)]
+    public async Task<ActionResult<OperationResult<AuthResponse>>> Logout(
         [FromBody] RefreshTokenRequest? request = null
     )
     {
@@ -127,6 +128,18 @@ public class AuthController : BaseController
         {
             var userId = GetCurrentUserId();
             var accessToken = GetAccessToken();
+
+            if (userId == Guid.Empty)
+            {
+                return BadRequest(CreateProblemDetails("Bad Request", "Invalid user ID.", 400));
+            }
+
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                return BadRequest(
+                    CreateProblemDetails("Bad Request", "Access token is required.", 400)
+                );
+            }
 
             var command = new LogoutCommand
             {
@@ -137,11 +150,17 @@ public class AuthController : BaseController
             };
 
             var result = await _mediator.Send(command);
-            return Ok(result);
+
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+
+            return BadRequest(CreateProblemDetails("Logout Failed", result.Message, 400));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Logout error");
+            _logger.LogError(ex, "Logout error for user {UserId}", GetCurrentUserId());
             return StatusCode(
                 500,
                 CreateProblemDetails("Internal Server Error", "An unexpected error occurred.", 500)

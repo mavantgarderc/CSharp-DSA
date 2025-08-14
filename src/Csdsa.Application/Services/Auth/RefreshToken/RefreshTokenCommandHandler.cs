@@ -54,50 +54,60 @@ public class RefreshTokenCommandHandler
             return OperationResult<AuthResponse>.ErrorResult("Refresh token is required.");
         }
 
-        var user = await _userRepository.GetUserByRefreshTokenAsync(request.RefreshToken);
-        if (user == null)
+        await _unitOfWork.BeginTransactionAsync();
+        try
         {
-            return OperationResult<AuthResponse>.ErrorResult("Invalid refresh token.");
-        }
+            var user = await _userRepository.GetUserByRefreshTokenAsync(request.RefreshToken);
+            if (user == null)
+            {
+                return OperationResult<AuthResponse>.ErrorResult("Invalid refresh token.");
+            }
 
-        var existingToken = user.RefreshTokens.FirstOrDefault(rt =>
-            rt.Token == request.RefreshToken
-        );
-        if (existingToken == null || !existingToken.IsValidForRefresh())
-        {
-            return OperationResult<AuthResponse>.ErrorResult(
-                "Refresh token is expired or revoked."
+            var existingToken = user.RefreshTokens.FirstOrDefault(rt =>
+                rt.Token == request.RefreshToken
             );
+            if (existingToken == null || !existingToken.IsValidForRefresh())
+            {
+                return OperationResult<AuthResponse>.ErrorResult(
+                    "Refresh token is expired or revoked."
+                );
+            }
+
+            existingToken.Revoke(request.IpAddress);
+
+            var newRefreshTokenValue = await _jwtService.GenerateRefreshTokenAsync(
+                request.IpAddress
+            );
+            var newRefreshToken = new Csdsa.Domain.Models.Auth.RefreshToken
+            {
+                Token = newRefreshTokenValue,
+                ExpiresAt = DateTime.UtcNow.AddDays(REFRESH_TOKEN_EXPIRY_DAYS),
+                CreatedByIp = request.IpAddress,
+                UserId = user.Id,
+            };
+            user.RefreshTokens.Add(newRefreshToken);
+
+            var accessToken = await _jwtService.GenerateAccessTokenAsync(user, request.IpAddress);
+
+            await _userRepository.UpdateAsync(user);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _unitOfWork.CommitTransactionAsync();
+
+            var authResponse = new AuthResponse
+            {
+                AccessToken = accessToken,
+                RefreshToken = newRefreshToken.Token,
+                AccessTokenExpiry = DateTime.UtcNow.AddMinutes(ACCESS_TOKEN_EXPIRY_MINUTES),
+                RefreshTokenExpiry = newRefreshToken.ExpiresAt,
+                User = _mapper.Map<UserProfileDto>(user),
+            };
+
+            return OperationResult<AuthResponse>.SuccessResult(authResponse);
         }
-
-        // Revoke old token
-        existingToken.Revoke(request.IpAddress);
-
-        // Generate new tokens with IP tracking
-        var newRefreshTokenValue = await _jwtService.GenerateRefreshTokenAsync(request.IpAddress);
-        var newRefreshToken = new Csdsa.Domain.Models.Auth.RefreshToken
+        catch
         {
-            Token = newRefreshTokenValue,
-            ExpiresAt = DateTime.UtcNow.AddDays(REFRESH_TOKEN_EXPIRY_DAYS),
-            CreatedByIp = request.IpAddress,
-            UserId = user.Id,
-        };
-        user.RefreshTokens.Add(newRefreshToken);
-
-        var accessToken = await _jwtService.GenerateAccessTokenAsync(user, request.IpAddress);
-
-        await _userRepository.UpdateAsync(user);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-        var authResponse = new AuthResponse
-        {
-            AccessToken = accessToken,
-            RefreshToken = newRefreshToken.Token,
-            AccessTokenExpiry = DateTime.UtcNow.AddMinutes(ACCESS_TOKEN_EXPIRY_MINUTES),
-            RefreshTokenExpiry = newRefreshToken.ExpiresAt,
-            User = _mapper.Map<UserProfileDto>(user),
-        };
-
-        return OperationResult<AuthResponse>.SuccessResult(authResponse);
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
+        }
     }
 }
