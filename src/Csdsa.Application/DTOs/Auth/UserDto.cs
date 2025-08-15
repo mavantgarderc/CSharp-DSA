@@ -1,4 +1,4 @@
-namespace Csdsa.Application.Services.Auth;
+namespace Csdsa.Application.DTOs.Auth;
 
 public class UserDto
 {

@@ -1,6 +1,6 @@
 using Csdsa.Domain.Models.Enums;
 
-namespace Csdsa.Application.Services.Auth;
+namespace Csdsa.Application.DTOs.Auth;
 
 public record RoleDto
 {

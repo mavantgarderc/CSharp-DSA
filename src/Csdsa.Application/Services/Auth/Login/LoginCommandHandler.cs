@@ -1,6 +1,5 @@
 using Csdsa.Application.DTOs.Auth;
 using Csdsa.Application.Interfaces;
-using Csdsa.Application.Services.Auth.Login;
 using Csdsa.Domain.Exceptions;
 using Csdsa.Domain.Models;
 using Csdsa.Domain.Models.Auth;
@@ -8,7 +7,7 @@ using Csdsa.Domain.ValueObjects;
 using MediatR;
 using Serilog;
 
-namespace Csdsa.Application.Handlers.Auth;
+namespace Csdsa.Application.Services.Auth.Login;
 
 /// <summary>
 /// Handles user login command processing including authentication, account lockout management,
@@ -34,7 +33,8 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, OperationResult
         IUnitOfWork unitOfWork,
         IJwtService jwtService,
         IEmailService emailService,
-        IPasswordHasher passwordHasher)
+        IPasswordHasher passwordHasher
+    )
     {
         _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
@@ -49,12 +49,18 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, OperationResult
     /// <param name="request">The login command containing user credentials</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Operation result containing authentication response or error</returns>
-    public async Task<OperationResult<AuthResponse>> Handle(LoginCommand request, CancellationToken cancellationToken)
+    public async Task<OperationResult<AuthResponse>> Handle(
+        LoginCommand request,
+        CancellationToken cancellationToken
+    )
     {
         try
         {
-            _logger.Information("Login attempt for email: {Email} from IP: {IpAddress}", 
-                request.Email, request.IpAddress);
+            _logger.Information(
+                "Login attempt for email: {Email} from IP: {IpAddress}",
+                request.Email,
+                request.IpAddress
+            );
 
             // Get and validate user
             var user = await GetAndValidateUserAsync(request.Email);
@@ -74,7 +80,11 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, OperationResult
             // Generate tokens and create response
             var response = await GenerateAuthResponseAsync(user, request.IpAddress);
 
-            _logger.Information("Login successful for user: {UserId} ({Email})", user.Id, user.Email);
+            _logger.Information(
+                "Login successful for user: {UserId} ({Email})",
+                user.Id,
+                user.Email
+            );
             return OperationResult<AuthResponse>.SuccessResult(response, "Login successful.");
         }
         catch (AuthenticationException)
@@ -86,7 +96,9 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, OperationResult
         {
             await _unitOfWork.RollbackTransactionAsync();
             _logger.Error(ex, "Unexpected error during login for email: {Email}", request.Email);
-            return OperationResult<AuthResponse>.ErrorResult("An error occurred during login. Please try again.");
+            return OperationResult<AuthResponse>.ErrorResult(
+                "An error occurred during login. Please try again."
+            );
         }
     }
 
@@ -121,13 +133,18 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, OperationResult
                 user.FailedLoginAttempts = 0;
                 await _userRepository.UpdateAsync(user);
                 await _unitOfWork.SaveChangesAsync();
-                
-                _logger.Information("Account automatically unlocked after lockout period: {Email}", user.Email);
+                _logger.Information(
+                    "Account automatically unlocked after lockout period: {Email}",
+                    user.Email
+                );
                 return;
             }
 
-            _logger.Warning("Login attempt on locked account: {Email}, locked until: {LockoutEnd}", 
-                user.Email, user.LockoutEnd);
+            _logger.Warning(
+                "Login attempt on locked account: {Email}, locked until: {LockoutEnd}",
+                user.Email,
+                user.LockoutEnd
+            );
             throw new AccountLockedException(user.LockoutEnd!.Value);
         }
     }
@@ -139,7 +156,6 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, OperationResult
     {
         var hashedPassword = new HashedPassword(user.PasswordHash);
         var isPasswordValid = _passwordHasher.VerifyPassword(password, hashedPassword);
-        
         if (!isPasswordValid)
         {
             await HandleFailedLoginAttemptAsync(user);
@@ -184,7 +200,9 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, OperationResult
         if (userWithRoles == null)
         {
             _logger.Error("Failed to retrieve user with roles for ID: {UserId}", user.Id);
-            throw new InvalidOperationException("User data could not be retrieved for token generation.");
+            throw new InvalidOperationException(
+                "User data could not be retrieved for token generation."
+            );
         }
 
         // Generate tokens
@@ -196,13 +214,13 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, OperationResult
         var accessTokenExpiryMinutes = ACCESS_TOKEN_EXPIRY_MINUTES;
 
         // Create and store refresh token
-        var refreshTokenEntity = new Csdsa.Domain.Models.Auth.RefreshToken
+        var refreshTokenEntity = new Domain.Models.Auth.RefreshToken
         {
             Token = refreshToken,
             UserId = user.Id,
             ExpiresAt = DateTime.UtcNow.AddDays(refreshTokenExpiryDays),
             CreatedByIp = ipAddress,
-            IsRevoked = false
+            IsRevoked = false,
         };
 
         user.RefreshTokens.Add(refreshTokenEntity);
@@ -219,7 +237,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, OperationResult
             RefreshToken = refreshToken,
             AccessTokenExpiry = DateTime.UtcNow.AddMinutes(accessTokenExpiryMinutes),
             RefreshTokenExpiry = refreshTokenEntity.ExpiresAt,
-            User = userProfile
+            User = userProfile,
         };
     }
 
@@ -230,15 +248,14 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, OperationResult
     {
         return new UserProfileDto
         {
-            Id = user.Id,
+            UserId = user.Id,
             Email = user.Email,
-            UserName = user.UserName,
+            Username = user.UserName,
             FirstName = user.FirstName,
             LastName = user.LastName,
             IsEmailVerified = user.IsEmailVerified,
             IsActive = user.IsActive,
-            CreatedAt = user.CreatedAt,
-            Roles = userWithRoles.Role?.Select(ur => ur.Role.Name).ToList() ?? new List<string>()
+            Roles = userWithRoles.Role?.Select(ur => ur.Role.Name).ToList() ?? new List<string>(),
         };
     }
 
@@ -248,19 +265,25 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, OperationResult
     private async Task HandleFailedLoginAttemptAsync(User user)
     {
         user.FailedLoginAttempts++;
-        
         var maxFailedAttempts = MAX_FAILED_ATTEMPTS;
         var lockoutDurationMinutes = LOCKOUT_DURATION_MINUTES;
 
-        _logger.Warning("Failed login attempt {AttemptNumber}/{MaxAttempts} for user: {Email}", 
-            user.FailedLoginAttempts, maxFailedAttempts, user.Email);
+        _logger.Warning(
+            "Failed login attempt {AttemptNumber}/{MaxAttempts} for user: {Email}",
+            user.FailedLoginAttempts,
+            maxFailedAttempts,
+            user.Email
+        );
 
         if (user.FailedLoginAttempts >= maxFailedAttempts)
         {
             user.LockoutEnd = DateTime.UtcNow.AddMinutes(lockoutDurationMinutes);
-            
-            _logger.Warning("Account locked for user: {Email} until {LockoutEnd} after {FailedAttempts} failed attempts",
-                user.Email, user.LockoutEnd.Value, user.FailedLoginAttempts);
+            _logger.Warning(
+                "Account locked for user: {Email} until {LockoutEnd} after {FailedAttempts} failed attempts",
+                user.Email,
+                user.LockoutEnd.Value,
+                user.FailedLoginAttempts
+            );
 
             // Send lockout notification email (don't await to avoid blocking)
             _ = Task.Run(async () =>
@@ -271,7 +294,11 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, OperationResult
                 }
                 catch (Exception ex)
                 {
-                    _logger.Warning(ex, "Failed to send account locked email to {Email}", user.Email);
+                    _logger.Warning(
+                        ex,
+                        "Failed to send account locked email to {Email}",
+                        user.Email
+                    );
                 }
             });
         }
