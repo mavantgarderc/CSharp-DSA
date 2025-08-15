@@ -1,3 +1,4 @@
+using Csdsa.Api.DTOs.Auth;
 using Csdsa.Application.DTOs.Auth;
 using Csdsa.Application.Interfaces;
 using Csdsa.Application.Services.Auth.GetUserProfile;

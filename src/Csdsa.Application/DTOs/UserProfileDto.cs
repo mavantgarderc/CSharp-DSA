@@ -1,15 +1,23 @@
-namespace Csdsa.Application.DTOs.Auth;
+using Csdsa.Application.Services.Auth;
 
-public class UserProfileDto
+namespace Csdsa.Application.DTOs;
+
+public class UserProfileDto : UserDto
 {
-    public Guid Id { get; set; }
-    public string Email { get; set; } = string.Empty;
-    public string UserName { get; set; } = string.Empty;
-    public string? FirstName { get; set; }
-    public string? LastName { get; set; }
-    public bool IsEmailVerified { get; set; }
-    public bool IsActive { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public List<string> Roles { get; set; } = new();
-    public List<string> Permissions { get; set; } = new();
+}
+
+public class UserProfileResponseDto : UserProfileDto
+{
+    public DateTime? UpdatedAt { get; set; }
+    public string CreatedBy { get; set; } = string.Empty;
+    public string? UpdatedBy { get; set; }
+    public string FullName => $"{FirstName} {LastName}".Trim();
+}
+
+public class CreateUserProfileDto : UserProfileDto
+{
+}
+
+public class UpdateUserProfileDto : UserProfileDto
+{
 }

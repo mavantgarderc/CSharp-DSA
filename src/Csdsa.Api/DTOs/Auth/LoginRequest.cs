@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Csdsa.Application.DTOs.Auth;
+namespace Csdsa.Api.DTOs.Auth;
 
 public class LoginRequest
 {

@@ -1,6 +1,6 @@
 namespace Csdsa.Application.Services.Auth;
 
-public record UserDto
+public class UserDto
 {
     public Guid Id { get; set; }
     public string Email { get; set; } = string.Empty;
