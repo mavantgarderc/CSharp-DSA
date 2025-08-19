@@ -27,7 +27,7 @@ public class LogoutCommandHandler : IRequestHandler<LogoutCommand, OperationResu
     }
 
     public async Task<OperationResult<AuthResponse>> Handle(
-        LogoutCommand request, // Fixed parameter type
+        LogoutCommand request,
         CancellationToken cancellationToken
     )
     {
@@ -38,7 +38,6 @@ public class LogoutCommandHandler : IRequestHandler<LogoutCommand, OperationResu
             _logger.LogInformation("Processing logout request for user {UserId} from IP {IpAddress}", 
                 request.UserId, request.IpAddress);
 
-            // Validate the refresh token and get the user
             var user = await _userRepository.GetByIdAsync(request.UserId);
             if (user == null)
             {
@@ -46,7 +45,6 @@ public class LogoutCommandHandler : IRequestHandler<LogoutCommand, OperationResu
                 return OperationResult<AuthResponse>.ErrorResult("User not found");
             }
 
-            // Find and invalidate the specific refresh token
             var refreshTokenToInvalidate = user.RefreshTokens?
                 .FirstOrDefault(rt => rt.Token == request.RefreshToken && 
                                      rt.IsActive && 
@@ -54,7 +52,6 @@ public class LogoutCommandHandler : IRequestHandler<LogoutCommand, OperationResu
 
             if (refreshTokenToInvalidate != null)
             {
-                // Revoke the refresh token
                 refreshTokenToInvalidate.RevokedAt = DateTime.UtcNow;
                 refreshTokenToInvalidate.RevokedByIp = request.IpAddress;
                 refreshTokenToInvalidate.RevokedReason = "Logout";
@@ -66,8 +63,6 @@ public class LogoutCommandHandler : IRequestHandler<LogoutCommand, OperationResu
                 _logger.LogWarning("Refresh token not found or already revoked for user {UserId}", request.UserId);
             }
 
-            // Optional: Add the access token to a blacklist if you maintain one
-            // This depends on your JWT strategy - you might want to blacklist the JTI claim
             if (!string.IsNullOrEmpty(request.AccessToken))
             {
                 try
@@ -84,11 +79,9 @@ public class LogoutCommandHandler : IRequestHandler<LogoutCommand, OperationResu
                 catch (Exception ex)
                 {
                     _logger.LogWarning(ex, "Failed to extract JTI from access token during logout");
-                    // Continue with logout even if token parsing fails
                 }
             }
 
-            // Update user in database
             await _userRepository.UpdateAsync(user);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             await _unitOfWork.CommitTransactionAsync();
@@ -96,8 +89,6 @@ public class LogoutCommandHandler : IRequestHandler<LogoutCommand, OperationResu
             _logger.LogInformation("User {UserId} successfully logged out from IP {IpAddress}", 
                 request.UserId, request.IpAddress);
 
-            // For logout, you typically don't return new tokens, so return empty AuthResponse
-            // or consider changing the return type to just OperationResult
             var emptyAuthResponse = new AuthResponse
             {
                 AccessToken = string.Empty,

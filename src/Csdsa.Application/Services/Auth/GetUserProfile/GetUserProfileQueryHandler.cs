@@ -10,7 +10,6 @@ namespace Csdsa.Application.Handlers.Auth;
 public class GetUserProfileQueryHandler : IRequestHandler<GetUserProfileQuery, OperationResult<UserProfileDto>>
 {
     private readonly IUserRepository _userRepository;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly IJwtService _jwtService;
     private readonly IEmailService _emailService;
     private readonly IPasswordHasher _passwordHasher;
@@ -24,13 +23,11 @@ public class GetUserProfileQueryHandler : IRequestHandler<GetUserProfileQuery, O
 
     public GetUserProfileQueryHandler(
         IUserRepository userRepository,
-        IUnitOfWork unitOfWork,
         IJwtService jwtService,
         IEmailService emailService,
         IPasswordHasher passwordHasher)
     {
         _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-        _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         _jwtService = jwtService ?? throw new ArgumentNullException(nameof(jwtService));
         _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
         _passwordHasher = passwordHasher ?? throw new ArgumentNullException(nameof(passwordHasher));

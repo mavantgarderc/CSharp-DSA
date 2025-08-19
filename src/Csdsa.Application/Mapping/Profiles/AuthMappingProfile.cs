@@ -26,7 +26,7 @@ public class AuthMappingProfile : Profile
             .ForMember(dest => dest.RefreshTokens, opt => opt.Ignore())
             .ForMember(dest => dest.IsEmailVerified, opt => opt.MapFrom(src => false))
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore());
-            // .ForMember(dest => dest.LastLoginAt, opt => opt.Ignore());
+        // .ForMember(dest => dest.LastLoginAt, opt => opt.Ignore());
 
         CreateMap<User, AuthResponse>()
             .ForMember(dest => dest.AccessToken, opt => opt.Ignore())
@@ -36,8 +36,39 @@ public class AuthMappingProfile : Profile
             .ForMember(dest => dest.User, opt => opt.MapFrom(src => src));
 
         CreateMap<User, UserProfileDto>()
-            .ForMember(dest => dest.Roles, opt => opt.MapFrom(src => 
-                src.Role.Any() ? src.Role.Select(ur => ur.Role.Name).ToList() : new List<string> { DEFAULT_USER_ROLE }));
+            .ForMember(
+                dest => dest.Roles,
+                opt =>
+                    opt.MapFrom(src =>
+                        src.Role.Any()
+                            ? src.Role.Select(ur => ur.Role.Name).ToList()
+                            : new List<string> { DEFAULT_USER_ROLE }
+                    )
+            );
+
+        //     CreateMap<Role, RoleDto>()
+        //         .ForMember(dest => dest.Id, opt => opt.MapFrom(src => (int)src.Id.GetHashCode()))
+        //         .ForMember(
+        //             dest => dest.Description,
+        //             opt => opt.MapFrom(src => src.Description ?? string.Empty)
+        //         )
+        //         .ForMember(dest => dest.UserCount, opt => opt.MapFrom(src => src.UserRoles.Count))
+        //         .ForMember(
+        //             dest => dest.RoleType,
+        //             opt => opt.MapFrom(src => DetermineRoleType(src.Name))
+        //         );
+        // }
+        // private static UserRole DetermineRoleType(string roleName)
+        // {
+        //     return roleName.ToLower() switch
+        //     {
+        //         "superadmin" or "super admin" or "super_admin" => UserRole.SuperAdmin,
+        //         "admin" or "administrator" => UserRole.Admin,
+        //         "dev" or "developer" => UserRole.Dev,
+        //         "user" or "member" or "standard" => UserRole.User,
+        //         _ => UserRole.User,
+        //     };
+        // }
     }
 }
 

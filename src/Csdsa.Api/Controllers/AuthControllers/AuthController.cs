@@ -197,9 +197,10 @@ public class AuthController : BaseController
         }
     }
 
+    /// <summary>
     /// Soft deletes a user account by marking it as deleted without removing it from the database.
     /// This operation will deactivate the user account and invalidate all associated refresh tokens.
-    /// The user can be identified by either UserId or Email address.
+    /// User can be identified by either UserId or Email address.
     /// </summary>
     /// <param name="request">The soft delete request containing either UserId or Email to identify the user</param>
     [HttpPost("SoftDeleteUser")]

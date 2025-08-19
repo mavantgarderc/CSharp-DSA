@@ -16,7 +16,7 @@ namespace Csdsa.Application.Services.Auth.Login;
 public class LoginCommandHandler : IRequestHandler<LoginCommand, OperationResult<AuthResponse>>
 {
     private readonly IUserRepository _userRepository;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IUnitOfWork _uow;
     private readonly IJwtService _jwtService;
     private readonly IEmailService _emailService;
     private readonly IPasswordHasher _passwordHasher;
@@ -30,14 +30,14 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, OperationResult
 
     public LoginCommandHandler(
         IUserRepository userRepository,
-        IUnitOfWork unitOfWork,
+        IUnitOfWork uow,
         IJwtService jwtService,
         IEmailService emailService,
         IPasswordHasher passwordHasher
     )
     {
         _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-        _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+        _uow = uow ?? throw new ArgumentNullException(nameof(uow));
         _jwtService = jwtService ?? throw new ArgumentNullException(nameof(jwtService));
         _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
         _passwordHasher = passwordHasher ?? throw new ArgumentNullException(nameof(passwordHasher));
@@ -54,6 +54,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, OperationResult
         CancellationToken cancellationToken
     )
     {
+        await _uow.BeginTransactionAsync();
         try
         {
             _logger.Information(
@@ -62,22 +63,16 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, OperationResult
                 request.IpAddress
             );
 
-            // Get and validate user
             var user = await GetAndValidateUserAsync(request.Email);
 
-            // Check account lockout status
             await ValidateAccountLockoutAsync(user);
 
-            // Verify password
             await ValidatePasswordAsync(request.Password, user);
 
-            // Check email verification
             ValidateEmailVerification(user);
 
-            // Reset failed login attempts on successful login
             await ResetFailedLoginAttemptsAsync(user);
 
-            // Generate tokens and create response
             var response = await GenerateAuthResponseAsync(user, request.IpAddress);
 
             _logger.Information(
@@ -89,12 +84,12 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, OperationResult
         }
         catch (AuthenticationException)
         {
-            await _unitOfWork.RollbackTransactionAsync();
+            await _uow.RollbackTransactionAsync();
             throw;
         }
         catch (Exception ex)
         {
-            await _unitOfWork.RollbackTransactionAsync();
+            await _uow.RollbackTransactionAsync();
             _logger.Error(ex, "Unexpected error during login for email: {Email}", request.Email);
             return OperationResult<AuthResponse>.ErrorResult(
                 "An error occurred during login. Please try again."
@@ -125,14 +120,12 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, OperationResult
     {
         if (user.IsLockedOut)
         {
-            // Check if lockout period has expired
             if (user.LockoutEnd <= DateTime.UtcNow)
             {
-                // Unlock the account
                 user.LockoutEnd = null;
                 user.FailedLoginAttempts = 0;
                 await _userRepository.UpdateAsync(user);
-                await _unitOfWork.SaveChangesAsync();
+                await _uow.SaveChangesAsync();
                 _logger.Information(
                     "Account automatically unlocked after lockout period: {Email}",
                     user.Email
@@ -195,7 +188,6 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, OperationResult
     /// </summary>
     private async Task<AuthResponse> GenerateAuthResponseAsync(User user, string ipAddress)
     {
-        // Get user with roles for token generation
         var userWithRoles = await _userRepository.GetByIdAsync(user.Id, u => u.Role);
         if (userWithRoles == null)
         {
@@ -205,15 +197,12 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, OperationResult
             );
         }
 
-        // Generate tokens
         var accessToken = await _jwtService.GenerateAccessTokenAsync(userWithRoles);
         var refreshToken = await _jwtService.GenerateRefreshTokenAsync();
 
-        // Get configuration values
         var refreshTokenExpiryDays = REFRESH_TOKEN_EXPIRY_DAYS;
         var accessTokenExpiryMinutes = ACCESS_TOKEN_EXPIRY_MINUTES;
 
-        // Create and store refresh token
         var refreshTokenEntity = new Domain.Models.Auth.RefreshToken
         {
             Token = refreshToken,
@@ -225,12 +214,10 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, OperationResult
 
         user.RefreshTokens.Add(refreshTokenEntity);
         await _userRepository.UpdateAsync(user);
-        await _unitOfWork.SaveChangesAsync();
+        await _uow.SaveChangesAsync();
 
-        // Create user profile DTO
         var userProfile = CreateUserProfileDto(user, userWithRoles);
 
-        // Create authentication response
         return new AuthResponse
         {
             AccessToken = accessToken,
@@ -285,7 +272,6 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, OperationResult
                 user.FailedLoginAttempts
             );
 
-            // Send lockout notification email (don't await to avoid blocking)
             _ = Task.Run(async () =>
             {
                 try
@@ -304,6 +290,6 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, OperationResult
         }
 
         await _userRepository.UpdateAsync(user);
-        await _unitOfWork.SaveChangesAsync();
+        await _uow.SaveChangesAsync();
     }
 }
