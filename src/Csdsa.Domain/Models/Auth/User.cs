@@ -37,4 +37,5 @@ public class User : BaseEntity
     public ICollection<RefreshToken> RefreshTokens { get; set; } = [];
 
     public bool IsActive { get; set; } = true;
+    public bool SoftDelete { get; set; } = false;
 }

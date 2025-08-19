@@ -1,16 +1,12 @@
-// using Csdsa.Api.Controllers.Base;
-// using Csdsa.Application.DTOs.Entities.Role;
-// using Csdsa.Application.DTOs.Entities.User;
+// using Csdsa.Application.DTOs.Auth;
 // using Csdsa.Application.Interfaces;
-// using Csdsa.Application.Services.EntityServices.Roles.Request;
-// using Csdsa.Application.Services.EntityServices.Roles.RequestHandlers;
 // using Csdsa.Domain.Models;
 // using Csdsa.Domain.Models.Enums;
 // using MediatR;
 // using Microsoft.AspNetCore.Authorization;
 // using Microsoft.AspNetCore.Mvc;
 //
-// namespace Csdsa.Api.Controllers.EntityControllers;
+// namespace Csdsa.Api.Controllers.AuthControllers;
 //
 // [ApiController]
 // [Route("api/[controller]")]

@@ -1,9 +1,8 @@
-// using Csdsa.Api.Controllers.Base;
 // using Csdsa.Application.Interfaces;
 // using MediatR;
 // using Microsoft.AspNetCore.Mvc;
 //
-// namespace Csdsa.Api.Controllers;
+// namespace Csdsa.Api.Controllers.AuthControllers;
 //
 // [ApiController]
 // [Route("api/[controller]")]

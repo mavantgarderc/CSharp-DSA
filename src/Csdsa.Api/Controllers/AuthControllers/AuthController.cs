@@ -5,6 +5,7 @@ using Csdsa.Application.Services.Auth.GetUserProfile;
 using Csdsa.Application.Services.Auth.Login;
 using Csdsa.Application.Services.Auth.Logout;
 using Csdsa.Application.Services.Auth.Register;
+using Csdsa.Application.Services.Auth.SoftDeleteUser;
 using Csdsa.Domain.Exceptions;
 using Csdsa.Domain.Models;
 using MediatR;
@@ -192,6 +193,66 @@ public class AuthController : BaseController
             return StatusCode(
                 500,
                 CreateProblemDetails("Internal Server Error", "An unexpected error occurred.", 500)
+            );
+        }
+    }
+
+    /// Soft deletes a user account by marking it as deleted without removing it from the database.
+    /// This operation will deactivate the user account and invalidate all associated refresh tokens.
+    /// The user can be identified by either UserId or Email address.
+    /// </summary>
+    /// <param name="request">The soft delete request containing either UserId or Email to identify the user</param>
+    [HttpPost("SoftDeleteUser")]
+    public async Task<IActionResult> SoftDeleteUser([FromBody] SoftDeleteUserRequest request)
+    {
+        try
+        {
+            if (request == null)
+            {
+                return BadRequest(OperationResult.ErrorResult("Request cannot be null."));
+            }
+
+            if (
+                (request.UserId == null || request.UserId == Guid.Empty)
+                && string.IsNullOrWhiteSpace(request.Email)
+            )
+            {
+                return BadRequest(
+                    OperationResult.ErrorResult("Either UserId or Email must be provided.")
+                );
+            }
+
+            var command = new SoftDeleteUserCommand
+            {
+                UserId = request.UserId ?? Guid.Empty,
+                Email = request.Email,
+            };
+            var result = await _mediator.Send(command);
+
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+
+            return BadRequest(result);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(OperationResult.ErrorResult(ex.Message));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(
+                500,
+                OperationResult.ErrorResult(
+                    "An unexpected error occurred while processing the request.",
+                    ex.Message
+                )
             );
         }
     }

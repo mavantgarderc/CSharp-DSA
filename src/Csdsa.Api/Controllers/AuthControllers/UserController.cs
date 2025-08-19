@@ -11,26 +11,6 @@ public class UserController : BaseController
     public UserController(IUnitOfWork unitOfWork, ILogger logger, IMediator mediator)
         : base(unitOfWork, logger, mediator) { }
 
-    // DEPRECATED
-    // [HttpPost("CreateUser")]
-    // public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request)
-    // {
-    //     try
-    //     {
-    //         var result = await _mediator.Send(
-    //             new ReplacemeCreateUserCommand(request.UserName, request.Email, request.Password)
-    //         );
-    //         return Ok(result);
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         return StatusCode(
-    //             500,
-    //             OperationResult<UserDto>.ErrorResult("Unexpected error.", ex.Message)
-    //         );
-    //     }
-    // }
-
     // [HttpGet("GetUserByEmail")]
     // public async Task<IActionResult> GetUserByEmail([FromQuery] string email)
     // {
@@ -51,7 +31,7 @@ public class UserController : BaseController
     //         );
     //     }
     // }
-    //
+
     // [HttpPost("SoftDeleteUser")]
     // public async Task<IActionResult> SoftDeleteUser([FromBody] string username)
     // {
@@ -72,7 +52,7 @@ public class UserController : BaseController
     //         );
     //     }
     // }
-    //
+
     // [HttpGet("GetAllUsers")]
     // public async Task<IActionResult> GetAllUsers()
     // {
@@ -89,7 +69,7 @@ public class UserController : BaseController
     //         );
     //     }
     // }
-    //
+
     // [HttpGet("GetUserById")]
     // public async Task<IActionResult> GetById(Guid id)
     // {
@@ -112,7 +92,7 @@ public class UserController : BaseController
     //         );
     //     }
     // }
-    //
+
     // [HttpPut("UpdateExistingUser")]
     // public async Task<IActionResult> UpdateExistingUser(Guid id, [FromBody] UpdateUserCommand cmd)
     // {
@@ -129,7 +109,7 @@ public class UserController : BaseController
     //         return StatusCode(500, OperationResult<bool>.ErrorResult("Unexpected error.", ex.Message));
     //     }
     // }
-    //
+
     // [HttpGet("GetCurrentUser")]
     // public async Task<IActionResult> GetCurrentUserQuery()
     // {
@@ -150,7 +130,7 @@ public class UserController : BaseController
     //         );
     //     }
     // }
-    //
+
     // [HttpPost("ActivateUserAccount")]
     // public async Task<IActionResult> ActivateUser(Guid id)
     // {
@@ -169,7 +149,7 @@ public class UserController : BaseController
     //         return StatusCode(500, OperationResult<bool>.ErrorResult("Activation failed", ex.Message));
     //     }
     // }
-    //
+
     // [HttpPost("DeactivateUserAccount")]
     // public async Task<IActionResult> DeactivateUserAccount(Guid userId)
     // {
@@ -191,7 +171,7 @@ public class UserController : BaseController
     //         );
     //     }
     // }
-    //
+
     // [HttpGet("AssignRoleToUser")]
     // [Authorize(Roles = "Admin,SuperAdmin")]
     // public async Task<IActionResult> GetRolesAssignedToUser(Guid id)
@@ -213,7 +193,7 @@ public class UserController : BaseController
     //         );
     //     }
     // }
-    //
+
     // [HttpPost("GetRolesAssignedToUser")]
     // [Authorize(Roles = "Admin,SuperAdmin")]
     // public async Task<IActionResult> AssignRoleToUser(
