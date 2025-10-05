@@ -51,7 +51,7 @@ public class RegisterCommandHandler
     }
 
     /// <summary>
-    /// handles user registration process.
+    /// Handles user registration process.
     /// </summary>
     /// <param name="request">The registration command containing user details</param>
     /// <param name="cancellationToken">Cancellation token</param>
@@ -76,7 +76,7 @@ public class RegisterCommandHandler
 
             await AssignDefaultRoleAsync(user);
 
-            var (accessToken, refreshToken) = await GenerateTokensAsync(user);
+            var (accessToken, refreshToken) = await GenerateTokensAsync(user, request.IpAddress);
 
             AddRefreshTokenToUser(user, refreshToken, request.IpAddress);
 
@@ -113,7 +113,7 @@ public class RegisterCommandHandler
     }
 
     /// <summary>
-    /// validate email and username => not already taken
+    /// Validates email and username => not already taken
     /// </summary>
     private async Task<OperationResult<AuthResponse>> ValidateUserUniquenessAsync(
         RegisterCommand request
@@ -143,7 +143,7 @@ public class RegisterCommandHandler
     }
 
     /// <summary>
-    /// creates new user entity using AutoMapper with custom configuration
+    /// Creates new user entity using AutoMapper with custom configuration
     /// </summary>
     private User CreateUserEntity(RegisterCommand request, string verificationToken)
     {
@@ -162,7 +162,7 @@ public class RegisterCommandHandler
     }
 
     /// <summary>
-    /// set default user role to the new users
+    /// Sets default user role to the new users
     /// </summary>
     private async Task AssignDefaultRoleAsync(User user)
     {
@@ -179,7 +179,7 @@ public class RegisterCommandHandler
             );
         }
 
-        user.Role.Add(
+        user.UserRoles.Add(
             new UserRole
             {
                 UserId = user.Id,
@@ -195,17 +195,17 @@ public class RegisterCommandHandler
     }
 
     /// <summary>
-    /// generates access and refresh tokens for the user
+    /// Generates access and refresh tokens for the user
     /// </summary>
-    private async Task<(string accessToken, string refreshToken)> GenerateTokensAsync(User user)
+    private async Task<(string accessToken, string refreshToken)> GenerateTokensAsync(User user, string ipAddress)
     {
         var accessToken = await _jwtService.GenerateAccessTokenAsync(user);
-        var refreshToken = await _jwtService.GenerateRefreshTokenAsync();
-        return (accessToken, refreshToken);
+        var refreshToken = await _jwtService.GenerateRefreshTokenAsync(user, ipAddress);
+        return (accessToken, refreshToken.Token);
     }
 
     /// <summary>
-    /// add refresh token to user's collection
+    /// Adds refresh token to user's collection
     /// </summary>
     private static void AddRefreshTokenToUser(User user, string refreshToken, string ipAddress)
     {
@@ -222,7 +222,7 @@ public class RegisterCommandHandler
     }
 
     /// <summary>
-    /// creates the authentication response DTO using AutoMapper
+    /// Creates the authentication response DTO using AutoMapper
     /// </summary>
     private AuthResponse CreateAuthResponse(User user, string accessToken, string refreshToken)
     {
@@ -237,7 +237,7 @@ public class RegisterCommandHandler
     }
 
     /// <summary>
-    /// sends email verification asynchronously; without blocking the registration process.
+    /// Sends email verification asynchronously; without blocking the registration process.
     /// </summary>
     private async Task SendVerificationEmailAsync(string email, string verificationToken)
     {
@@ -260,7 +260,7 @@ public class RegisterCommandHandler
     }
 
     /// <summary>
-    /// generates a cryptographically secure token for email verification
+    /// Generates a cryptographically secure token for email verification
     /// </summary>
     private static string GenerateSecureToken()
     {
