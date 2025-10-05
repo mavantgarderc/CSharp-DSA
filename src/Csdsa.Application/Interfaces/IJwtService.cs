@@ -1,18 +1,18 @@
-using System.Security.Claims;
+using System.Threading.Tasks;
 using Csdsa.Domain.Models.Auth;
 
 namespace Csdsa.Application.Interfaces;
 
-public interface IJwtService
+public interface IJwtService : IDisposable
 {
     Task<string> GenerateAccessTokenAsync(User user);
     Task<string> GenerateAccessTokenAsync(User user, string ipAddress);
-
-    Task<string> GenerateRefreshTokenAsync();
+    Task<RefreshToken> GenerateRefreshTokenAsync(User user, string ipAddress);
     Task<string> GenerateRefreshTokenAsync(string ipAddress);
-
-    Task<ClaimsPrincipal?> ValidateTokenAsync(string token);
-    Task<string?> GetTokenIdAsync(string token);
-    Task<bool> IsTokenBlacklistedAsync(string tokenId);
-    Task BlacklistTokenAsync(string tokenId, Guid userId, string reason);
+    Task<(bool IsValid, User? User)> ValidateRefreshTokenAsync(string refreshToken);
+    Task<bool> ValidateTokenAsync(string accessToken);
+    Task<string?> GetTokenIdAsync(string accessToken);
+    Task<bool> IsTokenBlacklistedAsync(string accessToken);
+    Task RevokeRefreshTokenAsync(string refreshToken);
+    Task BlacklistTokenAsync(string accessToken, Guid userId, string reason);
 }
