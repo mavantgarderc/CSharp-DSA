@@ -1,110 +1,54 @@
-using Csdsa.Application.DTOs.Auth;
 using Csdsa.Application.Interfaces;
+using Csdsa.Domain.Exceptions;
 using Csdsa.Domain.Models;
 using MediatR;
-using Microsoft.Extensions.Logging;
+using Serilog;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Csdsa.Application.Services.Auth.Logout;
 
-public class LogoutCommandHandler : IRequestHandler<LogoutCommand, OperationResult<AuthResponse>>
+public class LogoutCommandHandler : IRequestHandler<LogoutCommand, OperationResult<Unit>>
 {
-    private readonly IUserRepository _userRepository;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly IJwtService _jwtService;
-    private readonly ILogger<LogoutCommandHandler> _logger;
+    private readonly IBlacklistedTokenRepository _blacklistedTokenRepository;
+    private readonly ILogger _logger = Log.ForContext<LogoutCommandHandler>();
 
     public LogoutCommandHandler(
-        IUserRepository userRepository,
-        IUnitOfWork unitOfWork,
         IJwtService jwtService,
-        ILogger<LogoutCommandHandler> logger
-    )
+        IBlacklistedTokenRepository blacklistedTokenRepository)
     {
-        _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-        _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         _jwtService = jwtService ?? throw new ArgumentNullException(nameof(jwtService));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _blacklistedTokenRepository = blacklistedTokenRepository ?? throw new ArgumentNullException(nameof(blacklistedTokenRepository));
     }
 
-    public async Task<OperationResult<AuthResponse>> Handle(
-        LogoutCommand request,
-        CancellationToken cancellationToken
-    )
+    public async Task<OperationResult<Unit>> Handle(LogoutCommand request, CancellationToken cancellationToken)
     {
-
-        await _unitOfWork.BeginTransactionAsync();
         try
         {
-            _logger.LogInformation("Processing logout request for user {UserId} from IP {IpAddress}", 
-                request.UserId, request.IpAddress);
+            _logger.Information("Logout attempt for access token from IP: {IpAddress}", request.IpAddress);
 
-            var user = await _userRepository.GetByIdAsync(request.UserId);
-            if (user == null)
+            // Validate refresh token
+            var (isValid, user) = await _jwtService.ValidateRefreshTokenAsync(request.RefreshToken);
+            if (!isValid || user == null)
             {
-                _logger.LogWarning("User not found during logout: {UserId}", request.UserId);
-                return OperationResult<AuthResponse>.ErrorResult("User not found");
+                _logger.Warning("Invalid or revoked refresh token provided for logout.");
+                return OperationResult<Unit>.ErrorResult("Invalid refresh token.");
             }
 
-            var refreshTokenToInvalidate = user.RefreshTokens?
-                .FirstOrDefault(rt => rt.Token == request.RefreshToken && 
-                                     rt.IsActive && 
-                                     !rt.IsRevoked);
+            // Revoke refresh token
+            await _jwtService.RevokeRefreshTokenAsync(request.RefreshToken);
 
-            if (refreshTokenToInvalidate != null)
-            {
-                refreshTokenToInvalidate.RevokedAt = DateTime.UtcNow;
-                refreshTokenToInvalidate.RevokedByIp = request.IpAddress;
-                refreshTokenToInvalidate.RevokedReason = "Logout";
+            // Blacklist access token
+            await _jwtService.BlacklistTokenAsync(request.AccessToken, user.Id, "User logout");
 
-                _logger.LogInformation("Refresh token revoked for user {UserId}", request.UserId);
-            }
-            else
-            {
-                _logger.LogWarning("Refresh token not found or already revoked for user {UserId}", request.UserId);
-            }
-
-            if (!string.IsNullOrEmpty(request.AccessToken))
-            {
-                try
-                {
-                    var tokenClaims = await _jwtService.ValidateTokenAsync(request.AccessToken);
-                    var jti = tokenClaims?.FindFirst("jti")?.Value;
-                    if (!string.IsNullOrEmpty(jti))
-                    {
-                        // Add JTI to blacklist (implement ITokenBlacklistService if needed)
-                        // await _tokenBlacklistService.BlacklistTokenAsync(jti, tokenExpiry);
-                        _logger.LogInformation("Access token marked for blacklisting: {Jti}", jti);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex, "Failed to extract JTI from access token during logout");
-                }
-            }
-
-            await _userRepository.UpdateAsync(user);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-            await _unitOfWork.CommitTransactionAsync();
-
-            _logger.LogInformation("User {UserId} successfully logged out from IP {IpAddress}", 
-                request.UserId, request.IpAddress);
-
-            var emptyAuthResponse = new AuthResponse
-            {
-                AccessToken = string.Empty,
-                RefreshToken = string.Empty,
-                AccessTokenExpiry = DateTime.MinValue,
-                RefreshTokenExpiry = DateTime.MinValue,
-                User = null!
-            };
-
-            return OperationResult<AuthResponse>.SuccessResult(emptyAuthResponse);
+            _logger.Information("Logout successful for user: {UserId}", user.Id);
+            return OperationResult<Unit>.SuccessResult(Unit.Value, "Logout successful.");
         }
         catch (Exception ex)
         {
-            await _unitOfWork.RollbackTransactionAsync();
-            _logger.LogError(ex, "Error occurred during logout for user {UserId}", request.UserId);
-            return OperationResult<AuthResponse>.ErrorResult("An error occurred during logout");
+            _logger.Error(ex, "Error during logout for user with refresh token.");
+            return OperationResult<Unit>.ErrorResult("An error occurred during logout.");
         }
     }
 }
