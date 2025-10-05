@@ -86,12 +86,14 @@ namespace Csdsa.Infrastructure.Persistence.Context
             modelBuilder.Entity<UserRole>(entity =>
             {
                 entity.HasKey(e => new { e.UserId, e.RoleId });
-                entity.HasOne(e => e.User)
-                    .WithMany(e => e.Role)
+                entity
+                    .HasOne(e => e.User)
+                    .WithMany(u => u.UserRoles) // Corrected from e.Role to u.UserRoles
                     .HasForeignKey(e => e.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
-                entity.HasOne(e => e.Role)
-                    .WithMany(e => e.UserRoles)
+                entity
+                    .HasOne(e => e.Role)
+                    .WithMany(r => r.UserRoles)
                     .HasForeignKey(e => e.RoleId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
@@ -100,12 +102,14 @@ namespace Csdsa.Infrastructure.Persistence.Context
             modelBuilder.Entity<RolePermission>(entity =>
             {
                 entity.HasKey(e => new { e.RoleId, e.PermissionId });
-                entity.HasOne(e => e.Role)
-                    .WithMany(e => e.RolePermissions)
+                entity
+                    .HasOne(e => e.Role)
+                    .WithMany(r => r.RolePermissions)
                     .HasForeignKey(e => e.RoleId)
                     .OnDelete(DeleteBehavior.Cascade);
-                entity.HasOne(e => e.Permission)
-                    .WithMany(e => e.RolePermissions)
+                entity
+                    .HasOne(e => e.Permission)
+                    .WithMany(p => p.RolePermissions)
                     .HasForeignKey(e => e.PermissionId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
@@ -117,8 +121,9 @@ namespace Csdsa.Infrastructure.Persistence.Context
                 entity.Property(e => e.Token).HasMaxLength(255).IsRequired();
                 entity.Property(e => e.CreatedByIp).HasMaxLength(45);
                 entity.Property(e => e.RevokedByIp).HasMaxLength(45);
-                entity.HasOne(e => e.User)
-                    .WithMany(e => e.RefreshTokens)
+                entity
+                    .HasOne(e => e.User)
+                    .WithMany(u => u.RefreshTokens)
                     .HasForeignKey(e => e.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
@@ -129,8 +134,9 @@ namespace Csdsa.Infrastructure.Persistence.Context
                 entity.HasIndex(e => e.TokenId).IsUnique();
                 entity.Property(e => e.TokenId).HasMaxLength(255).IsRequired();
                 entity.Property(e => e.Reason).HasMaxLength(255);
-                entity.HasOne(e => e.User)
-                    .WithMany()
+                entity
+                    .HasOne(e => e.User)
+                    .WithMany(u => u.BlacklistedTokens)
                     .HasForeignKey(e => e.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
@@ -277,8 +283,7 @@ namespace Csdsa.Infrastructure.Persistence.Context
         private static System.Linq.Expressions.LambdaExpression GetSoftDeleteFilter<TEntity>()
             where TEntity : BaseEntity
         {
-            System.Linq.Expressions.Expression<Func<TEntity, bool>> filter = x =>
-                !x.IsDeleted;
+            System.Linq.Expressions.Expression<Func<TEntity, bool>> filter = x => !x.IsDeleted;
             return filter;
         }
 
