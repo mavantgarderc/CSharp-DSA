@@ -1,0 +1,19 @@
+# Normalize line endings
+* text=auto eol=lf
+
+# Binary
+*.png binary
+*.jpg binary
+*.svg text
+
+# C# source
+*.cs text diff=csharp
+
+# MSBuild XML files
+*.props text
+*.targets text
+*.csproj text
+*.sln text
+
+# Ignore diffs for generated
+artifacts/* -diff
