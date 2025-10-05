@@ -1,194 +1,174 @@
+using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
+using System.Text;
 using Csdsa.Application.Interfaces;
 using Csdsa.Domain.Models.Auth;
-using Csdsa.Infrastructure.Persistence.Context;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using Serilog;
 
 namespace Csdsa.Infrastructure.Auth.Services;
 
 public class JwtService : IJwtService
 {
     private readonly IConfiguration _configuration;
-    private readonly AppDbContext _context;
-    private readonly RSA _rsa;
-    private readonly ILogger _logger = Log.ForContext<JwtService>();
+    private readonly IUserRepository _userRepository;
+    private readonly IRefreshTokenRepository _refreshTokenRepository;
+    private readonly IBlacklistedTokenRepository? _blacklistedTokenRepository;
+    private readonly ILogger<JwtService> _logger;
+    private readonly RSA _privateRsa;
+    private readonly Lazy<RSA> _publicRsa;
+    private bool _disposed;
 
-    public JwtService(IConfiguration configuration, AppDbContext context)
+    public JwtService(
+        IConfiguration configuration,
+        IUserRepository userRepository,
+        IRefreshTokenRepository refreshTokenRepository,
+        IBlacklistedTokenRepository blacklistedTokenRepository,
+        ILogger<JwtService> logger)
     {
-        _configuration = configuration;
-        _context = context;
-        _rsa = RSA.Create();
+        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+        _refreshTokenRepository = refreshTokenRepository ?? throw new ArgumentNullException(nameof(refreshTokenRepository));
+        _blacklistedTokenRepository = blacklistedTokenRepository; // Optional, can be null
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-        var privateKey = _configuration["JWT:PrivateKey"];
-        if (!string.IsNullOrEmpty(privateKey))
+        // Load private key
+        var privateKeyBase64 = Environment.GetEnvironmentVariable("CSDSA_JWT_PRIVATE_KEY") ?? _configuration["JWT:PrivateKey"];
+        if (string.IsNullOrEmpty(privateKeyBase64))
+            throw new InvalidOperationException("JWT PrivateKey not found.");
+
+        _privateRsa = RSA.Create();
+        _privateRsa.ImportRSAPrivateKey(Convert.FromBase64String(privateKeyBase64), out _);
+
+        // Lazy-load public key
+        _publicRsa = new Lazy<RSA>(() =>
         {
-            _rsa.ImportRSAPrivateKey(Convert.FromBase64String(privateKey), out _);
-        }
+            var publicKeyBase64 = Environment.GetEnvironmentVariable("CSDSA_JWT_PUBLIC_KEY") ?? _configuration["JWT:PublicKey"];
+            if (string.IsNullOrEmpty(publicKeyBase64))
+                throw new InvalidOperationException("JWT PublicKey not found.");
+
+            var rsa = RSA.Create();
+            rsa.ImportRSAPublicKey(Convert.FromBase64String(publicKeyBase64), out _);
+            return rsa;
+        });
     }
 
     public async Task<string> GenerateAccessTokenAsync(User user)
     {
-        var jwtSettings = _configuration.GetSection("JWT");
+        return await GenerateAccessTokenAsync(user, string.Empty);
+    }
+
+    public async Task<string> GenerateAccessTokenAsync(User user, string ipAddress)
+    {
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key = new RsaSecurityKey(_rsa);
+        var credentials = new SigningCredentials(
+            new RsaSecurityKey(_privateRsa),
+            SecurityAlgorithms.RsaSha256);
 
-        var userRoles = await _context
-            .UserRoles.Include(ur => ur.Role)
-            .ThenInclude(r => r.RolePermissions)
-            .ThenInclude(rp => rp.Permission)
-            .Where(ur => ur.UserId == user.Id)
-            .ToListAsync();
+        var claims = await CreateClaimsAsync(user);
 
-        var roles = userRoles.Select(ur => ur.Role.Name).ToList();
-        var permissions = userRoles
-            .SelectMany(ur => ur.Role.RolePermissions)
-            .Select(rp => rp.Permission.Name)
-            .Distinct()
-            .ToList();
-
-        var claims = new List<Claim>
+        if (!string.IsNullOrEmpty(ipAddress))
         {
-            new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new("UserId", user.Id.ToString()),
-            new(JwtRegisteredClaimNames.Email, user.Email),
-            new(JwtRegisteredClaimNames.UniqueName, user.UserName),
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new(
-                JwtRegisteredClaimNames.Iat,
-                DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(),
-                ClaimValueTypes.Integer64
-            ),
-        };
-
-        if (!string.IsNullOrEmpty(user.FirstName))
-            claims.Add(new(JwtRegisteredClaimNames.GivenName, user.FirstName));
-
-        if (!string.IsNullOrEmpty(user.LastName))
-            claims.Add(new(JwtRegisteredClaimNames.FamilyName, user.LastName));
-
-        foreach (var role in roles)
-        {
-            claims.Add(new Claim(ClaimTypes.Role, role));
-        }
-
-        foreach (var permission in permissions)
-        {
-            claims.Add(new Claim("permission", permission));
+            claims = claims.Append(new Claim("ip", ipAddress)).ToArray();
         }
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.AddMinutes(
-                int.Parse(jwtSettings["AccessTokenExpiryInMinutes"] ?? "15")
-            ),
-            Issuer = jwtSettings["Issuer"],
-            Audience = jwtSettings["Audience"],
-            SigningCredentials = new SigningCredentials(key, SecurityAlgorithms.RsaSha256),
+            Expires = DateTime.UtcNow.AddMinutes(15),
+            SigningCredentials = credentials,
+            Issuer = _configuration["JWT:Issuer"],
+            Audience = _configuration["JWT:Audience"],
+            IssuedAt = DateTime.UtcNow
         };
 
         var token = tokenHandler.CreateToken(tokenDescriptor);
-        var tokenString = tokenHandler.WriteToken(token);
-
-        _logger.Information(
-            "Access token generated for user {UserId} with roles: {Roles}",
-            user.Id,
-            string.Join(", ", roles)
-        );
-
-        return tokenString;
+        return tokenHandler.WriteToken(token);
     }
 
-    public async Task<string> GenerateRefreshTokenAsync()
+    public async Task<RefreshToken> GenerateRefreshTokenAsync(User user, string ipAddress)
     {
-        var randomBytes = new byte[64];
-        using var rng = RandomNumberGenerator.Create();
-        rng.GetBytes(randomBytes);
-        var refreshToken = Convert.ToBase64String(randomBytes);
-
-        while (await _context.RefreshTokens.AnyAsync(rt => rt.Token == refreshToken))
+        var token = await GenerateRefreshTokenAsync(ipAddress);
+        var refreshToken = new RefreshToken
         {
-            rng.GetBytes(randomBytes);
-            refreshToken = Convert.ToBase64String(randomBytes);
-        }
+            Token = token,
+            UserId = user.Id,
+            ExpiresAt = DateTime.UtcNow.AddDays(7),
+            CreatedByIp = ipAddress,
+            IsRevoked = false,
+            CreatedAt = DateTime.UtcNow
+        };
 
+        await _refreshTokenRepository.AddAsync(refreshToken);
         return refreshToken;
-    }
-
-    public async Task<string> GenerateAccessTokenAsync(User user, string ipAddress)
-    {
-        return await GenerateAccessTokenAsync(user);
     }
 
     public async Task<string> GenerateRefreshTokenAsync(string ipAddress)
     {
-        return await GenerateRefreshTokenAsync();
+        var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+        return await Task.FromResult(token);
     }
 
-    public async Task<ClaimsPrincipal?> ValidateTokenAsync(string token)
+    public async Task<(bool IsValid, User? User)> ValidateRefreshTokenAsync(string refreshToken)
+    {
+        var token = await _refreshTokenRepository.GetByTokenAsync(refreshToken);
+        if (token == null || token.IsRevoked || token.ExpiresAt <= DateTime.UtcNow)
+        {
+            return (false, null);
+        }
+
+        var user = await _userRepository.GetUserWithRolesAndPermissionsAsync(token.UserId);
+        return (true, user);
+    }
+
+    public async Task<bool> ValidateTokenAsync(string accessToken)
     {
         try
         {
-            var jwtSettings = _configuration.GetSection("JWT");
             var tokenHandler = new JwtSecurityTokenHandler();
-
-            var publicKeyRsa = RSA.Create();
-            var publicKey = _configuration["JWT:PublicKey"];
-            if (!string.IsNullOrEmpty(publicKey))
-            {
-                publicKeyRsa.ImportRSAPublicKey(Convert.FromBase64String(publicKey), out _);
-            }
-
-            var key = new RsaSecurityKey(publicKeyRsa);
-
             var validationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = true,
                 ValidateAudience = true,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
-                ValidIssuer = jwtSettings["Issuer"],
-                ValidAudience = jwtSettings["Audience"],
-                IssuerSigningKey = key,
-                ClockSkew = TimeSpan.Zero,
+                ValidIssuer = _configuration["JWT:Issuer"],
+                ValidAudience = _configuration["JWT:Audience"],
+                IssuerSigningKey = new RsaSecurityKey(_publicRsa.Value)
             };
 
-            var principal = tokenHandler.ValidateToken(
-                token,
-                validationParameters,
-                out var validatedToken
-            );
+            var principal = tokenHandler.ValidateToken(accessToken, validationParameters, out var validatedToken);
+            var jti = principal.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Jti)?.Value;
 
-            var jti = principal.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
-            if (!string.IsNullOrEmpty(jti) && await IsTokenBlacklistedAsync(jti))
+            if (string.IsNullOrEmpty(jti))
+                return false;
+
+            if (_blacklistedTokenRepository != null)
             {
-                _logger.Warning("Attempted to use blacklisted token {TokenId}", jti);
-                return null;
+                var isBlacklisted = await _blacklistedTokenRepository.GetByTokenIdAsync(jti) != null;
+                if (isBlacklisted)
+                    return false;
             }
 
-            return principal;
+            return true;
         }
         catch (Exception ex)
         {
-            _logger.Warning(ex, "Token validation failed");
-            return null;
+            _logger.LogWarning(ex, "Token validation failed for access token.");
+            return false;
         }
     }
 
-    public async Task<string?> GetTokenIdAsync(string token, JwtSecurityTokenHandler tokenHandler)
+    public async Task<string?> GetTokenIdAsync(string accessToken)
     {
         try
         {
-            var tokenHandle = new JwtSecurityTokenHandler();
-            var jsonToken = tokenHandle.ReadJwtToken(token);
-            return await Task.FromResult(
-                jsonToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Jti)?.Value
-            );
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var jwtToken = tokenHandler.ReadJwtToken(accessToken);
+            return await Task.FromResult(jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Jti)?.Value);
         }
         catch
         {
@@ -196,51 +176,101 @@ public class JwtService : IJwtService
         }
     }
 
-    public async Task<bool> IsTokenBlacklistedAsync(string tokenId)
+    public async Task<bool> IsTokenBlacklistedAsync(string accessToken)
     {
-        return await _context.BlacklistedTokens.AnyAsync(bt =>
-            bt.TokenId == tokenId && bt.ExpiresAt > DateTime.UtcNow
-        );
+        if (_blacklistedTokenRepository == null)
+        {
+            _logger.LogWarning("BlacklistedTokenRepository not available, cannot check blacklist.");
+            return false;
+        }
+
+        var jti = await GetTokenIdAsync(accessToken);
+        if (string.IsNullOrEmpty(jti))
+            return false;
+
+        var blacklistedToken = await _blacklistedTokenRepository.GetByTokenIdAsync(jti);
+        return blacklistedToken != null;
     }
 
-    public async Task BlacklistTokenAsync(string tokenId, Guid userId, string reason)
+    public async Task RevokeRefreshTokenAsync(string refreshToken)
     {
-        try
+        var token = await _refreshTokenRepository.GetByTokenAsync(refreshToken);
+        if (token != null)
         {
-            var expiryDate = DateTime.UtcNow.AddDays(1);
+            token.IsRevoked = true;
+            token.RevokedAt = DateTime.UtcNow;
+            await _refreshTokenRepository.UpdateAsync(token);
+        }
+    }
 
+    public async Task BlacklistTokenAsync(string accessToken, Guid userId, string reason)
+    {
+        if (_blacklistedTokenRepository == null)
+        {
+            _logger.LogWarning("BlacklistedTokenRepository not available, cannot blacklist token.");
+            return;
+        }
+
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var jwtToken = tokenHandler.ReadJwtToken(accessToken);
+        var jti = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Jti)?.Value;
+
+        if (!string.IsNullOrEmpty(jti))
+        {
             var blacklistedToken = new BlacklistedToken
             {
-                TokenId = tokenId,
+                TokenId = jti,
                 UserId = userId,
-                ExpiresAt = expiryDate,
+                ExpiresAt = jwtToken.ValidTo,
                 Reason = reason,
+                CreatedAt = DateTime.UtcNow
             };
-
-            _context.BlacklistedTokens.Add(blacklistedToken);
-            await _context.SaveChangesAsync();
-
-            _logger.Information(
-                "Token {TokenId} blacklisted for user {UserId}. Reason: {Reason}",
-                tokenId,
-                userId,
-                reason
-            );
+            await _blacklistedTokenRepository.AddAsync(blacklistedToken);
         }
-        catch (Exception ex)
+    }
+
+    private async Task<Claim[]> CreateClaimsAsync(User user)
+    {
+        var userWithRoles = await _userRepository.GetUserWithRolesAndPermissionsAsync(user.Id);
+        if (userWithRoles == null)
         {
-            _logger.Error(ex, "Failed to blacklist token {TokenId}", tokenId);
-            throw;
+            throw new InvalidOperationException("User with roles not found.");
         }
+
+        var claims = new List<Claim>
+        {
+            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            new Claim(ClaimTypes.Name, user.UserName)
+        };
+
+        if (userWithRoles.UserRoles != null)
+        {
+            foreach (var userRole in userWithRoles.UserRoles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, userRole.Role.Name));
+                if (userRole.Role.RolePermissions != null)
+                {
+                    foreach (var permission in userRole.Role.RolePermissions)
+                    {
+                        claims.Add(new Claim("Permission", $"{permission.Permission.Resource}:{permission.Permission.Action}"));
+                    }
+                }
+            }
+        }
+
+        return claims.ToArray();
     }
 
     public void Dispose()
     {
-        _rsa?.Dispose();
-    }
-
-    public Task<string?> GetTokenIdAsync(string token)
-    {
-        throw new NotImplementedException();
+        if (!_disposed)
+        {
+            _privateRsa?.Dispose();
+            if (_publicRsa.IsValueCreated)
+                _publicRsa.Value?.Dispose();
+            _disposed = true;
+        }
     }
 }
