@@ -1,7 +1,5 @@
-using System.IO;
 using System.Security.Cryptography;
 using System.Threading.RateLimiting;
-using Csdsa.Application.Behaviors;
 using Csdsa.Application.Interfaces;
 using Csdsa.Infrastructure.Auth.Services;
 using Csdsa.Infrastructure.Persistence;
@@ -28,12 +26,17 @@ public class Program
         {
             Console.WriteLine("=== STARTING APPLICATION ===");
 
-            // Load environment variables from .env file
+            // load environment variables from .env file
             Console.WriteLine("Loading environment variables...");
-            Env.Load();
+            Env.Load(Path.Combine("../../.env"));
+            Console.WriteLine($" .env file exists: {File.Exists(".env")}");
+            Console.WriteLine($"DB_HOST from env: {Environment.GetEnvironmentVariable("DB_HOST")}");
+            Console.WriteLine(
+                $"CSDSA_JWT_PUBLIC_KEY from env: {Environment.GetEnvironmentVariable("CSDSA_JWT_PUBLIC_KEY")?.Substring(0, 10)}... (truncated for log)"
+            ); // Truncate to avoid logging full key
             Console.WriteLine("Environment variables loaded");
 
-            // Build connection string from environment variables
+            // build connection string from environment variables
             var connectionString =
                 $"Host={Environment.GetEnvironmentVariable("DB_HOST")};Database={Environment.GetEnvironmentVariable("DB_DATABASE")};Username={Environment.GetEnvironmentVariable("DB_USERNAME")};Password={Environment.GetEnvironmentVariable("DB_PASSWORD")};Port={Environment.GetEnvironmentVariable("DB_PORT")}";
             Console.WriteLine(
@@ -112,6 +115,8 @@ public class Program
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IJwtService, JwtService>();
             builder.Services.AddScoped<IEmailService, EmailService>();
+            builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+            builder.Services.AddScoped<IBlacklistedTokenRepository, BlacklistedTokenRepository>();
             Console.WriteLine("Dependency Injection configured");
 
             // --- JWT Authentication (RSA Public Key) ---
