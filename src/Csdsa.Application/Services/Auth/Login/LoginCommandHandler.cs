@@ -188,7 +188,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, OperationResult
     /// </summary>
     private async Task<AuthResponse> GenerateAuthResponseAsync(User user, string ipAddress)
     {
-        var userWithRoles = await _userRepository.GetByIdAsync(user.Id, u => u.Role);
+        var userWithRoles = await _userRepository.GetUserWithRolesAndPermissionsAsync(user.Id);
         if (userWithRoles == null)
         {
             _logger.Error("Failed to retrieve user with roles for ID: {UserId}", user.Id);
@@ -197,15 +197,15 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, OperationResult
             );
         }
 
-        var accessToken = await _jwtService.GenerateAccessTokenAsync(userWithRoles);
-        var refreshToken = await _jwtService.GenerateRefreshTokenAsync();
+        var accessToken = await _jwtService.GenerateAccessTokenAsync(userWithRoles, ipAddress);
+        var refreshToken = await _jwtService.GenerateRefreshTokenAsync(userWithRoles, ipAddress);
 
         var refreshTokenExpiryDays = REFRESH_TOKEN_EXPIRY_DAYS;
         var accessTokenExpiryMinutes = ACCESS_TOKEN_EXPIRY_MINUTES;
 
         var refreshTokenEntity = new Domain.Models.Auth.RefreshToken
         {
-            Token = refreshToken,
+            Token = refreshToken.Token,
             UserId = user.Id,
             ExpiresAt = DateTime.UtcNow.AddDays(refreshTokenExpiryDays),
             CreatedByIp = ipAddress,
@@ -221,7 +221,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, OperationResult
         return new AuthResponse
         {
             AccessToken = accessToken,
-            RefreshToken = refreshToken,
+            RefreshToken = refreshToken.Token,
             AccessTokenExpiry = DateTime.UtcNow.AddMinutes(accessTokenExpiryMinutes),
             RefreshTokenExpiry = refreshTokenEntity.ExpiresAt,
             User = userProfile,
@@ -242,7 +242,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, OperationResult
             LastName = user.LastName,
             IsEmailVerified = user.IsEmailVerified,
             IsActive = user.IsActive,
-            Roles = userWithRoles.Role?.Select(ur => ur.Role.Name).ToList() ?? new List<string>(),
+            Roles = userWithRoles.UserRoles?.Select(ur => ur.Role.Name).ToList() ?? new List<string>(),
         };
     }
 
