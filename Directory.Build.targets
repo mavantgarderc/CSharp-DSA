@@ -1,0 +1,45 @@
+<Project>
+  <PropertyGroup>
+    <FileHeader>
+      <![CDATA[// Copyright (c) 2025 Mava
+// Repository: https://github.com/mavantgarderc/CSharp-DSA
+// Licensed under the MIT License.]]>
+    </FileHeader>
+  </PropertyGroup>
+
+  <Target Name="InjectFileHeaders" BeforeTargets="CoreCompile">
+    <ItemGroup>
+      <SourceFiles Include="**\*.cs"
+                   Exclude="**\bin\**;**\obj\**;**\Migrations\**" />
+    </ItemGroup>
+
+    <WriteLinesToFile
+      File="$(IntermediateOutputPath)header-inject.log"
+      Lines="Checking headers for @(SourceFiles->'%(RelativeDir)%(Filename)%(Extension)')"
+      Overwrite="true" />
+
+    <Message Text="Ensuring headers present..." Importance="high" />
+
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -Command ^
+      foreach($f in Get-ChildItem -Recurse -Filter *.cs | Where-Object { -not ($_ -match 'bin|obj') }) {
+        $content = Get-Content $f.FullName -Raw
+        if (-not $content.StartsWith('// Copyright')) {
+          ('$(FileHeader)`n`n' + $content) | Set-Content $f.FullName
+          Write-Host 'Injected header:' $f.FullName
+        }
+      }"
+      Condition=" '$(OS)' == 'Windows_NT' " />
+
+    <Exec Command="bash -c 'for f in $(find . -name \"*.cs\" ! -path \"*/bin/*\" ! -path \"*/obj/*\"); do if ! head -1 \"$f\" | grep -q \"Copyright\"; then printf \"%s\n\n\" \"$(FileHeader)\" | cat - \"$f\" > temp && mv temp \"$f\"; echo Injected header: \"$f\"; fi; done'"
+          Condition=" '$(OS)' != 'Windows_NT' " />
+  </Target>
+
+  <Target Name="CheckEditorConfigCompliance" AfterTargets="Build" Condition="'$(ContinuousIntegrationBuild)' == 'true'">
+    <Exec Command="dotnet format --verify-no-changes --verbosity minimal" ContinueOnError="false" />
+  </Target>
+
+  <PropertyGroup Condition="'$(ContinuousIntegrationBuild)' == 'true'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
+  </PropertyGroup>
+</Project>
