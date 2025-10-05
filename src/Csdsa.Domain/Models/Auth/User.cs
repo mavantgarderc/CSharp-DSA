@@ -31,10 +31,9 @@ public class User : BaseEntity
     public DateTime? PasswordResetTokenExpires { get; set; }
 
     // Roles
-    public ICollection<UserRole> Role { get; set; } = [];
-
-    // Refresh Tokens
-    public ICollection<RefreshToken> RefreshTokens { get; set; } = [];
+    public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+    public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+    public virtual ICollection<BlacklistedToken> BlacklistedTokens { get; set; } = new List<BlacklistedToken>();
 
     public bool IsActive { get; set; } = true;
     public bool SoftDelete { get; set; } = false;

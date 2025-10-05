@@ -179,7 +179,24 @@ public class UserRepository : GenericRepository<User>, IUserRepository
         return await FirstOrDefaultAsync(
             u => u.RefreshTokens.Any(rt => rt.Token == refreshToken),
             u => u.RefreshTokens,
-            u => u.Role
+            u => u.UserRoles
         );
+    }
+
+public async Task<User> GetUserWithRolesAndPermissionsAsync(Guid id)
+    {
+        var user = await _context.Users
+            .Include(u => u.UserRoles)
+            .ThenInclude(ur => ur.Role)
+            .ThenInclude(r => r.RolePermissions)
+            .ThenInclude(rp => rp.Permission)
+            .FirstOrDefaultAsync(u => u.Id == id);
+
+        if (user == null)
+        {
+            throw new InvalidOperationException($"User with ID {id} not found.");
+        }
+
+        return user;
     }
 }
