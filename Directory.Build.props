@@ -1,61 +1,91 @@
-
 <Project>
+  <!-- ===================================================== -->
+  <!-- GLOBAL BUILD CONFIG -->
+  <!-- ===================================================== -->
   <PropertyGroup>
-    <!-- Common Build Info -->
     <Company>Mavantgarderc</Company>
     <Authors>Mava</Authors>
     <Product>CSharp-DSA</Product>
     <RepositoryUrl>https://github.com/mavantgarderc/CSharp-DSA</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Copyright>© @(Company) $(Year)</Copyright>
     <LangVersion>preview</LangVersion>
     <TargetFramework>net9.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-
-    <!-- Build Behavior -->
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <ImplicitUsings>enable</ImplicitUsings>
     <Deterministic>true</Deterministic>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
-    <WarningsNotAsErrors>1591;CS1998</WarningsNotAsErrors> <!-- e.g., missing XML comments, async no await -->
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
-
-    <!-- Code Analysis -->
+    <Optimize>true</Optimize>
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
     <AnalysisLevel>latest</AnalysisLevel>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
-
-    <!-- Output Paths -->
-    <OutputPath>$(MSBuildThisFileDirectory)artifacts\$(MSBuildProjectName)\</OutputPath>
-    <IntermediateOutputPath>$(MSBuildThisFileDirectory)artifacts\obj\$(MSBuildProjectName)\</IntermediateOutputPath>
-
-    <!-- Test Coverage / Instrumentation -->
-    <DebugType>portable</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-
-    <!-- Language Features -->
-    <Features>strict</Features>
-    <Optimize>true</Optimize>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
-
-    <!-- Version Info -->
-    <Version>1.0.0</Version>
-    <FileVersion>1.0.0.0</FileVersion>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <BaseOutputPath>$(MSBuildThisFileDirectory)artifacts\bin\</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)artifacts\obj\</BaseIntermediateOutputPath>
   </PropertyGroup>
 
-  <!-- Apply different defaults for test projects -->
-  <PropertyGroup Condition="'$(MSBuildProjectName)' EndsWith('Tests')">
+  <!-- ===================================================== -->
+  <!-- API -->
+  <!-- ===================================================== -->
+  <PropertyGroup Condition=" $(MSBuildProjectDirectory.Contains('Api')) ">
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <PublishTrimmed>true</PublishTrimmed>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <DefineConstants>$(DefineConstants);API_BUILD</DefineConstants>
+  </PropertyGroup>
+
+  <!-- ===================================================== -->
+  <!-- APPLICATION / DOMAIN / INFRASTRUCTURE -->
+  <!-- ===================================================== -->
+  <PropertyGroup Condition=" $(MSBuildProjectDirectory.Contains('Application')) 
+                          Or $(MSBuildProjectDirectory.Contains('Domain'))
+                          Or $(MSBuildProjectDirectory.Contains('Infrastructure')) ">
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <Deterministic>true</Deterministic>
+    <DefineConstants>$(DefineConstants);CORE_BUILD</DefineConstants>
+  </PropertyGroup>
+
+  <!-- ===================================================== -->
+  <!-- TEST PROJECTS -->
+  <!-- ===================================================== -->
+  <PropertyGroup Condition=" $(MSBuildProjectName.EndsWith('Tests')) ">
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <Optimize>false</Optimize>
     <DebugType>full</DebugType>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>$(DefineConstants);TEST_BUILD</DefineConstants>
+    <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
+    <RunAnalyzersDuringLiveAnalysis>false</RunAnalyzersDuringLiveAnalysis>
   </PropertyGroup>
 
-  <!-- Global Analyzers -->
+  <!-- ===================================================== -->
+  <!-- BENCHMARK PROJECTS -->
+  <!-- ===================================================== -->
+  <PropertyGroup Condition=" $(MSBuildProjectName.Contains('Benchmark')) ">
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <Optimize>true</Optimize>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>$(DefineConstants);BENCHMARK_BUILD</DefineConstants>
+    <AnalysisMode>None</AnalysisMode>
+  </PropertyGroup>
+
+  <!-- ===================================================== -->
+  <!-- Global Packages -->
+  <!-- ===================================================== -->
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="9.0.0" PrivateAssets="all" />
-    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.507" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" PrivateAssets="all" />
+    <PackageReference Include="StyleCop.Analyzers" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="all" />
   </ItemGroup>
+
+  <PropertyGroup>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
 </Project>
