@@ -1,109 +1,75 @@
+using System.Security.Claims;
 using Csdsa.Application.DTOs.Auth;
 using Csdsa.Application.Interfaces;
-using Csdsa.Application.Services.Auth.GetUserProfile;
+using Csdsa.Domain.Exceptions;
 using Csdsa.Domain.Models;
+using Csdsa.Domain.Models.Auth;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Serilog;
 
-namespace Csdsa.Application.Handlers.Auth;
+namespace Csdsa.Application.Services.Auth.GetUserProfile;
 
 public class GetUserProfileQueryHandler : IRequestHandler<GetUserProfileQuery, OperationResult<UserProfileDto>>
 {
     private readonly IUserRepository _userRepository;
-    private readonly IJwtService _jwtService;
-    private readonly IEmailService _emailService;
-    private readonly IPasswordHasher _passwordHasher;
+    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ILogger _logger = Log.ForContext<GetUserProfileQueryHandler>();
-
-    // Hard-coded configuration values since IAppConfig doesn't expose these settings
-    private const int REFRESH_TOKEN_EXPIRY_DAYS = 7;
-    private const int ACCESS_TOKEN_EXPIRY_MINUTES = 15;
-    private const int MAX_FAILED_ATTEMPTS = 5;
-    private const int LOCKOUT_DURATION_MINUTES = 30;
 
     public GetUserProfileQueryHandler(
         IUserRepository userRepository,
-        IJwtService jwtService,
-        IEmailService emailService,
-        IPasswordHasher passwordHasher)
+        IHttpContextAccessor httpContextAccessor)
     {
         _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-        _jwtService = jwtService ?? throw new ArgumentNullException(nameof(jwtService));
-        _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
-        _passwordHasher = passwordHasher ?? throw new ArgumentNullException(nameof(passwordHasher));
+        _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
     }
 
     public async Task<OperationResult<UserProfileDto>> Handle(GetUserProfileQuery request, CancellationToken cancellationToken)
     {
         try
         {
-            _logger.Information("Getting user profile for UserId: {UserId}", request.UserId);
-
-            if (!string.IsNullOrEmpty(request.AccessToken))
+            var httpContext = _httpContextAccessor.HttpContext;
+            if (httpContext?.User?.Identity?.IsAuthenticated != true)
             {
-                try
-                {
-                    var claimsPrincipal = await _jwtService.ValidateTokenAsync(request.AccessToken);
-                    if (claimsPrincipal == null || !claimsPrincipal.Identity?.IsAuthenticated == true)
-                    {
-                        _logger.Warning("Invalid access token provided for UserId: {UserId}", request.UserId);
-                        return OperationResult<UserProfileDto>.ErrorResult("Invalid access token");
-                    }
-
-                    var userIdClaim = claimsPrincipal.FindFirst("sub") ?? claimsPrincipal.FindFirst("userId");
-                    if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var tokenUserId))
-                    {
-                        _logger.Warning("Unable to extract user ID from token for UserId: {UserId}", request.UserId);
-                        return OperationResult<UserProfileDto>.ErrorResult("Invalid token format");
-                    }
-
-                    if (tokenUserId != request.UserId)
-                    {
-                        _logger.Warning("Token UserId mismatch. Token UserId: {TokenUserId}, Requested UserId: {RequestedUserId}", 
-                            tokenUserId, request.UserId);
-                        return OperationResult<UserProfileDto>.ErrorResult("Token does not belong to the requested user");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger.Warning(ex, "Token validation failed for UserId: {UserId}", request.UserId);
-                    return OperationResult<UserProfileDto>.ErrorResult("Invalid access token");
-                }
+                _logger.Warning("Unauthorized attempt to access user profile.");
+                return OperationResult<UserProfileDto>.ErrorResult("User is not authenticated.");
             }
 
-            var user = await _userRepository.GetByIdAsync(request.UserId);
+            var userIdString = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                ?? httpContext.User.FindFirst("sub")?.Value;
+
+            if (!Guid.TryParse(userIdString, out var userId))
+            {
+                _logger.Warning("Invalid user ID in token claims.");
+                return OperationResult<UserProfileDto>.ErrorResult("Invalid user ID.");
+            }
+
+            var user = await _userRepository.GetUserWithRolesAndPermissionsAsync(userId);
             if (user == null)
             {
-                _logger.Warning("User not found with Id: {UserId}", request.UserId);
-                return OperationResult<UserProfileDto>.ErrorResult("User not found");
+                _logger.Warning("User not found for ID: {UserId}", userId);
+                return OperationResult<UserProfileDto>.ErrorResult("User not found.");
             }
-
-            if (user.IsDeleted)
-            {
-                _logger.Warning("Attempt to get profile for deleted user: {UserId}", request.UserId);
-                return OperationResult<UserProfileDto>.ErrorResult("User account is no longer active");
-            }
-
-            var userRoles = new List<string>();
 
             var userProfile = new UserProfileDto
             {
                 UserId = user.Id,
-                Username = user.UserName,
                 Email = user.Email,
-                IsEmailVerified = user.IsEmailVerified,
+                Username = user.UserName,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                Roles = userRoles
+                IsEmailVerified = user.IsEmailVerified,
+                IsActive = user.IsActive,
+                Roles = user.UserRoles?.Select(ur => ur.Role.Name).ToList() ?? new List<string>()
             };
 
-            _logger.Information("Successfully retrieved user profile for UserId: {UserId}", request.UserId);
-            return OperationResult<UserProfileDto>.SuccessResult(userProfile);
+            _logger.Information("Successfully retrieved profile for user: {UserId}", user.Id);
+            return OperationResult<UserProfileDto>.SuccessResult(userProfile, "Profile retrieved successfully.");
         }
         catch (Exception ex)
         {
-            _logger.Error(ex, "Error occurred while getting user profile for UserId: {UserId}", request.UserId);
-            return OperationResult<UserProfileDto>.ErrorResult("An error occurred while retrieving user profile");
+            _logger.Error(ex, "Error retrieving user profile for request.");
+            return OperationResult<UserProfileDto>.ErrorResult("An error occurred while retrieving the user profile.");
         }
     }
 }
