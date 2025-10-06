@@ -19,8 +19,8 @@ trim_trailing_whitespace = true
 # Use latest C# features
 dotnet_language_version = latest
 
-# Enforce nullable context
-dotnet_analyzer_diagnostic.category-NullableAnalysis.severity = warning
+# Enforce nullable context strictly
+dotnet_analyzer_diagnostic.category-NullableAnalysis.severity = error
 
 # File header consistency (handled by targets file)
 file_header_template = unset
@@ -34,7 +34,7 @@ dotnet_diagnostic.SA1001.severity = none
 dotnet_diagnostic.SA1101.severity = suggestion  # use 'this.' only if needed
 dotnet_diagnostic.SA1309.severity = none     # field naming with underscore allowed
 dotnet_diagnostic.SA1633.severity = warning  # file must have header
-dotnet_diagnostic.SA1600.severity = suggestion  # documentation comments optional
+dotnet_diagnostic.SA1600.severity = warning  # documentation comments encouraged
 dotnet_diagnostic.SA1601.severity = none     # partial elements docs optional
 dotnet_diagnostic.SA1413.severity = none     # use trailing commas optional
 
@@ -49,6 +49,8 @@ dotnet_style_prefer_is_null_check_over_reference_equality_method = true:suggesti
 dotnet_style_prefer_simplified_boolean_expressions = true:suggestion
 dotnet_style_prefer_simplified_interpolation = true:suggestion
 dotnet_style_require_accessibility_modifiers = always:error
+csharp_prefer_simple_default_expression = true:suggestion
+csharp_style_prefer_switch_expression = true:suggestion
 
 # var preferences
 dotnet_style_var_for_built_in_types = true:suggestion
@@ -56,7 +58,7 @@ dotnet_style_var_when_type_is_apparent = true:suggestion
 dotnet_style_var_elsewhere = true:suggestion
 
 # expression-bodied members
-csharp_style_expression_bodied_methods = false:suggestion
+csharp_style_expression_bodied_methods = true:suggestion
 csharp_style_expression_bodied_properties = true:suggestion
 csharp_style_expression_bodied_accessors = true:suggestion
 
@@ -65,6 +67,7 @@ csharp_new_line_before_open_brace = all
 csharp_indent_block_contents = true
 csharp_indent_switch_labels = true
 csharp_space_after_keywords_in_control_flow_statements = true
+csharp_space_between_method_call_name_and_opening_parenthesis = false
 
 ############################################################
 # Naming Rules
@@ -90,6 +93,13 @@ dotnet_naming_rule.constants_should_be_pascal_case.style    = pascal_case
 dotnet_naming_symbols.constants.applicable_kinds = field
 dotnet_naming_symbols.constants.required_modifiers = const
 
+# Public members: PascalCase
+dotnet_naming_rule.public_members_should_be_pascal_case.severity = suggestion
+dotnet_naming_rule.public_members_should_be_pascal_case.symbols  = public_members
+dotnet_naming_rule.public_members_should_be_pascal_case.style    = pascal_case
+
+dotnet_naming_symbols.public_members.applicable_kinds = method, property, event, delegate
+dotnet_naming_symbols.public_members.applicable_accessibilities = public, internal, protected, protected_internal
 dotnet_naming_style.pascal_case.capitalization = pascal_case
 
 ############################################################
