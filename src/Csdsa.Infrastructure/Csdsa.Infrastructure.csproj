@@ -1,4 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
@@ -6,7 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <!-- Database -->
         <PackageReference Include="BCrypt.Net-Next" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
@@ -21,13 +21,11 @@
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
 
-        <!-- Authentication -->
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
         <PackageReference Include="Microsoft.IdentityModel.Tokens" />
         <PackageReference Include="Serilog" />
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
 
-        <!-- Configuration -->
         <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
         <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
@@ -37,4 +35,5 @@
         <ProjectReference Include="..\Csdsa.Domain\Csdsa.Domain.csproj" />
         <ProjectReference Include="..\Csdsa.Application\Csdsa.Application.csproj" />
     </ItemGroup>
+
 </Project>
