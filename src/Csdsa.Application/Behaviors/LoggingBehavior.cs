@@ -1,4 +1,4 @@
-using MediatR;
+﻿using MediatR;
 using Serilog;
 
 namespace Csdsa.Application.Behaviors;
