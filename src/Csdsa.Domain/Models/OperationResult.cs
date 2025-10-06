@@ -1,42 +1,38 @@
-namespace Csdsa.Domain.Models
+﻿namespace Csdsa.Domain.Models;
+
+public class OperationResult<T>
 {
-    public class OperationResult<T>
+    public bool Success { get; set; }
+    public string Message { get; set; } = string.Empty;
+    public T? Data { get; set; }
+    public object? Errors { get; set; }
+    public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+
+    public static OperationResult<T> SuccessResult(T data, string message = "Operation successful")
     {
-        public bool Success { get; set; }
-        public string Message { get; set; } = string.Empty;
-        public T? Data { get; set; }
-        public object? Errors { get; set; }
-        public DateTime Timestamp { get; set; } = DateTime.UtcNow;
-
-        public static OperationResult<T> SuccessResult(
-            T data,
-            string message = "Operation successful"
-        )
+        return new OperationResult<T>
         {
-            return new OperationResult<T>
-            {
-                Success = true,
-                Message = message,
-                Data = data,
-            };
-        }
-
-        public static OperationResult<T> ErrorResult(string message, object? errors = null)
-        {
-            return new OperationResult<T>
-            {
-                Success = false,
-                Message = message,
-                Errors = errors,
-            };
-        }
+            Success = true,
+            Message = message,
+            Data = data,
+        };
     }
 
-    public class OperationResult : OperationResult<object>
+    public static OperationResult<T> ErrorResult(string message, object? errors = null)
     {
-        public static OperationResult SuccessResult(string message = "Operation successful")
+        return new OperationResult<T>
         {
-            return new OperationResult { Success = true, Message = message };
-        }
+            Success = false,
+            Message = message,
+            Errors = errors,
+        };
+    }
+}
+
+public class OperationResult : OperationResult<object>
+{
+    public static OperationResult SuccessResult(string message = "Operation successful")
+    {
+        return new OperationResult { Success = true, Message = message };
     }
 }
