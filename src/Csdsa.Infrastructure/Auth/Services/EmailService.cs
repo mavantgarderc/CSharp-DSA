@@ -1,29 +1,31 @@
-using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Logging;
-using System.Net;
+﻿using System.Net;
 using System.Net.Mail;
-using Csdsa.Infrastructure.Auth.Configuration;
 using Csdsa.Application.Interfaces;
+using Csdsa.Infrastructure.Auth.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
-namespace Csdsa.Infrastructure.Auth.Services
+namespace Csdsa.Infrastructure.Auth.Services;
+
+public class EmailService : IEmailService
 {
-    public class EmailService : IEmailService
+    private readonly EmailSettings _emailSettings;
+    private readonly ILogger<EmailService> _logger;
+
+    public EmailService(IOptions<EmailSettings> emailSettings, ILogger<EmailService> logger)
     {
-        private readonly EmailSettings _emailSettings;
-        private readonly ILogger<EmailService> _logger;
+        _emailSettings = emailSettings.Value;
+        _logger = logger;
+    }
 
-        public EmailService(IOptions<EmailSettings> emailSettings, ILogger<EmailService> logger)
-        {
-            _emailSettings = emailSettings.Value;
-            _logger = logger;
-        }
+    public async Task SendEmailVerificationAsync(string email, string token)
+    {
+        var subject = "Verify Your Email Address";
+        var verificationUrl =
+            $"{_emailSettings.WebAppUrl}/verify-email?token={token}&email={email}";
 
-        public async Task SendEmailVerificationAsync(string email, string token)
-        {
-            var subject = "Verify Your Email Address";
-            var verificationUrl = $"{_emailSettings.WebAppUrl}/verify-email?token={token}&email={email}";
-
-            var body = $@"
+        var body =
+            $@"
                 <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
                     <h2>Email Verification Required</h2>
                     <p>Thank you for registering with us! Please verify your email address by clicking the link below:</p>
@@ -34,15 +36,16 @@ namespace Csdsa.Infrastructure.Auth.Services
                     <p>If you did not create an account, please ignore this email.</p>
                 </div>";
 
-            await SendEmailAsync(email, subject, body);
-        }
+        await SendEmailAsync(email, subject, body);
+    }
 
-        public async Task SendPasswordResetAsync(string email, string token)
-        {
-            var subject = "Reset Your Password";
-            var resetUrl = $"{_emailSettings.WebAppUrl}/reset-password?token={token}&email={email}";
+    public async Task SendPasswordResetAsync(string email, string token)
+    {
+        var subject = "Reset Your Password";
+        var resetUrl = $"{_emailSettings.WebAppUrl}/reset-password?token={token}&email={email}";
 
-            var body = $@"
+        var body =
+            $@"
                 <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
                     <h2>Password Reset Request</h2>
                     <p>You have requested to reset your password. Click the link below to set a new password:</p>
@@ -53,13 +56,14 @@ namespace Csdsa.Infrastructure.Auth.Services
                     <p>If you did not request a password reset, please ignore this email.</p>
                 </div>";
 
-            await SendEmailAsync(email, subject, body);
-        }
+        await SendEmailAsync(email, subject, body);
+    }
 
-        public async Task SendWelcomeEmailAsync(string email, string firstName)
-        {
-            var subject = "Welcome!";
-            var body = $@"
+    public async Task SendWelcomeEmailAsync(string email, string firstName)
+    {
+        var subject = "Welcome!";
+        var body =
+            $@"
                 <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
                     <h2>Welcome{(!string.IsNullOrEmpty(firstName) ? $", {firstName}" : "")}!</h2>
                     <p>Your email has been verified successfully. You can now enjoy all the features of our application.</p>
@@ -67,13 +71,14 @@ namespace Csdsa.Infrastructure.Auth.Services
                     <p>Thank you for joining us!</p>
                 </div>";
 
-            await SendEmailAsync(email, subject, body);
-        }
+        await SendEmailAsync(email, subject, body);
+    }
 
-        public async Task SendAccountLockedEmailAsync(string email, DateTime lockoutEnd)
-        {
-            var subject = "Account Temporarily Locked";
-            var body = $@"
+    public async Task SendAccountLockedEmailAsync(string email, DateTime lockoutEnd)
+    {
+        var subject = "Account Temporarily Locked";
+        var body =
+            $@"
                 <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
                     <h2>Account Security Notice</h2>
                     <p>Your account has been temporarily locked due to multiple failed login attempts.</p>
@@ -82,40 +87,51 @@ namespace Csdsa.Infrastructure.Auth.Services
                     <p>For security reasons, you can also reset your password using the 'Forgot Password' feature.</p>
                 </div>";
 
-            await SendEmailAsync(email, subject, body);
-        }
+        await SendEmailAsync(email, subject, body);
+    }
 
-        private async Task SendEmailAsync(string toEmail, string subject, string body)
+    private async Task SendEmailAsync(string toEmail, string subject, string body)
+    {
+        try
         {
-            try
+            using var client = new SmtpClient(_emailSettings.SmtpHost, _emailSettings.SmtpPort);
+            client.EnableSsl = _emailSettings.EnableSsl;
+            client.Credentials = new NetworkCredential(
+                _emailSettings.Username,
+                _emailSettings.Password
+            );
+
+            var mailMessage = new MailMessage
             {
-                using var client = new SmtpClient(_emailSettings.SmtpHost, _emailSettings.SmtpPort);
-                client.EnableSsl = _emailSettings.EnableSsl;
-                client.Credentials = new NetworkCredential(_emailSettings.Username, _emailSettings.Password);
+                From = new MailAddress(_emailSettings.FromEmail, _emailSettings.FromName),
+                Subject = subject,
+                Body = body,
+                IsBodyHtml = true,
+            };
 
-                var mailMessage = new MailMessage
-                {
-                    From = new MailAddress(_emailSettings.FromEmail, _emailSettings.FromName),
-                    Subject = subject,
-                    Body = body,
-                    IsBodyHtml = true
-                };
+            mailMessage.To.Add(toEmail);
 
-                mailMessage.To.Add(toEmail);
-
-                await client.SendMailAsync(mailMessage);
-                _logger.LogInformation("Email sent successfully to {Email} with subject: {Subject}", toEmail, subject);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to send email to {Email} with subject: {Subject}", toEmail, subject);
-                throw;
-            }
+            await client.SendMailAsync(mailMessage);
+            _logger.LogInformation(
+                "Email sent successfully to {Email} with subject: {Subject}",
+                toEmail,
+                subject
+            );
         }
-
-        public Task SendAccountLockedAsync(string email, DateTime lockoutEnd)
+        catch (Exception ex)
         {
-            throw new NotImplementedException();
+            _logger.LogError(
+                ex,
+                "Failed to send email to {Email} with subject: {Subject}",
+                toEmail,
+                subject
+            );
+            throw;
         }
+    }
+
+    public Task SendAccountLockedAsync(string email, DateTime lockoutEnd)
+    {
+        throw new NotImplementedException();
     }
 }

@@ -20,8 +20,8 @@
         <Using Include="Xunit" />
     </ItemGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\..\src\Csdsa.Api\Csdsa.Api.csproj" />
-    </ItemGroup>
+    <!-- <ItemGroup> -->
+    <!--     <ProjectReference Include="..\..\src\Csdsa.Api\Csdsa.Api.csproj" /> -->
+    <!-- </ItemGroup> -->
 
 </Project>
