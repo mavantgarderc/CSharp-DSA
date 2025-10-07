@@ -1,6 +1,8 @@
-﻿namespace Csdsa.Contracts.Repositories;
+﻿using Csdsa.Contracts.Dtos.Auth;
 
-public interface IBlacklistedTokenRepository : IGenericRepository<BlacklistedTokenDto>
+namespace Csdsa.Contracts.Repositories;
+
+public interface IBlacklistedTokenRepository
 {
     Task<BlacklistedTokenDto?> GetByTokenIdAsync(string tokenId);
 }

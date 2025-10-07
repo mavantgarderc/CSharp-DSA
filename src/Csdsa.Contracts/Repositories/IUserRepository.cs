@@ -1,12 +1,14 @@
-﻿namespace Csdsa.Contracts.Repositories;
+﻿using Csdsa.Contracts.Dtos.Auth;
 
-public interface IUserRepository : IGenericRepository<User>
+namespace Csdsa.Contracts.Repositories;
+
+public interface IUserRepository
 {
-    Task<User?> GetByEmailAsync(string email);
-    Task<User?> GetUsernameAsync(string username);
+    Task<UserDto?> GetByEmailAsync(string email);
+    Task<UserDto?> GetUsernameAsync(string username);
     Task<bool> IsEmailTakenAsync(string email);
     Task<bool> IsUsernameTakenAsync(string username);
     Task<bool> SoftDeleteAsync(string email);
-    Task<User?> GetUserByRefreshTokenAsync(string refreshToken);
-    Task<User> GetUserWithRolesAndPermissionsAsync(Guid id);
+    Task<UserDto?> GetUserByRefreshTokenAsync(string refreshToken);
+    Task<UserDto> GetUserWithRolesAndPermissionsAsync(Guid id);
 }

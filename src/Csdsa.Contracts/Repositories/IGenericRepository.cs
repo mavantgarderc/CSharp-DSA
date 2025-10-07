@@ -3,7 +3,6 @@
 namespace Csdsa.Contracts.Repositories;
 
 public interface IGenericRepository<T>
-    where T : BaseEntity
 {
     Task<T?> GetByIdAsync(Guid id);
     Task<T?> GetByIdAsync(Guid id, params Expression<Func<T, object>>[] includes);

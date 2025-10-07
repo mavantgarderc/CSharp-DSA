@@ -7,8 +7,8 @@ public interface IUnitOfWork : IDisposable
     Task CommitTransactionAsync();
     Task RollbackTransactionAsync();
 
-    IGenericRepository<T> Repository<T>()
-        where T : BaseEntity;
-
     IUserRepository Users { get; }
+    IBlacklistedTokenRepository IBlacklistedTokens { get; }
+    IPasswordHasher IPasswordHashers { get; }
+    IRefreshTokenRepository IRefreshTokens { get; }
 }

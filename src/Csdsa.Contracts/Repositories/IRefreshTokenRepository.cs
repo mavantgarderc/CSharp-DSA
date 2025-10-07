@@ -1,8 +1,10 @@
-﻿namespace Csdsa.Contracts.Repositories;
+﻿using Csdsa.Contracts.Dtos.Auth;
 
-public interface IRefreshTokenRepository : IGenericRepository<RefreshToken>
+namespace Csdsa.Contracts.Repositories;
+
+public interface IRefreshTokenRepository
 {
-    Task<RefreshToken?> GetByTokenAsync(string token);
+    Task<RefreshTokenDto?> GetByTokenAsync(string token);
     Task RevokeAsync(string token);
     Task<bool> IsExpiredAsync(string token);
 }
