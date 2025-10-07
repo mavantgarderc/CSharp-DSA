@@ -26,6 +26,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Csdsa.Domain\Csdsa.Domain.csproj" />
+        <ProjectReference Include="..\Csdsa.Contracts\Csdsa.Contracts.csproj" />
     </ItemGroup>
 
     <ItemGroup>

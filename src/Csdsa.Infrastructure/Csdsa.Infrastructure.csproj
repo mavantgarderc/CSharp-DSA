@@ -33,7 +33,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Csdsa.Domain\Csdsa.Domain.csproj" />
-        <ProjectReference Include="..\Csdsa.Application\Csdsa.Application.csproj" />
+        <ProjectReference Include="..\Csdsa.Contracts\Csdsa.Contracts.csproj" />
     </ItemGroup>
 
 </Project>
