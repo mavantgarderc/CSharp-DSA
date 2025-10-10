@@ -1,6 +1,7 @@
-using AutoMapper;
+﻿using AutoMapper;
 using Csdsa.Application.DTOs.Auth;
-using Csdsa.Application.Interfaces;
+using Csdsa.Contracts.Interfaces;
+using Csdsa.Contracts.Repositories;
 using Csdsa.Domain.Models;
 using Csdsa.Domain.Models.Auth;
 using MediatR;

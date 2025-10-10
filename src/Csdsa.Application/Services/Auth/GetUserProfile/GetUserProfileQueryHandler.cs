@@ -1,9 +1,7 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using Csdsa.Application.DTOs.Auth;
-using Csdsa.Application.Interfaces;
-using Csdsa.Domain.Exceptions;
+using Csdsa.Contracts.Repositories;
 using Csdsa.Domain.Models;
-using Csdsa.Domain.Models.Auth;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Serilog;

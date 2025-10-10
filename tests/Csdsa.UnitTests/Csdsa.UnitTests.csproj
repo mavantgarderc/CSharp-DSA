@@ -24,9 +24,11 @@
       <ProjectReference Include="..\..\src\Csdsa.Contracts\Csdsa.Contracts.csproj" />
     </ItemGroup>
 
-    <!-- <ItemGroup> -->
-    <!--     <ProjectReference Include="..\..\src\Csdsa.Domain\Csdsa.Domain.csproj" /> -->
-    <!--     <ProjectReference Include="..\..\src\Csdsa.Application\Csdsa.Application.csproj" /> -->
-    <!-- </ItemGroup> -->
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\Csdsa.Application\Csdsa.Application.csproj" />
+        <ProjectReference Include="..\..\src\Csdsa.Domain\Csdsa.Domain.csproj" />
+        <ProjectReference Include="..\..\src\Csdsa.Infrastructure\Csdsa.Infrastructure.csproj" />
+        <ProjectReference Include="..\..\src\Csdsa.Contracts\Csdsa.Contracts.csproj" />
+    </ItemGroup>
 
 </Project>

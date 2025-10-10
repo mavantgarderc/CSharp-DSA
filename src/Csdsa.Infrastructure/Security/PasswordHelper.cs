@@ -1,4 +1,4 @@
-using Csdsa.Application.Interfaces;
+﻿using Csdsa.Contracts.Repositories;
 using Csdsa.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;
 

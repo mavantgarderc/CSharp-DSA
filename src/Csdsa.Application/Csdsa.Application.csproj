@@ -25,12 +25,12 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Csdsa.Domain\Csdsa.Domain.csproj" />
-        <ProjectReference Include="..\Csdsa.Contracts\Csdsa.Contracts.csproj" />
+        <Folder Include="Services\EntityServices\Users\Responses\" />
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="Services\EntityServices\Users\Responses\" />
+        <ProjectReference Include="..\Csdsa.Domain\Csdsa.Domain.csproj" />
+        <ProjectReference Include="..\Csdsa.Contracts\Csdsa.Contracts.csproj" />
     </ItemGroup>
 
 </Project>

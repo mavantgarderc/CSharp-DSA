@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Csdsa.Contracts.Dtos.Auth;
+﻿using Csdsa.Contracts.Dtos.Auth;
 
 namespace Csdsa.Contracts.Interfaces;
 

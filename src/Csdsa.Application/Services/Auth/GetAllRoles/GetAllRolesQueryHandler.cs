@@ -1,7 +1,7 @@
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using AutoMapper;
 using Csdsa.Application.DTOs.Auth;
-using Csdsa.Application.Interfaces;
+using Csdsa.Contracts.Repositories;
 using Csdsa.Domain.Models;
 using Csdsa.Domain.Models.Auth;
 using MediatR;

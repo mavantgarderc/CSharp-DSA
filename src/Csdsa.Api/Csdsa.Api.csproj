@@ -33,6 +33,7 @@
     <ItemGroup>
         <ProjectReference Include="..\Csdsa.Application\Csdsa.Application.csproj" />
         <ProjectReference Include="..\Csdsa.Infrastructure\Csdsa.Infrastructure.csproj" />
+        <ProjectReference Include="..\Csdsa.Contracts\Csdsa.Contracts.csproj" />
     </ItemGroup>
 
 </Project>
