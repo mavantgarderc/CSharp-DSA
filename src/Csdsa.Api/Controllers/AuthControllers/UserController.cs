@@ -1,5 +1,4 @@
-using Csdsa.Application.Interfaces;
-using MediatR;
+﻿using Csdsa.Contracts.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Csdsa.Api.Controllers.EntityControllers;

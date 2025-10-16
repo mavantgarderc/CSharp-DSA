@@ -1,6 +1,4 @@
-using System.Reflection;
-using MediatR;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace Csdsa.Application.Behaviors;
 

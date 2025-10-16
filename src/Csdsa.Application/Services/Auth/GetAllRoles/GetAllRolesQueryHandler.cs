@@ -1,10 +1,8 @@
 ﻿using System.Linq.Expressions;
-using AutoMapper;
-using Csdsa.Application.DTOs.Auth;
+using Csdsa.Contracts.Dtos.Auth;
 using Csdsa.Contracts.Repositories;
 using Csdsa.Domain.Models;
 using Csdsa.Domain.Models.Auth;
-using MediatR;
 using Serilog;
 
 namespace Csdsa.Application.Services.Auth.GetAllRoles;

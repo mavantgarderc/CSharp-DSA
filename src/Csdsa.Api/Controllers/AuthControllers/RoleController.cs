@@ -1,8 +1,7 @@
-using Csdsa.Application.DTOs.Auth;
-using Csdsa.Application.Interfaces;
+﻿using Csdsa.Application.DTOs.Auth;
 using Csdsa.Application.Services.Auth.GetAllRoles;
-using Csdsa.Domain.Models;
-using MediatR;
+using Csdsa.Contracts.Atuh.Dtos;
+using Csdsa.Contracts.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Csdsa.Api.Controllers.AuthControllers;

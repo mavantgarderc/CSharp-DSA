@@ -1,14 +1,12 @@
-using Csdsa.Api.DTOs.Auth;
+﻿using Csdsa.Application.Auth;
 using Csdsa.Application.DTOs.Auth;
-using Csdsa.Application.Interfaces;
 using Csdsa.Application.Services.Auth.GetUserProfile;
 using Csdsa.Application.Services.Auth.Login;
-using Csdsa.Application.Services.Auth.Logout;
 using Csdsa.Application.Services.Auth.Register;
 using Csdsa.Application.Services.Auth.SoftDeleteUser;
-using Csdsa.Domain.Exceptions;
-using Csdsa.Domain.Models;
-using MediatR;
+using Csdsa.Contracts.Atuh.Dtos;
+using Csdsa.Contracts.Dtos;
+using Csdsa.Contracts.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -33,7 +31,7 @@ public class AuthController : BaseController
     [ProducesResponseType(typeof(ProblemDetails), 400)]
     [ProducesResponseType(typeof(ProblemDetails), 423)]
     public async Task<ActionResult<OperationResult<AuthResponse>>> Login(
-        [FromBody] LoginRequest request
+        [FromBody] LoginRequestDto request
     )
     {
         try
@@ -79,7 +77,7 @@ public class AuthController : BaseController
     [ProducesResponseType(typeof(OperationResult<AuthResponse>), 201)]
     [ProducesResponseType(typeof(ProblemDetails), 400)]
     public async Task<ActionResult<OperationResult<AuthResponse>>> Register(
-        [FromBody] RegisterRequest request
+        [FromBody] RegisterRequestDto request
     )
     {
         try
@@ -202,7 +200,7 @@ public class AuthController : BaseController
     /// </summary>
     /// <param name="request">The soft delete request containing either UserId or Email to identify the user</param>
     [HttpPost("SoftDeleteUser")]
-    public async Task<IActionResult> SoftDeleteUser([FromBody] SoftDeleteUserRequest request)
+    public async Task<IActionResult> SoftDeleteUser([FromBody] SoftDeleteUserRequestDto request)
     {
         try
         {

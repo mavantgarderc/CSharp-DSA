@@ -1,11 +1,8 @@
-using System.Security.Cryptography;
-using AutoMapper;
-using Csdsa.Application.DTOs.Auth;
-using Csdsa.Application.Interfaces;
+﻿using System.Security.Cryptography;
+using Csdsa.Contracts.Interfaces;
+using Csdsa.Contracts.Repositories;
 using Csdsa.Domain.Models;
 using Csdsa.Domain.Models.Auth;
-using MediatR;
-using Serilog;
 
 namespace Csdsa.Application.Services.Auth.Register;
 
@@ -197,7 +194,10 @@ public class RegisterCommandHandler
     /// <summary>
     /// Generates access and refresh tokens for the user
     /// </summary>
-    private async Task<(string accessToken, string refreshToken)> GenerateTokensAsync(User user, string ipAddress)
+    private async Task<(string accessToken, string refreshToken)> GenerateTokensAsync(
+        User user,
+        string ipAddress
+    )
     {
         var accessToken = await _jwtService.GenerateAccessTokenAsync(user);
         var refreshToken = await _jwtService.GenerateRefreshTokenAsync(user, ipAddress);

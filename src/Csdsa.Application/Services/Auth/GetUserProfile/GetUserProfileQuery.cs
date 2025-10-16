@@ -1,6 +1,4 @@
-using Csdsa.Application.DTOs.Auth;
-using Csdsa.Domain.Models;
-using MediatR;
+﻿using Csdsa.Domain.Models;
 
 namespace Csdsa.Application.Services.Auth.GetUserProfile;
 

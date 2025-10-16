@@ -1,6 +1,4 @@
-using FluentValidation;
-using MediatR;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Csdsa.Application.Behaviors;
 

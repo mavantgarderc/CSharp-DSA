@@ -1,5 +1,4 @@
-using FluentValidation;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace Csdsa.Application.Behaviors;
 

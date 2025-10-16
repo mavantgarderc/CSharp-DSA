@@ -1,6 +1,4 @@
-using AutoMapper;
-using Csdsa.Application.DTOs.Auth;
-using Csdsa.Application.Services.Auth.Register;
+﻿using Csdsa.Application.Services.Auth.Register;
 using Csdsa.Domain.Models.Auth;
 using Microsoft.Extensions.DependencyInjection;
 

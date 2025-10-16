@@ -1,8 +1,6 @@
 ﻿using System.Security.Claims;
-using Csdsa.Application.DTOs.Auth;
 using Csdsa.Contracts.Repositories;
 using Csdsa.Domain.Models;
-using MediatR;
 using Microsoft.AspNetCore.Http;
 using Serilog;
 
