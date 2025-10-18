@@ -8,7 +8,7 @@ public class LinearSearchService
     {
         // Linear search logic
         return new AlgorithmResponse<T>(
-            result: default,
+            result: default!,
             complexity: new ComplexityAnalysis("O(n)", "O(1)", "O(n)", "O(n)", "O(n)", "Linear search implementation", 0, items.Count),
             algorithmName: "LinearSearch");
     }
